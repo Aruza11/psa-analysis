@@ -1,0 +1,32 @@
+---
+title: "Comparison of Outcomes for PSA and COMPAS on Broward County data "
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r, warning=FALSE, message=FALSE}
+library(stringr)
+library(tidyverse)
+library(magrittr)
+library(lubridate)
+library(reshape2)
+library(readr)
+library(purrr)
+
+source('functions.R')
+```
+```
+
+```{r}
+load("Table_construction.Rdata") #loading beau's version of data
+```
+
+Compute Arnold PSA
+```{r}
+
+```
+
+#to do: compute recidivism measures for both compas and 
