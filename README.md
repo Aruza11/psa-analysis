@@ -5,3 +5,7 @@ The purpose of the research is to see whether interpretable machine learning mod
 # coding notes 
 
 For the time being, the cleaned Broward County data (Table_construction.Rdata) has been directly copy pasted from the Age of Unfairness repository.  
+
+# psa-compas-outcomes.Rmd
+
+Computes the PSA, computes recidivism outcomes, saves this to a new .Rdata file stored in `\broward-data`

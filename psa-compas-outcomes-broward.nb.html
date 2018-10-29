@@ -176,38 +176,175 @@ $(document).ready(function () {
 <p>Try executing this chunk by clicking the <em>Run</em> button within the chunk or by placing your cursor inside it and pressing <em>Ctrl+Shift+Enter</em>.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShzdHJpbmdyKVxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KG1hZ3JpdHRyKVxubGlicmFyeShsdWJyaWRhdGUpXG5saWJyYXJ5KHJlc2hhcGUyKVxubGlicmFyeShyZWFkcilcbmxpYnJhcnkocHVycnIpXG5cbnNvdXJjZSgnZnVuY3Rpb25zLlInKVxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShzdHJpbmdyKVxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KG1hZ3JpdHRyKVxubGlicmFyeShsdWJyaWRhdGUpXG5saWJyYXJ5KHJlc2hhcGUyKVxuYGBgIn0= -->
 <pre class="r"><code>library(stringr)
 library(tidyverse)
 library(magrittr)
 library(lubridate)
-library(reshape2)
-library(readr)
-library(purrr)
+library(reshape2)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YV9wYXRoPVwiYnJvd2FyZC1kYXRhL1wiXG5sb2FkKHBhc3RlMChkYXRhX3BhdGgsIFwiVGFibGVfY29uc3RydWN0aW9uLlJkYXRhXCIpKSAjbG9hZGluZyBiZWF1J3MgdmVyc2lvbiBvZiBkYXRhXG5gYGAifQ== -->
+<pre class="r"><code>data_path=&quot;broward-data/&quot;
+load(paste0(data_path, &quot;Table_construction.Rdata&quot;)) #loading beau's version of data</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Compute Arnold PSA features (listed below) from features df (data not including current offense) from Table_construction.Rdata</p>
+<ul>
+<li>age at current arrest: p_current_age</li>
+<li>current violent offense: <em>computed below</em></li>
+<li><p>current violent offense &amp; 20 or younger: <em>computed below</em></p></li>
+<li><p>pending charge at time of offense: <em>computed below</em></p></li>
+<li>prior misdemeanor conviction: p_misdem_count_person</li>
+<li>prior felony conviction: p_felony_count_person</li>
+<li><p>prior conviction (misdem or felony): 1st two (either or)</p></li>
+<li>prior violent conviction: <em>computed below</em></li>
+<li>prior failure to appear in past 2 years: <em>computed below</em></li>
+<li><p>prior failure to appear older than 2 years: <em>computed below</em></p></li>
+<li><p>prior sentence to incarceration : p_prison</p></li>
+</ul>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY3VycmVudF92aW9sZW50ID0gZGF0YV9vbiAlPiVcbiAgICAgICAgICAgICAgICAgIHNlbGVjdChwZXJzb25faWQsIHNjcmVlbmluZ19kYXRlLCBjaGFyZ2UpJT4lXG4gICAgICAgICAgICAgICAgICBmaWx0ZXIoY2hhcmdlIT1OVUxMKSU+JVxuICAgICAgICAgICAgICAgICAgdW5uZXN0KClcblxuYGBgIn0= -->
+<pre class="r"><code>current_violent = data_on %&gt;%
+                  select(person_id, screening_date, charge)%&gt;%
+                  filter(charge!=NULL)%&gt;%
+                  unnest()
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gZmlsdGVyX2ltcGwoLmRhdGEsIHF1bykgOiBSZXN1bHQgbXVzdCBoYXZlIGxlbmd0aCAxMjM4MSwgbm90IDBcbiJ9 -->
+<pre><code>Error in filter_impl(.data, quo) : Result must have length 12381, not 0</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuICAgICAgICAgICBtdXRhdGUoXG4gICAgICAgICAgICAgICAgICAgIHBfdmlvX25vYWdlPXBfdmlvbGVuY2VfcmF3LWFnZV9wb2x5X3Zpb2xlbmNlKHBfY3VycmVudF9hZ2UpLFxuICAgICAgICAgICAgICAgICAgICBcbiAgICAgICAgICAgICAgICAgICAjY2FsY3VsYXRpbmcgYXJub2xkIHBzYSBzY29yZXMgXG4gICAgICAgICAgICAgICAgICAgI2ZhaWx1cmUgdG8gYXBwZWFyIHdlaWdodGVkIGZlYXR1cmVzIFxuICAgICAgICAgICAgICAgICAgcGVuZGluZ19jaGFyZ2VfZnRhPWlmX2Vsc2UoY3FfcGVuZGluZ19jaGFyZ2U+MCwxLDApLFxuICAgICAgICAgICAgICAgICAgcHJpb3JfY29udmljdGlvbl9mdGE9aWZfZWxzZShjcV90b3RhbF9jb252aWN0aW9ucz4wLDEsMCksXG4gICAgICAgICAgICAgICAgICBmdGFfcHJldHJpYWwyeXJfZnRhPWNhc2Vfd2hlbihjcV9mYWlsX2FwcGVhcl90d29feXI9PTB+MCxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNxX2ZhaWxfYXBwZWFyX3R3b195cj09MX4yLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3FfZmFpbF9hcHBlYXJfdHdvX3lyPj0yfjQpLFxuICAgICAgICAgICAgICAgICAgZnRhX3ByZXRyaWFsMnBsdXNfZnRhPWlmX2Vsc2UoY3FfZmFpbF9hcHBlYXJfdHdvX3BsdXM+MCwxLDApLFxuXG4gICAgICAgICAgICAgICAgICAjbmV3IGNyaW1pbmFsIGFjdGl2aXR5IHdlaWdodGVkIGZlYXR1cmVzXG4gICAgICAgICAgICAgICAgICBjdXJyZW50X2FnZV9uY2E9aWZfZWxzZShwX2N1cnJlbnRfYWdlPj0yMywwLDIpLFxuICAgICAgICAgICAgICAgICAgcGVuZGluZ19jaGFyZ2VfbmNhPWlmX2Vsc2UoY3FfcGVuZGluZ19jaGFyZ2U+MCwzLDApLFxuICAgICAgICAgICAgICAgICAgcHJpb3JfY29udk1fbmNhPWlmX2Vsc2UoY3FfcHJpb3JfY29udmljdGlvbl9NPjAsMSwwKSxcbiAgICAgICAgICAgICAgICAgIHByaW9yX2NvbnZGX25jYT1pZl9lbHNlKGNxX3ByaW9yX2NvbnZpY3Rpb25fRj4wLDEsMCksXG4gICAgICAgICAgICAgICAgICBwcmlvcl9jb252VklPX25jYT1jYXNlX3doZW4oY3FfdmlvbGVudF9jb252aWN0aW9uPT0wfjAsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3FfdmlvbGVudF9jb252aWN0aW9uPT0xfjEsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3FfdmlvbGVudF9jb252aWN0aW9uPT0yfjEsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3FfdmlvbGVudF9jb252aWN0aW9uPj0zfjIpLFxuICAgICAgICAgICAgICAgICAgZnRhX3ByZXRyaWFsMnlyX25jYT1jYXNlX3doZW4oY3FfZmFpbF9hcHBlYXJfdHdvX3lyPT0wfjAsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjcV9mYWlsX2FwcGVhcl90d29feXI9PTF+MSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNxX2ZhaWxfYXBwZWFyX3R3b195cj49Mn4yKSxcbiAgICAgICAgICAgICAgICAgIHByaW9yX2luY2FyY2VyYXRpb25fbmNhPWlmX2Vsc2UocF9wcmlvcl9pbmNhcmNlcmF0aW9uPjAsMiwwKSxcblxuICAgICAgICAgICAgICAgICAgI25ldyB2aW9sZW50IGNyaW1pbmFsIGFjdGl2aXR5IHdlaWdodGVkIGZlYXR1cmVzXG4gICAgICAgICAgICAgICAgICBjdXJyZW50X3Zpb2xlbnRfbnZjYT1pZl9lbHNlKHBfY3VycmVudF92aW9sZW50X29mZmVuc2U+MCwyLDApLFxuICAgICAgICAgICAgICAgICAgY3VycmVudF92aW9sZW50MjBfbnZjYT1pZl9lbHNlKHBfY3VycmVudF92aW9sZW50X3R3ZW50eT4wLDEsMCksXG4gICAgICAgICAgICAgICAgICBwZW5kaW5nX2NoYXJnZV9udmNhPWlmX2Vsc2UoY3FfcGVuZGluZ19jaGFyZ2U+MCwxLDApLFxuICAgICAgICAgICAgICAgICAgcHJpb3JfY29udmljdGlvbl9udmNhPWlmX2Vsc2UoY3FfdG90YWxfY29udmljdGlvbnM+MCwxLDApLFxuICAgICAgICAgICAgICAgICAgcHJpb3JfY29udlZJT19udmNhPWNhc2Vfd2hlbihjcV92aW9sZW50X2NvbnZpY3Rpb249PTB+MCxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3FfdmlvbGVudF9jb252aWN0aW9uPT0xfjEsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNxX3Zpb2xlbnRfY29udmljdGlvbj09Mn4xLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjcV92aW9sZW50X2NvbnZpY3Rpb24+PTN+MiksXG5cbiAgICAgICAgICAgICAgICAgI2ZhaWx1cmUgdG8gYXBwZWFyXG4gICAgICAgICAgICAgICAgICBhcm5vbGRfZnRhX3Jhdz1wZW5kaW5nX2NoYXJnZV9mdGErcHJpb3JfY29udmljdGlvbl9mdGErXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGZ0YV9wcmV0cmlhbDJ5cl9mdGErZnRhX3ByZXRyaWFsMnBsdXNfZnRhLFxuICAgICAgICAgICAgICAgICAgYXJub2xkX2Z0YT1jYXNlX3doZW4oYXJub2xkX2Z0YV9yYXc8PTN+YXJub2xkX2Z0YV9yYXcrMSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFybm9sZF9mdGFfcmF3PT00fGFybm9sZF9mdGFfcmF3PT01fmFybm9sZF9mdGFfcmF3LFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYXJub2xkX2Z0YV9yYXc+PTZ+YXJub2xkX2Z0YV9yYXctMSksXG4gICAgICAgICAgICAgICAgICNuZXcgY3JpbWluYWwgYWN0aXZpdHlcbiAgICAgICAgICAgICAgICAgIGFybm9sZF9uY2FfcmF3PWN1cnJlbnRfYWdlX25jYStwZW5kaW5nX2NoYXJnZV9uY2ErcHJpb3JfY29udk1fbmNhK1xuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcHJpb3JfY29udkZfbmNhK3ByaW9yX2NvbnZWSU9fbmNhK2Z0YV9wcmV0cmlhbDJ5cl9uY2ErXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwcmlvcl9pbmNhcmNlcmF0aW9uX25jYSxcbiAgICAgICAgICAgICAgICAgIGFybm9sZF9uY2E9Y2FzZV93aGVuKGFybm9sZF9uY2FfcmF3PD0xfmFybm9sZF9uY2FfcmF3KzEsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBhcm5vbGRfbmNhX3Jhdz09Mnxhcm5vbGRfbmNhX3Jhdz09M35hcm5vbGRfbmNhX3JhdyxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFybm9sZF9uY2FfcmF3PT00fGFybm9sZF9uY2FfcmF3PT01fmFybm9sZF9uY2FfcmF3LTEsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBhcm5vbGRfbmNhX3Jhdz09Nnxhcm5vbGRfbmNhX3Jhdz09N35hcm5vbGRfbmNhX3Jhdy0yLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYXJub2xkX25jYV9yYXc9PTh+YXJub2xkX25jYV9yYXctMyxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFybm9sZF9uY2FfcmF3Pj05fjYpLFxuICAgICAgICAgICAgICAgICAjbmV3IHZpb2xlbnQgY3JpbWluYWwgYWN0aXZpdHlcbiAgICAgICAgICAgICAgICAgIGFybm9sZF9udmNhX3Jhdz1jdXJyZW50X3Zpb2xlbnRfbnZjYStjdXJyZW50X3Zpb2xlbnQyMF9udmNhK3BlbmRpbmdfY2hhcmdlX252Y2ErXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcHJpb3JfY29udmljdGlvbl9udmNhK3ByaW9yX2NvbnZWSU9fbnZjYSxcbiAgICAgICAgICAgICAgICAgIGFybm9sZF9udmNhPWNhc2Vfd2hlbihhcm5vbGRfbnZjYV9yYXc8PTN+XCJOb1wiLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYXJub2xkX252Y2FfcmF3PjN+XCJZZXNcIiksXG4gICAgICAgICAgICAgICAgIFxuICAgICAgICAgICAgICAgICAjY29tcHV0aW5nIFNhbGllbnQgRmFjdG9yIFNjb3JlIChTRlMpXG4gICAgICAgICAgICAgICAgICNTRlMgcmF3IGZlYXR1cmVzIFxuICAgICAgICAgICAgICAgICBjb21taXRtZW50czYwcmF3PWphaWxfNjArcHJpc29uXzYwLCBcbiAgICAgICAgICAgICAgICAgaW1wcmlzb25lZDM2NXJhdz1qYWlsXzM2NStwcmlzb25fMzY1LFxuICAgICAgICAgICAgICAgICBsYXN0X2ltcHJpc29uPWlmX2Vsc2UoaXMubmEobWF4KGxhdGVzdF9qYWlsLGxhdGVzdF9wcmlzb24pKSxwX2RvYixcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1heChsYXRlc3RfamFpbCxsYXRlc3RfcHJpc29uKSksXG4gICAgICAgICAgICAgICAgIGNyaW1lZnJlZXJhdz0oc2NyZWVuaW5nX2RhdGUtbGFzdF9pbXByaXNvbikvMzY1LjI1LFxuICAgICAgICAgICAgICAgICAjU0ZTIHdlaWdodGVkIGZlYXR1cmVzXG4gICAgICAgICAgICAgICAgIGNvbW1pdG1lbnRzXzYwPWNhc2Vfd2hlbihjb21taXRtZW50czYwcmF3PTB+NCxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbW1pdG1lbnRzNjByYXc9MX4zLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY29tbWl0bWVudHM2MHJhdz0yfjIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb21taXRtZW50czYwcmF3PTN8Y29tbWl0bWVudHM2MHJhdz00fjEsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb21taXRtZW50czYwcmF3Pj01fjApLFxuICAgICAgICAgICAgICAgICBpbXByaXNvbmVkMzY1PWNhc2Vfd2hlbihpbXByaXNvbmVkMzY1PD0yfjIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGltcHJpc29uZWQzNjU9M3xpbXByaXNvbmVkMzY1PTR+MSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaW1wcmlzb25lZDM2NT49NX4wKSxcbiAgICAgICAgICAgICAgICAgc2ZzX2FnZT1jYXNlX3doZW4ocF9jdXJyZW50X2FnZT49Mzd+NSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcF9jdXJyZW50X2FnZT49MjQmcF9jdXJyZW50X2FnZTw9MzZ+NCxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcF9jdXJyZW50X2FnZT49MjAmcF9jdXJyZW50X2FnZTw9MjN+MixcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVFJVRX4wKSxcbiAgICAgICAgICAgICAgICAgc2ZzX2FnZT1pZl9lbHNlKHBfcHJpc29uX3Zpc2l0cytwX2phaWxfdmlzaXRzPj01LHNmc19hZ2UtMSwgc2ZzX2FnZSksXG4gICAgICAgICAgICAgICAgIGNyaW1lZnJlZT1jYXNlX3doZW4oY3JpbWVmcmVlcmF3Pj0zfjIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3JpbWVmcmVlcmF3Pj0xJmNyaW1lZnJlZXJhdzw9M34xLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFRSVUV+MCksXG4gICAgICAgICAgICAgICAgIHNmc192aW9sZW50PWlmX2Vsc2UocF9jdXJyZW50X3Zpb2xlbnRfb2ZmZW5zZT4wfGNxX3Zpb2xlbnRfY29udmljdGlvbjJ5cnM+MXxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3FfdmlvbGVudF9jb252aWN0aW9uPjEsVCxGKSxcbiAgICAgICAgICAgICAgICAgI2NvbXB1dGluZyBzZnMgXG4gICAgICAgICAgICAgICAgIHNmc3Jhdz1jb21taXRtZW50c182MCtpbXByaXNvbmVkMzY1K3Nmc19hZ2UrY3JpbWVmcmVlLFxuICAgICAgICAgICAgICAgICBzZnM9Y2FzZV93aGVuKHNmc3Jhdzw9M34wLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNmc3Jhdz00fHNmc3Jhdz01fjEsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2ZzcmF3Pj02JnNmc3Jhdzw9OH4yLlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNmc3Jhdz49OX4zKSxcbiAgICAgICAgICAgICAgICAgc2ZzPWlmX2Vsc2Uoc2ZzX3Zpb2xlbnQsIHNmcyxzZnMrMSlcbiAgICAgICAgICAgICAgICAgXG4gICAgICAgICAgICAgICklPiVcbiAgICAgICAgICBzdWJzZXQoc2VsZWN0PS1jKGFybm9sZF9mdGFfcmF3LHBlbmRpbmdfY2hhcmdlX2Z0YSxwcmlvcl9jb252aWN0aW9uX2Z0YSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGZ0YV9wcmV0cmlhbDJ5cl9mdGEsZnRhX3ByZXRyaWFsMnBsdXNfZnRhLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgYXJub2xkX25jYV9yYXcsY3VycmVudF9hZ2VfbmNhLHBlbmRpbmdfY2hhcmdlX25jYSxwcmlvcl9jb252TV9uY2EsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwcmlvcl9jb252Rl9uY2EscHJpb3JfY29udlZJT19uY2EsZnRhX3ByZXRyaWFsMnlyX25jYSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHByaW9yX2luY2FyY2VyYXRpb25fbmNhLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgYXJub2xkX252Y2FfcmF3LGN1cnJlbnRfdmlvbGVudF9udmNhLGN1cnJlbnRfdmlvbGVudDIwX252Y2EsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwZW5kaW5nX2NoYXJnZV9udmNhLHByaW9yX2NvbnZpY3Rpb25fbnZjYSxwcmlvcl9jb252VklPX252Y2EsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICBjb21taXRtZW50czYwcmF3LGltcHJpc29uZWQzNjVyYXcsIGxhc3RfaW1wcmlzb24sIGNyaW1lZnJlZXJhdyxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIHNmc3JhdylcbiAgICAgICAgICAgICAgICAgIClcbmBgYCJ9 -->
+<pre class="r"><code>           mutate(
+                    p_vio_noage=p_violence_raw-age_poly_violence(p_current_age),
+                    
+                   #calculating arnold psa scores 
+                   #failure to appear weighted features 
+                  pending_charge_fta=if_else(cq_pending_charge&gt;0,1,0),
+                  prior_conviction_fta=if_else(cq_total_convictions&gt;0,1,0),
+                  fta_pretrial2yr_fta=case_when(cq_fail_appear_two_yr==0~0,
+                                                cq_fail_appear_two_yr==1~2,
+                                                cq_fail_appear_two_yr&gt;=2~4),
+                  fta_pretrial2plus_fta=if_else(cq_fail_appear_two_plus&gt;0,1,0),
 
-source('functions.R')</code></pre>
+                  #new criminal activity weighted features
+                  current_age_nca=if_else(p_current_age&gt;=23,0,2),
+                  pending_charge_nca=if_else(cq_pending_charge&gt;0,3,0),
+                  prior_convM_nca=if_else(cq_prior_conviction_M&gt;0,1,0),
+                  prior_convF_nca=if_else(cq_prior_conviction_F&gt;0,1,0),
+                  prior_convVIO_nca=case_when(cq_violent_conviction==0~0,
+                                              cq_violent_conviction==1~1,
+                                              cq_violent_conviction==2~1,
+                                              cq_violent_conviction&gt;=3~2),
+                  fta_pretrial2yr_nca=case_when(cq_fail_appear_two_yr==0~0,
+                                                cq_fail_appear_two_yr==1~1,
+                                                cq_fail_appear_two_yr&gt;=2~2),
+                  prior_incarceration_nca=if_else(p_prior_incarceration&gt;0,2,0),
+
+                  #new violent criminal activity weighted features
+                  current_violent_nvca=if_else(p_current_violent_offense&gt;0,2,0),
+                  current_violent20_nvca=if_else(p_current_violent_twenty&gt;0,1,0),
+                  pending_charge_nvca=if_else(cq_pending_charge&gt;0,1,0),
+                  prior_conviction_nvca=if_else(cq_total_convictions&gt;0,1,0),
+                  prior_convVIO_nvca=case_when(cq_violent_conviction==0~0,
+                                               cq_violent_conviction==1~1,
+                                               cq_violent_conviction==2~1,
+                                               cq_violent_conviction&gt;=3~2),
+
+                 #failure to appear
+                  arnold_fta_raw=pending_charge_fta+prior_conviction_fta+
+                                fta_pretrial2yr_fta+fta_pretrial2plus_fta,
+                  arnold_fta=case_when(arnold_fta_raw&lt;=3~arnold_fta_raw+1,
+                                       arnold_fta_raw==4|arnold_fta_raw==5~arnold_fta_raw,
+                                       arnold_fta_raw&gt;=6~arnold_fta_raw-1),
+                 #new criminal activity
+                  arnold_nca_raw=current_age_nca+pending_charge_nca+prior_convM_nca+
+                                 prior_convF_nca+prior_convVIO_nca+fta_pretrial2yr_nca+
+                                 prior_incarceration_nca,
+                  arnold_nca=case_when(arnold_nca_raw&lt;=1~arnold_nca_raw+1,
+                                       arnold_nca_raw==2|arnold_nca_raw==3~arnold_nca_raw,
+                                       arnold_nca_raw==4|arnold_nca_raw==5~arnold_nca_raw-1,
+                                       arnold_nca_raw==6|arnold_nca_raw==7~arnold_nca_raw-2,
+                                       arnold_nca_raw==8~arnold_nca_raw-3,
+                                       arnold_nca_raw&gt;=9~6),
+                 #new violent criminal activity
+                  arnold_nvca_raw=current_violent_nvca+current_violent20_nvca+pending_charge_nvca+
+                                  prior_conviction_nvca+prior_convVIO_nvca,
+                  arnold_nvca=case_when(arnold_nvca_raw&lt;=3~&quot;No&quot;,
+                                       arnold_nvca_raw&gt;3~&quot;Yes&quot;),
+                 
+                 #computing Salient Factor Score (SFS)
+                 #SFS raw features 
+                 commitments60raw=jail_60+prison_60, 
+                 imprisoned365raw=jail_365+prison_365,
+                 last_imprison=if_else(is.na(max(latest_jail,latest_prison)),p_dob,
+                                       max(latest_jail,latest_prison)),
+                 crimefreeraw=(screening_date-last_imprison)/365.25,
+                 #SFS weighted features
+                 commitments_60=case_when(commitments60raw=0~4,
+                                          commitments60raw=1~3,
+                                          commitments60raw=2~2,
+                                          commitments60raw=3|commitments60raw=4~1,
+                                          commitments60raw&gt;=5~0),
+                 imprisoned365=case_when(imprisoned365&lt;=2~2,
+                                         imprisoned365=3|imprisoned365=4~1,
+                                         imprisoned365&gt;=5~0),
+                 sfs_age=case_when(p_current_age&gt;=37~5,
+                                   p_current_age&gt;=24&amp;p_current_age&lt;=36~4,
+                                   p_current_age&gt;=20&amp;p_current_age&lt;=23~2,
+                                   TRUE~0),
+                 sfs_age=if_else(p_prison_visits+p_jail_visits&gt;=5,sfs_age-1, sfs_age),
+                 crimefree=case_when(crimefreeraw&gt;=3~2,
+                                     crimefreeraw&gt;=1&amp;crimefreeraw&lt;=3~1,
+                                     TRUE~0),
+                 sfs_violent=if_else(p_current_violent_offense&gt;0|cq_violent_conviction2yrs&gt;1|
+                                      cq_violent_conviction&gt;1,T,F),
+                 #computing sfs 
+                 sfsraw=commitments_60+imprisoned365+sfs_age+crimefree,
+                 sfs=case_when(sfsraw&lt;=3~0,
+                                  sfsraw=4|sfsraw=5~1,
+                                  sfsraw&gt;=6&amp;sfsraw&lt;=8~2.
+                                  sfsraw&gt;=9~3),
+                 sfs=if_else(sfs_violent, sfs,sfs+1)
+                 
+              )%&gt;%
+          subset(select=-c(arnold_fta_raw,pending_charge_fta,prior_conviction_fta,
+                                 fta_pretrial2yr_fta,fta_pretrial2plus_fta,
+                           arnold_nca_raw,current_age_nca,pending_charge_nca,prior_convM_nca,
+                                 prior_convF_nca,prior_convVIO_nca,fta_pretrial2yr_nca,
+                                 prior_incarceration_nca,
+                           arnold_nvca_raw,current_violent_nvca,current_violent20_nvca,
+                                 pending_charge_nvca,prior_conviction_nvca,prior_convVIO_nvca,
+                           commitments60raw,imprisoned365raw, last_imprison, crimefreeraw,
+                           sfsraw)
+                  )</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>```</p>
+<div id="to-do-compute-recidivism-measures-for-both-compas-and-arnold-psa" class="section level1">
+<h1>to do: compute recidivism measures for both compas and arnold psa</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubG9hZChcIlRhYmxlX2NvbnN0cnVjdGlvbi5SZGF0YVwiKSAjbG9hZGluZyBiZWF1J3MgdmVyc2lvbiBvZiBkYXRhXG5gYGAifQ== -->
-<pre class="r"><code>load(&quot;Table_construction.Rdata&quot;) #loading beau's version of data</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2F2ZShyaXNrX3Njb3Jlc193aWRlLCBvdXRjb21lcyxcbiAgICAgZmlsZSA9IFwiVGFibGVfY29uc3RydWN0aW9uLlJkYXRhXCIpXG5cbmBgYCJ9 -->
+<pre class="r"><code>save(risk_scores_wide, outcomes,
+     file = &quot;Table_construction.Rdata&quot;)
+</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Compute Arnold PSA</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<div id="to-do-compute-recidivism-measures-for-both-compas-and" class="section level1">
-<h1>to do: compute recidivism measures for both compas and</h1>
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNvbXBhcmlzb24gb2YgT3V0Y29tZXMgZm9yIFBTQSBhbmQgQ09NUEFTIG9uIEJyb3dhcmQgQ291bnR5IGRhdGEgIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KVGhpcyBpcyBhbiBbUiBNYXJrZG93bl0oaHR0cDovL3JtYXJrZG93bi5yc3R1ZGlvLmNvbSkgTm90ZWJvb2suIFdoZW4geW91IGV4ZWN1dGUgY29kZSB3aXRoaW4gdGhlIG5vdGVib29rLCB0aGUgcmVzdWx0cyBhcHBlYXIgYmVuZWF0aCB0aGUgY29kZS4gDQoNClRyeSBleGVjdXRpbmcgdGhpcyBjaHVuayBieSBjbGlja2luZyB0aGUgKlJ1biogYnV0dG9uIHdpdGhpbiB0aGUgY2h1bmsgb3IgYnkgcGxhY2luZyB5b3VyIGN1cnNvciBpbnNpZGUgaXQgYW5kIHByZXNzaW5nICpDdHJsK1NoaWZ0K0VudGVyKi4gDQoNCmBgYHtyLCB3YXJuaW5nPUZBTFNFLCBtZXNzYWdlPUZBTFNFfQ0KbGlicmFyeShzdHJpbmdyKQ0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KG1hZ3JpdHRyKQ0KbGlicmFyeShsdWJyaWRhdGUpDQpsaWJyYXJ5KHJlc2hhcGUyKQ0KbGlicmFyeShyZWFkcikNCmxpYnJhcnkocHVycnIpDQoNCnNvdXJjZSgnZnVuY3Rpb25zLlInKQ0KYGBgDQpgYGANCg0KYGBge3J9DQpsb2FkKCJUYWJsZV9jb25zdHJ1Y3Rpb24uUmRhdGEiKSAjbG9hZGluZyBiZWF1J3MgdmVyc2lvbiBvZiBkYXRhDQpgYGANCg0KQ29tcHV0ZSBBcm5vbGQgUFNBDQpgYGB7cn0NCg0KYGBgDQoNCiN0byBkbzogY29tcHV0ZSByZWNpZGl2aXNtIG1lYXN1cmVzIGZvciBib3RoIGNvbXBhcyBhbmQg</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNvbXBhcmlzb24gb2YgT3V0Y29tZXMgZm9yIFBTQSBhbmQgQ09NUEFTIG9uIEJyb3dhcmQgQ291bnR5IGRhdGEgIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KVGhpcyBpcyBhbiBbUiBNYXJrZG93bl0oaHR0cDovL3JtYXJrZG93bi5yc3R1ZGlvLmNvbSkgTm90ZWJvb2suIFdoZW4geW91IGV4ZWN1dGUgY29kZSB3aXRoaW4gdGhlIG5vdGVib29rLCB0aGUgcmVzdWx0cyBhcHBlYXIgYmVuZWF0aCB0aGUgY29kZS4gDQoNClRyeSBleGVjdXRpbmcgdGhpcyBjaHVuayBieSBjbGlja2luZyB0aGUgKlJ1biogYnV0dG9uIHdpdGhpbiB0aGUgY2h1bmsgb3IgYnkgcGxhY2luZyB5b3VyIGN1cnNvciBpbnNpZGUgaXQgYW5kIHByZXNzaW5nICpDdHJsK1NoaWZ0K0VudGVyKi4gDQoNCmBgYHtyLCB3YXJuaW5nPUZBTFNFLCBtZXNzYWdlPUZBTFNFfQ0KbGlicmFyeShzdHJpbmdyKQ0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KG1hZ3JpdHRyKQ0KbGlicmFyeShsdWJyaWRhdGUpDQpsaWJyYXJ5KHJlc2hhcGUyKQ0KYGBgDQoNCg0KYGBge3J9DQpkYXRhX3BhdGg9Ii4uL2Jyb3dhcmQtZGF0YS8iDQpsb2FkKHBhc3RlMChkYXRhX3BhdGgsICJUYWJsZV9jb25zdHJ1Y3Rpb24uUmRhdGEiKSkgI2xvYWRpbmcgYmVhdSdzIHZlcnNpb24gb2YgZGF0YQ0KZnRhX3Byb2I8LXJlYWQuY3N2KCJDOi9Vc2Vycy9DYXJvbGluZSBXYW5nL09uZURyaXZlL0R1a2UvQ3JpbWluYWwgUmVjaWRpdmlzbS9EYXRhIHRhYmxlcy9mdGFfcHJvYi5jc3YiKQ0KDQpzb3VyY2UoImJyb3dhcmRfZnVuY3Rpb25zLlIiKQ0KYGBgDQoNCkNvbXB1dGUgQXJub2xkIFBTQSBmZWF0dXJlcyAobGlzdGVkIGJlbG93KSBmcm9tIGZlYXR1cmVzIGRmIChkYXRhIG5vdCBpbmNsdWRpbmcgY3VycmVudCBvZmZlbnNlKSBmcm9tIA0KVGFibGVfY29uc3RydWN0aW9uLlJkYXRhDQoNCi0gYWdlIGF0IGN1cnJlbnQgYXJyZXN0OiBwX2N1cnJlbnRfYWdlDQotIGN1cnJlbnQgdmlvbGVudCBvZmZlbnNlOiAqY29tcHV0ZWQgYmVsb3cqIA0KLSBjdXJyZW50IHZpb2xlbnQgb2ZmZW5zZSAmIDIwIG9yIHlvdW5nZXI6ICpjb21wdXRlZCBiZWxvdyoNCg0KLSBwZW5kaW5nIGNoYXJnZSBhdCB0aW1lIG9mIG9mZmVuc2U6ICpjb21wdXRlZCBiZWxvdyoNCg0KLSBwcmlvciBtaXNkZW1lYW5vciBjb252aWN0aW9uOiBwX21pc2RlbV9jb3VudF9wZXJzb24NCi0gcHJpb3IgZmVsb255IGNvbnZpY3Rpb246IHBfZmVsb255X2NvdW50X3BlcnNvbg0KLSBwcmlvciBjb252aWN0aW9uIChtaXNkZW0gb3IgZmVsb255KTogMXN0IHR3byAoZWl0aGVyIG9yKQ0KDQogLSBwcmlvciB2aW9sZW50IGNvbnZpY3Rpb246ICpjb21wdXRlZCBiZWxvdyoNCiAtIHByaW9yIGZhaWx1cmUgdG8gYXBwZWFyIGluIHBhc3QgMiB5ZWFyczogKmNvbXB1dGVkIGJlbG93Kg0KIC0gcHJpb3IgZmFpbHVyZSB0byBhcHBlYXIgb2xkZXIgdGhhbiAyIHllYXJzOiAqY29tcHV0ZWQgYmVsb3cqDQogIA0KLSBwcmlvciBzZW50ZW5jZSB0byBpbmNhcmNlcmF0aW9uIDogcF9wcmlzb24NCg0KDQpgYGB7cn0NCg0KDQojZGF0YV9vbiBpcyBkZiBjb250YWluaW5nIGluZm8gZm9yIHRoZSBjdXJyZW50IG9mZmVuc2UNCmN1cnJlbnRfdmlvbGVudCA9IGRhdGFfb24gJT4lDQogICAgICAgICAgICAgICAgICBzZWxlY3QocGVyc29uX2lkLCBzY3JlZW5pbmdfZGF0ZSwgY2hhcmdlKSU+JQ0KICAgICAgICAgICAgICAgICAgZmlsdGVyKGNoYXJnZSE9Ik5VTEwiKSU+JQ0KICAgICAgICAgICAgICAgICAgdW5uZXN0KCkgJT4lDQogICAgICAgICAgICAgICAgICBncm91cF9ieShwZXJzb25faWQsIHNjcmVlbmluZ19kYXRlKSU+JQ0KICAgICAgICAgICAgICAgICAgICBjdXJyZW50X3Zpb2xlbnQgPSBpZmVsc2Uoc3VtKGlzX3Zpb2xlbnQpPjAsIDEsIDApJT4lDQogICAgICAgICAgICAgICAgICAgIGN1cnJlbnRfdmlvbGVudDIwID0gaWZlbHNlKGN1cnJlbnRfdmlvbGVudCA9PSAxICYgYWdlX29mZmVuc2UgPD0yMCwgMSwgMCkNCg0KDQpmdGEgPSAgJT4lDQogICAgICBzZWxlY3QocGVyc29uX2lkLCBzY3JlZW5pbmdfZGF0ZSwgY2hhcmdlKSU+JQ0KICAgICAgZmlsdGVyKGNoYXJnZSE9Ik5VTEwiKSU+JQ0KICAgICAgdW5uZXN0KCkgJT4lDQoNCnBzYV9mZWF0dXJlcyA9IGZlYXR1cmVzJT4lDQogICAgICAgICAgICAgICBzZWxlY3QocF9jdXJyZW50X2FnZSwgDQogICAgICAgICAgICAgICAgICAgICAgcF9taXNkZW1fY291bnRfcGVyc29uLCANCiAgICAgICAgICAgICAgICAgICAgICBwX2ZlbG9ueV9jb3VudF9wZXJzb24sIA0KICAgICAgICAgICAgICAgICAgICAgIHBfcHJpc29uKSU+JQ0KICAgICAgICAgICAgICAgaW5uZXJfam9pbihmdGEsIGJ5PWMoInBlcnNvbl9pZCIsICJzY3JlZW5pbmdfZGF0ZSIpKSU+JQ0KICAgICAgICAgICAgICAgaW5uZXJfam9pbihjdXJyZW50X3Zpb2xlbnQsIGJ5PWMoInBlcnNvbl9pZCIsICJzY3JlZW5pbmdfZGF0ZSIpKQ0KICANCiMgcm0oY3VycmVudF92aW9sZW50LCBmdGEpDQogIA0KYGBgDQoNCmBgYHtyfQ0KICAgICAgICAgICBtdXRhdGUoDQogICAgICAgICAgICAgICAgICAgIHBfdmlvX25vYWdlPXBfdmlvbGVuY2VfcmF3LWFnZV9wb2x5X3Zpb2xlbmNlKHBfY3VycmVudF9hZ2UpLA0KICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAjY2FsY3VsYXRpbmcgYXJub2xkIHBzYSBzY29yZXMgDQogICAgICAgICAgICAgICAgICAgI2ZhaWx1cmUgdG8gYXBwZWFyIHdlaWdodGVkIGZlYXR1cmVzIA0KICAgICAgICAgICAgICAgICAgcGVuZGluZ19jaGFyZ2VfZnRhPWlmX2Vsc2UoY3FfcGVuZGluZ19jaGFyZ2U+MCwxLDApLA0KICAgICAgICAgICAgICAgICAgcHJpb3JfY29udmljdGlvbl9mdGE9aWZfZWxzZShjcV90b3RhbF9jb252aWN0aW9ucz4wLDEsMCksDQogICAgICAgICAgICAgICAgICBmdGFfcHJldHJpYWwyeXJfZnRhPWNhc2Vfd2hlbihjcV9mYWlsX2FwcGVhcl90d29feXI9PTB+MCwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNxX2ZhaWxfYXBwZWFyX3R3b195cj09MX4yLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3FfZmFpbF9hcHBlYXJfdHdvX3lyPj0yfjQpLA0KICAgICAgICAgICAgICAgICAgZnRhX3ByZXRyaWFsMnBsdXNfZnRhPWlmX2Vsc2UoY3FfZmFpbF9hcHBlYXJfdHdvX3BsdXM+MCwxLDApLA0KDQogICAgICAgICAgICAgICAgICAjbmV3IGNyaW1pbmFsIGFjdGl2aXR5IHdlaWdodGVkIGZlYXR1cmVzDQogICAgICAgICAgICAgICAgICBjdXJyZW50X2FnZV9uY2E9aWZfZWxzZShwX2N1cnJlbnRfYWdlPj0yMywwLDIpLA0KICAgICAgICAgICAgICAgICAgcGVuZGluZ19jaGFyZ2VfbmNhPWlmX2Vsc2UoY3FfcGVuZGluZ19jaGFyZ2U+MCwzLDApLA0KICAgICAgICAgICAgICAgICAgcHJpb3JfY29udk1fbmNhPWlmX2Vsc2UoY3FfcHJpb3JfY29udmljdGlvbl9NPjAsMSwwKSwNCiAgICAgICAgICAgICAgICAgIHByaW9yX2NvbnZGX25jYT1pZl9lbHNlKGNxX3ByaW9yX2NvbnZpY3Rpb25fRj4wLDEsMCksDQogICAgICAgICAgICAgICAgICBwcmlvcl9jb252VklPX25jYT1jYXNlX3doZW4oY3FfdmlvbGVudF9jb252aWN0aW9uPT0wfjAsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3FfdmlvbGVudF9jb252aWN0aW9uPT0xfjEsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3FfdmlvbGVudF9jb252aWN0aW9uPT0yfjEsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3FfdmlvbGVudF9jb252aWN0aW9uPj0zfjIpLA0KICAgICAgICAgICAgICAgICAgZnRhX3ByZXRyaWFsMnlyX25jYT1jYXNlX3doZW4oY3FfZmFpbF9hcHBlYXJfdHdvX3lyPT0wfjAsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjcV9mYWlsX2FwcGVhcl90d29feXI9PTF+MSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNxX2ZhaWxfYXBwZWFyX3R3b195cj49Mn4yKSwNCiAgICAgICAgICAgICAgICAgIHByaW9yX2luY2FyY2VyYXRpb25fbmNhPWlmX2Vsc2UocF9wcmlvcl9pbmNhcmNlcmF0aW9uPjAsMiwwKSwNCg0KICAgICAgICAgICAgICAgICAgI25ldyB2aW9sZW50IGNyaW1pbmFsIGFjdGl2aXR5IHdlaWdodGVkIGZlYXR1cmVzDQogICAgICAgICAgICAgICAgICBjdXJyZW50X3Zpb2xlbnRfbnZjYT1pZl9lbHNlKHBfY3VycmVudF92aW9sZW50X29mZmVuc2U+MCwyLDApLA0KICAgICAgICAgICAgICAgICAgY3VycmVudF92aW9sZW50MjBfbnZjYT1pZl9lbHNlKHBfY3VycmVudF92aW9sZW50X3R3ZW50eT4wLDEsMCksDQogICAgICAgICAgICAgICAgICBwZW5kaW5nX2NoYXJnZV9udmNhPWlmX2Vsc2UoY3FfcGVuZGluZ19jaGFyZ2U+MCwxLDApLA0KICAgICAgICAgICAgICAgICAgcHJpb3JfY29udmljdGlvbl9udmNhPWlmX2Vsc2UoY3FfdG90YWxfY29udmljdGlvbnM+MCwxLDApLA0KICAgICAgICAgICAgICAgICAgcHJpb3JfY29udlZJT19udmNhPWNhc2Vfd2hlbihjcV92aW9sZW50X2NvbnZpY3Rpb249PTB+MCwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY3FfdmlvbGVudF9jb252aWN0aW9uPT0xfjEsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNxX3Zpb2xlbnRfY29udmljdGlvbj09Mn4xLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjcV92aW9sZW50X2NvbnZpY3Rpb24+PTN+MiksDQoNCiAgICAgICAgICAgICAgICAgI2ZhaWx1cmUgdG8gYXBwZWFyDQogICAgICAgICAgICAgICAgICBhcm5vbGRfZnRhX3Jhdz1wZW5kaW5nX2NoYXJnZV9mdGErcHJpb3JfY29udmljdGlvbl9mdGErDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGZ0YV9wcmV0cmlhbDJ5cl9mdGErZnRhX3ByZXRyaWFsMnBsdXNfZnRhLA0KICAgICAgICAgICAgICAgICAgYXJub2xkX2Z0YT1jYXNlX3doZW4oYXJub2xkX2Z0YV9yYXc8PTN+YXJub2xkX2Z0YV9yYXcrMSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFybm9sZF9mdGFfcmF3PT00fGFybm9sZF9mdGFfcmF3PT01fmFybm9sZF9mdGFfcmF3LA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYXJub2xkX2Z0YV9yYXc+PTZ+YXJub2xkX2Z0YV9yYXctMSksDQogICAgICAgICAgICAgICAgICNuZXcgY3JpbWluYWwgYWN0aXZpdHkNCiAgICAgICAgICAgICAgICAgIGFybm9sZF9uY2FfcmF3PWN1cnJlbnRfYWdlX25jYStwZW5kaW5nX2NoYXJnZV9uY2ErcHJpb3JfY29udk1fbmNhKw0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcHJpb3JfY29udkZfbmNhK3ByaW9yX2NvbnZWSU9fbmNhK2Z0YV9wcmV0cmlhbDJ5cl9uY2ErDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwcmlvcl9pbmNhcmNlcmF0aW9uX25jYSwNCiAgICAgICAgICAgICAgICAgIGFybm9sZF9uY2E9Y2FzZV93aGVuKGFybm9sZF9uY2FfcmF3PD0xfmFybm9sZF9uY2FfcmF3KzEsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBhcm5vbGRfbmNhX3Jhdz09Mnxhcm5vbGRfbmNhX3Jhdz09M35hcm5vbGRfbmNhX3JhdywNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFybm9sZF9uY2FfcmF3PT00fGFybm9sZF9uY2FfcmF3PT01fmFybm9sZF9uY2FfcmF3LTEsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBhcm5vbGRfbmNhX3Jhdz09Nnxhcm5vbGRfbmNhX3Jhdz09N35hcm5vbGRfbmNhX3Jhdy0yLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYXJub2xkX25jYV9yYXc9PTh+YXJub2xkX25jYV9yYXctMywNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFybm9sZF9uY2FfcmF3Pj05fjYpLA0KICAgICAgICAgICAgICAgICAjbmV3IHZpb2xlbnQgY3JpbWluYWwgYWN0aXZpdHkNCiAgICAgICAgICAgICAgICAgIGFybm9sZF9udmNhX3Jhdz1jdXJyZW50X3Zpb2xlbnRfbnZjYStjdXJyZW50X3Zpb2xlbnQyMF9udmNhK3BlbmRpbmdfY2hhcmdlX252Y2ErDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcHJpb3JfY29udmljdGlvbl9udmNhK3ByaW9yX2NvbnZWSU9fbnZjYSwNCiAgICAgICAgICAgICAgICAgIGFybm9sZF9udmNhPWNhc2Vfd2hlbihhcm5vbGRfbnZjYV9yYXc8PTN+Ik5vIiwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFybm9sZF9udmNhX3Jhdz4zfiJZZXMiKSwNCiAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICNjb21wdXRpbmcgU2FsaWVudCBGYWN0b3IgU2NvcmUgKFNGUykNCiAgICAgICAgICAgICAgICAgI1NGUyByYXcgZmVhdHVyZXMgDQogICAgICAgICAgICAgICAgIGNvbW1pdG1lbnRzNjByYXc9amFpbF82MCtwcmlzb25fNjAsIA0KICAgICAgICAgICAgICAgICBpbXByaXNvbmVkMzY1cmF3PWphaWxfMzY1K3ByaXNvbl8zNjUsDQogICAgICAgICAgICAgICAgIGxhc3RfaW1wcmlzb249aWZfZWxzZShpcy5uYShtYXgobGF0ZXN0X2phaWwsbGF0ZXN0X3ByaXNvbikpLHBfZG9iLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWF4KGxhdGVzdF9qYWlsLGxhdGVzdF9wcmlzb24pKSwNCiAgICAgICAgICAgICAgICAgY3JpbWVmcmVlcmF3PShzY3JlZW5pbmdfZGF0ZS1sYXN0X2ltcHJpc29uKS8zNjUuMjUsDQogICAgICAgICAgICAgICAgICNTRlMgd2VpZ2h0ZWQgZmVhdHVyZXMNCiAgICAgICAgICAgICAgICAgY29tbWl0bWVudHNfNjA9Y2FzZV93aGVuKGNvbW1pdG1lbnRzNjByYXc9MH40LA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY29tbWl0bWVudHM2MHJhdz0xfjMsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb21taXRtZW50czYwcmF3PTJ+MiwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbW1pdG1lbnRzNjByYXc9M3xjb21taXRtZW50czYwcmF3PTR+MSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbW1pdG1lbnRzNjByYXc+PTV+MCksDQogICAgICAgICAgICAgICAgIGltcHJpc29uZWQzNjU9Y2FzZV93aGVuKGltcHJpc29uZWQzNjU8PTJ+MiwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaW1wcmlzb25lZDM2NT0zfGltcHJpc29uZWQzNjU9NH4xLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBpbXByaXNvbmVkMzY1Pj01fjApLA0KICAgICAgICAgICAgICAgICBzZnNfYWdlPWNhc2Vfd2hlbihwX2N1cnJlbnRfYWdlPj0zN341LA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwX2N1cnJlbnRfYWdlPj0yNCZwX2N1cnJlbnRfYWdlPD0zNn40LA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwX2N1cnJlbnRfYWdlPj0yMCZwX2N1cnJlbnRfYWdlPD0yM34yLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUUlVFfjApLA0KICAgICAgICAgICAgICAgICBzZnNfYWdlPWlmX2Vsc2UocF9wcmlzb25fdmlzaXRzK3BfamFpbF92aXNpdHM+PTUsc2ZzX2FnZS0xLCBzZnNfYWdlKSwNCiAgICAgICAgICAgICAgICAgY3JpbWVmcmVlPWNhc2Vfd2hlbihjcmltZWZyZWVyYXc+PTN+MiwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjcmltZWZyZWVyYXc+PTEmY3JpbWVmcmVlcmF3PD0zfjEsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVFJVRX4wKSwNCiAgICAgICAgICAgICAgICAgc2ZzX3Zpb2xlbnQ9aWZfZWxzZShwX2N1cnJlbnRfdmlvbGVudF9vZmZlbnNlPjB8Y3FfdmlvbGVudF9jb252aWN0aW9uMnlycz4xfA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjcV92aW9sZW50X2NvbnZpY3Rpb24+MSxULEYpLA0KICAgICAgICAgICAgICAgICAjY29tcHV0aW5nIHNmcyANCiAgICAgICAgICAgICAgICAgc2ZzcmF3PWNvbW1pdG1lbnRzXzYwK2ltcHJpc29uZWQzNjUrc2ZzX2FnZStjcmltZWZyZWUsDQogICAgICAgICAgICAgICAgIHNmcz1jYXNlX3doZW4oc2ZzcmF3PD0zfjAsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2ZzcmF3PTR8c2ZzcmF3PTV+MSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzZnNyYXc+PTYmc2ZzcmF3PD04fjIuDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc2ZzcmF3Pj05fjMpLA0KICAgICAgICAgICAgICAgICBzZnM9aWZfZWxzZShzZnNfdmlvbGVudCwgc2ZzLHNmcysxKQ0KICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgKSU+JQ0KICAgICAgICAgIHN1YnNldChzZWxlY3Q9LWMoYXJub2xkX2Z0YV9yYXcscGVuZGluZ19jaGFyZ2VfZnRhLHByaW9yX2NvbnZpY3Rpb25fZnRhLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZnRhX3ByZXRyaWFsMnlyX2Z0YSxmdGFfcHJldHJpYWwycGx1c19mdGEsDQogICAgICAgICAgICAgICAgICAgICAgICAgICBhcm5vbGRfbmNhX3JhdyxjdXJyZW50X2FnZV9uY2EscGVuZGluZ19jaGFyZ2VfbmNhLHByaW9yX2NvbnZNX25jYSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHByaW9yX2NvbnZGX25jYSxwcmlvcl9jb252VklPX25jYSxmdGFfcHJldHJpYWwyeXJfbmNhLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcHJpb3JfaW5jYXJjZXJhdGlvbl9uY2EsDQogICAgICAgICAgICAgICAgICAgICAgICAgICBhcm5vbGRfbnZjYV9yYXcsY3VycmVudF92aW9sZW50X252Y2EsY3VycmVudF92aW9sZW50MjBfbnZjYSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBlbmRpbmdfY2hhcmdlX252Y2EscHJpb3JfY29udmljdGlvbl9udmNhLHByaW9yX2NvbnZWSU9fbnZjYSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbW1pdG1lbnRzNjByYXcsaW1wcmlzb25lZDM2NXJhdywgbGFzdF9pbXByaXNvbiwgY3JpbWVmcmVlcmF3LA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgc2ZzcmF3KQ0KICAgICAgICAgICAgICAgICAgKQ0KYGBgDQoNCiN0byBkbzogY29tcHV0ZSByZWNpZGl2aXNtIG1lYXN1cmVzIGZvciBib3RoIGNvbXBhcyBhbmQgYXJub2xkIHBzYQ0KDQpgYGB7cn0NCnNhdmUocmlza19zY29yZXNfd2lkZSwgb3V0Y29tZXMsDQogICAgIGZpbGUgPSAiVGFibGVfY29uc3RydWN0aW9uLlJkYXRhIikNCg0KYGBgDQoNCg==</div>
 
 
 

@@ -13,20 +13,178 @@ library(tidyverse)
 library(magrittr)
 library(lubridate)
 library(reshape2)
-library(readr)
-library(purrr)
-
-source('functions.R')
 ```
+
+
+```{r}
+data_path="../broward-data/"
+load(paste0(data_path, "Table_construction.Rdata")) #loading beau's version of data
+fta_prob<-read.csv("C:/Users/Caroline Wang/OneDrive/Duke/Criminal Recidivism/Data tables/fta_prob.csv")
+
+source("broward_functions.R")
+```
+
+Compute Arnold PSA features (listed below) from features df (data not including current offense) from 
+Table_construction.Rdata
+
+- age at current arrest: p_current_age
+- current violent offense: *computed below* 
+- current violent offense & 20 or younger: *computed below*
+
+- pending charge at time of offense: *computed below*
+
+- prior misdemeanor conviction: p_misdem_count_person
+- prior felony conviction: p_felony_count_person
+- prior conviction (misdem or felony): 1st two (either or)
+
+ - prior violent conviction: *computed below*
+ - prior failure to appear in past 2 years: *computed below*
+ - prior failure to appear older than 2 years: *computed below*
+  
+- prior sentence to incarceration : p_prison
+
+
+```{r}
+
+
+#data_on is df containing info for the current offense
+current_violent = data_on %>%
+                  select(person_id, screening_date, charge)%>%
+                  filter(charge!="NULL")%>%
+                  unnest() %>%
+                  group_by(person_id, screening_date)%>%
+                    current_violent = ifelse(sum(is_violent)>0, 1, 0)%>%
+                    current_violent20 = ifelse(current_violent == 1 & age_offense <=20, 1, 0)
+
+
+fta =  %>%
+      select(person_id, screening_date, charge)%>%
+      filter(charge!="NULL")%>%
+      unnest() %>%
+
+psa_features = features%>%
+               select(p_current_age, 
+                      p_misdem_count_person, 
+                      p_felony_count_person, 
+                      p_prison)%>%
+               inner_join(fta, by=c("person_id", "screening_date"))%>%
+               inner_join(current_violent, by=c("person_id", "screening_date"))
+  
+# rm(current_violent, fta)
+  
 ```
 
 ```{r}
-load("Table_construction.Rdata") #loading beau's version of data
+           mutate(
+                    p_vio_noage=p_violence_raw-age_poly_violence(p_current_age),
+                    
+                   #calculating arnold psa scores 
+                   #failure to appear weighted features 
+                  pending_charge_fta=if_else(cq_pending_charge>0,1,0),
+                  prior_conviction_fta=if_else(cq_total_convictions>0,1,0),
+                  fta_pretrial2yr_fta=case_when(cq_fail_appear_two_yr==0~0,
+                                                cq_fail_appear_two_yr==1~2,
+                                                cq_fail_appear_two_yr>=2~4),
+                  fta_pretrial2plus_fta=if_else(cq_fail_appear_two_plus>0,1,0),
+
+                  #new criminal activity weighted features
+                  current_age_nca=if_else(p_current_age>=23,0,2),
+                  pending_charge_nca=if_else(cq_pending_charge>0,3,0),
+                  prior_convM_nca=if_else(cq_prior_conviction_M>0,1,0),
+                  prior_convF_nca=if_else(cq_prior_conviction_F>0,1,0),
+                  prior_convVIO_nca=case_when(cq_violent_conviction==0~0,
+                                              cq_violent_conviction==1~1,
+                                              cq_violent_conviction==2~1,
+                                              cq_violent_conviction>=3~2),
+                  fta_pretrial2yr_nca=case_when(cq_fail_appear_two_yr==0~0,
+                                                cq_fail_appear_two_yr==1~1,
+                                                cq_fail_appear_two_yr>=2~2),
+                  prior_incarceration_nca=if_else(p_prior_incarceration>0,2,0),
+
+                  #new violent criminal activity weighted features
+                  current_violent_nvca=if_else(p_current_violent_offense>0,2,0),
+                  current_violent20_nvca=if_else(p_current_violent_twenty>0,1,0),
+                  pending_charge_nvca=if_else(cq_pending_charge>0,1,0),
+                  prior_conviction_nvca=if_else(cq_total_convictions>0,1,0),
+                  prior_convVIO_nvca=case_when(cq_violent_conviction==0~0,
+                                               cq_violent_conviction==1~1,
+                                               cq_violent_conviction==2~1,
+                                               cq_violent_conviction>=3~2),
+
+                 #failure to appear
+                  arnold_fta_raw=pending_charge_fta+prior_conviction_fta+
+                                fta_pretrial2yr_fta+fta_pretrial2plus_fta,
+                  arnold_fta=case_when(arnold_fta_raw<=3~arnold_fta_raw+1,
+                                       arnold_fta_raw==4|arnold_fta_raw==5~arnold_fta_raw,
+                                       arnold_fta_raw>=6~arnold_fta_raw-1),
+                 #new criminal activity
+                  arnold_nca_raw=current_age_nca+pending_charge_nca+prior_convM_nca+
+                                 prior_convF_nca+prior_convVIO_nca+fta_pretrial2yr_nca+
+                                 prior_incarceration_nca,
+                  arnold_nca=case_when(arnold_nca_raw<=1~arnold_nca_raw+1,
+                                       arnold_nca_raw==2|arnold_nca_raw==3~arnold_nca_raw,
+                                       arnold_nca_raw==4|arnold_nca_raw==5~arnold_nca_raw-1,
+                                       arnold_nca_raw==6|arnold_nca_raw==7~arnold_nca_raw-2,
+                                       arnold_nca_raw==8~arnold_nca_raw-3,
+                                       arnold_nca_raw>=9~6),
+                 #new violent criminal activity
+                  arnold_nvca_raw=current_violent_nvca+current_violent20_nvca+pending_charge_nvca+
+                                  prior_conviction_nvca+prior_convVIO_nvca,
+                  arnold_nvca=case_when(arnold_nvca_raw<=3~"No",
+                                       arnold_nvca_raw>3~"Yes"),
+                 
+                 #computing Salient Factor Score (SFS)
+                 #SFS raw features 
+                 commitments60raw=jail_60+prison_60, 
+                 imprisoned365raw=jail_365+prison_365,
+                 last_imprison=if_else(is.na(max(latest_jail,latest_prison)),p_dob,
+                                       max(latest_jail,latest_prison)),
+                 crimefreeraw=(screening_date-last_imprison)/365.25,
+                 #SFS weighted features
+                 commitments_60=case_when(commitments60raw=0~4,
+                                          commitments60raw=1~3,
+                                          commitments60raw=2~2,
+                                          commitments60raw=3|commitments60raw=4~1,
+                                          commitments60raw>=5~0),
+                 imprisoned365=case_when(imprisoned365<=2~2,
+                                         imprisoned365=3|imprisoned365=4~1,
+                                         imprisoned365>=5~0),
+                 sfs_age=case_when(p_current_age>=37~5,
+                                   p_current_age>=24&p_current_age<=36~4,
+                                   p_current_age>=20&p_current_age<=23~2,
+                                   TRUE~0),
+                 sfs_age=if_else(p_prison_visits+p_jail_visits>=5,sfs_age-1, sfs_age),
+                 crimefree=case_when(crimefreeraw>=3~2,
+                                     crimefreeraw>=1&crimefreeraw<=3~1,
+                                     TRUE~0),
+                 sfs_violent=if_else(p_current_violent_offense>0|cq_violent_conviction2yrs>1|
+                                      cq_violent_conviction>1,T,F),
+                 #computing sfs 
+                 sfsraw=commitments_60+imprisoned365+sfs_age+crimefree,
+                 sfs=case_when(sfsraw<=3~0,
+                                  sfsraw=4|sfsraw=5~1,
+                                  sfsraw>=6&sfsraw<=8~2.
+                                  sfsraw>=9~3),
+                 sfs=if_else(sfs_violent, sfs,sfs+1)
+                 
+              )%>%
+          subset(select=-c(arnold_fta_raw,pending_charge_fta,prior_conviction_fta,
+                                 fta_pretrial2yr_fta,fta_pretrial2plus_fta,
+                           arnold_nca_raw,current_age_nca,pending_charge_nca,prior_convM_nca,
+                                 prior_convF_nca,prior_convVIO_nca,fta_pretrial2yr_nca,
+                                 prior_incarceration_nca,
+                           arnold_nvca_raw,current_violent_nvca,current_violent20_nvca,
+                                 pending_charge_nvca,prior_conviction_nvca,prior_convVIO_nvca,
+                           commitments60raw,imprisoned365raw, last_imprison, crimefreeraw,
+                           sfsraw)
+                  )
 ```
 
-Compute Arnold PSA
+#to do: compute recidivism measures for both compas and arnold psa
+
 ```{r}
+save(risk_scores_wide, outcomes,
+     file = "Table_construction.Rdata")
 
 ```
 
-#to do: compute recidivism measures for both compas and 
