@@ -1,0 +1,42 @@
+---
+title: "Broward Outcomes Analysis"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(magrittr)
+```
+
+```{r}
+data_path = ""
+load(paste0(data_path,"compas_psa.Rdata"))
+scores_outcomes = compas_psa_wide %>%
+                  filter(`Risk of Violence_decile_score`>=0, `Risk of Recidivism_decile_score`>=0, 
+                         `Risk of Failure to Appear_decile_score`>=0)%>%
+                  left_join(outcomes, by=c("person_id","screening_date"))
+
+```
+
+```{r}
+ggplot(scores_outcomes, aes(x=`Risk of Violence_decile_score`, y=recid_violent)) +
+     geom_jitter(shape=1, colour="steelblue", fill = "steelblue", alpha = .5)  +
+     ggtitle("Violent Recidivism Score vs True Outcome") +
+     xlab("COMPAS Violence Decile Score") +
+     ylab("Recidivation Indicator") +
+     theme(text=element_text(size=18),
+           axis.ticks=element_line(size=1),
+           axis.ticks.length = unit(3, "mm"))
+
+ggplot(scores_outcomes, aes(x=`arnold_nvca_raw`, y=recid_violent)) +
+     geom_jitter(shape=1, colour="steelblue", fill = "steelblue", alpha = .5)  +
+     ggtitle("True Outcome vs Arnold NVCA Raw") +
+     xlab("Arnold NVCA Raw") +
+     ylab("Recidivation Indicator") +
+     theme(text=element_text(size=18),
+           axis.ticks=element_line(size=1),
+           axis.ticks.length = unit(3, "mm"))
+
+```
+
