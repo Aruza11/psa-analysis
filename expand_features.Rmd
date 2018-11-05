@@ -1,0 +1,59 @@
+---
+title: "expand_features"
+output: html_notebook
+---
+
+The purpose of this notebook is to expand the COMPAS and PSA features to see if we can predict better. 
+```{r, warning=FALSE, message=FALSE}
+library(stringr)
+library(tidyverse)
+library(magrittr)
+library(lubridate)
+library(reshape2)
+
+```
+
+```{r}
+data_path="C:/Users/Caroline Wang/OneDrive/Duke/Criminal Recidivism/broward-data/"
+
+load(paste0(data_path, "Table_construction.Rdata")) #loading beau's version of data
+load("compas_psa.Rdata")
+db <- src_sqlite("../age_of_unfairness/compas-analysis-master/compas.db", create = TRUE)
+charge_df <- tbl(db,"charge")
+charge_df = as.data.frame(charge_df)
+
+
+```
+
+
+```{r}
+```
+Charge type features; we compute this from the statute number because there are over 2600 unique combinations of charge description and statute numbers in the ProPublica data alone (so impractical to hand classify). All charge types are computed on previous and current data. 
+```{r}
+traffic=df_beforeCOMPAS%>%
+           distinct(person_id,charge_degree,case_number,charge,screening_date,date_charge_filed) %>%
+
+           mutate(screening_date=ymd_hms(screening_date),
+                  date_charge_filed=ymd_hms(date_charge_filed),
+                  is_traffic = if_else(charge_degree=="(0)"|charge_degree=="(TCX)",1,0),
+                  years_bw = (as.numeric(screening_date-date_charge_filed,units="days")/365.25), 
+                  traffic_less_5yr = if_else(years_bw<=5&is_traffic==1,1,0)
+           )%>%
+           distinct(person_id,charge_degree,case_number,charge,is_traffic,traffic_less_5yr)%>%
+           group_by(person_id) %>%
+             summarize(traffic_count_person=sum(is_traffic),
+                       yrs5_trafcount_person = sum(traffic_less_5yr))
+current_violent = data_on %>%
+                  select(person_id, screening_date, charge)%>%
+                  filter(charge!="NULL")%>%
+                  unnest() %>%
+                  group_by(person_id, screening_date)%>%
+                  summarize(current_violent = ifelse(sum(is_violent)>0, 1, 0),
+                            current_violent20 = ifelse(current_violent == 1 & max(age_offense) <=20, 1, 0))
+```
+
+
+crime_types = 
+  
+```
+
