@@ -209,7 +209,7 @@ psa_features = features%>%
                left_join(current_violent, by=c("person_id", "screening_date"))%>%
                left_join(pending, by=c("person_id", "screening_date"))%>%
                left_join(prior_conv, by=c("person_id", "screening_date"))
-psa_features[is.na(psa_features)] <- 0
+# psa_features[is.na(psa_features)] <- 0
   
 ```
 

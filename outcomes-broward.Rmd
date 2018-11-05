@@ -40,3 +40,22 @@ ggplot(scores_outcomes, aes(x=`arnold_nvca_raw`, y=recid_violent)) +
 
 ```
 
+```{r}
+
+ggplot(scores_outcomes, aes(x=`arnold_nvca_raw`, y=`Risk of Violence_decile_score`)) +
+     # geom_point()+
+     geom_jitter(shape=1, colour="steelblue", fill = "steelblue", alpha = .5)  +
+     # ggtitle("True Outcome vs Arnold NVCA Raw") +
+     xlab("Arnold NVCA Raw") +
+     ylab("COMPAS") +
+     theme(text=element_text(size=18),
+           axis.ticks=element_line(size=1),
+           axis.ticks.length = unit(3, "mm"))
+
+
+scores_quantiles =as.dataframe() quantile(scores_outcomes$arnold_nvca, probs = seq(0,1,.1),na.rm = T, names = F)
+
+quantile(scores_outcomes$`Risk of Violence_decile_score`, probs = seq(0,1,.1),na.rm = T, names = F)
+
+```
+
