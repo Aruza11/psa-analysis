@@ -7,6 +7,7 @@ output: html_document
 
 ```{r}
 library(tidyverse)
+library(xgboost)
 
 source('util.R')
 load("expanded_features.Rdata")
@@ -28,7 +29,10 @@ features_filt = features_before_on %>%
     by = c("person_id","screening_date")
   ) %>%
   inner_join(features_on, by = c("person_id","screening_date")) %>%
-  inner_join(psa_features, by = c("person_id","screening_date"))%>%
+  inner_join(
+    psa_features%>%
+      select(-c(p_current_age,p_prison)), 
+    by = c("person_id","screening_date"))%>%
   inner_join(outcomes, by = c("person_id","screening_date")) %>%
   filter(`Risk of Recidivism_decile_score` != -1, `Risk of Violence_decile_score` != -1) %>% # Filter 1
   filter(!is.na(current_offense_date)) %>% # Filter 3
@@ -71,7 +75,7 @@ train = features_filt %>%
     p_trespass,
     recid_use)
 
-train = train[1:100,] # Comment for full training set. This is just for testing.
+# train = train[1:100,] # Comment for full training set. This is just for testing.
 
 ## Format for xgboost
 train_xgb = xgb.DMatrix(

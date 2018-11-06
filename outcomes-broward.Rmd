@@ -8,6 +8,7 @@ output: html_notebook
 library(tidyverse)
 library(magrittr)
 library(reshape2)
+library(pROC)
 ```
 
 ```{r}
@@ -57,16 +58,16 @@ Calculating the 10-quantiles for all 3 Arnold PSA scores and all 3 COMPAS scores
 Note that for the Arnold NVCA, we use the raw score so as to obtain a quantile; the NVCA is the only one out of the Arnold Scores which has a binary yes/no flag. 
 ```{r}
 scores_quantiles = data.frame( 
-  quant_id=seq.int(1,5),
-  arnold_nvca_raw = quantile(scores_outcomes$arnold_nvca_raw, probs = seq(0,1,.25),na.rm = T, names = F),
-  arnold_nca = quantile(scores_outcomes$arnold_nca, probs = seq(0,1,.25),na.rm = T, names = F),
-  arnold_fta = quantile(scores_outcomes$arnold_fta, probs = seq(0,1,.25),na.rm = T, names = F),
+  quant_id=seq.int(1,7),
+  arnold_nvca_raw = quantile(scores_outcomes$arnold_nvca_raw, probs = seq(0,1,.143),na.rm = T, names = F),
+  arnold_nca = quantile(scores_outcomes$arnold_nca, probs = seq(0,1,.143),na.rm = T, names = F),
+  arnold_fta = quantile(scores_outcomes$arnold_fta, probs = seq(0,1,.143),na.rm = T, names = F),
   compas_viol = quantile(scores_outcomes$`Risk of Violence_decile_score`,
-                       probs = seq(0,1,.25),na.rm = T, names = F),
+                       probs = seq(0,1,.143),na.rm = T, names = F),
   compas_recid = quantile(scores_outcomes$`Risk of Recidivism_decile_score`,
-                       probs = seq(0,1,.25),na.rm = T, names = F),
+                       probs = seq(0,1,.143),na.rm = T, names = F),
   compas_fta = quantile(scores_outcomes$`Risk of Failure to Appear_decile_score`,
-                       probs = seq(0,1,.25),na.rm = T, names = F)
+                       probs = seq(0,1,.143),na.rm = T, names = F)
   )
 
 ggplot(melt(scores_quantiles, id.vars = c("quant_id", "arnold_nvca_raw", "arnold_nca", "arnold_fta")), 
@@ -98,6 +99,20 @@ ggplot(melt(scores_quantiles, id.vars = c("quant_id", "arnold_nvca_raw", "arnold
      theme(text=element_text(size=18),
            axis.ticks=element_line(size=1),
            axis.ticks.length = unit(3, "mm"))
+
+```
+
+Compute AUC 
+```{r}
+#Syntax(response, predictor)
+auc(scores_outcomes$recid, scores_outcomes$arnold_nca_raw)
+auc(scores_outcomes$recid, scores_outcomes$`Risk of Recidivism_decile_score`)
+auc(scores_outcomes$recid, scores_outcomes$`Risk of Recidivism_raw_score`)
+
+auc(scores_outcomes$recid_violent, scores_outcomes$arnold_nvca_raw)
+auc(scores_outcomes$recid_violent, scores_outcomes$`Risk of Violence_decile_score`)
+auc(scores_outcomes$recid_violent, scores_outcomes$`Risk of Violence_raw_score`)
+
 
 ```
 
