@@ -1,0 +1,89 @@
+---
+title: "predict_recidivism"
+author: "Beau Coker"
+date: "11/5/2018"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+
+source('util.R')
+```
+
+### Prepare data 
+
+This is just an example with the features from the age of unfairness paper. The `Table_construction.Rdata` file needs to be loaded if you want to run this.
+
+```{r}
+### Add useful columns to features and apply row filters used for all models
+features_filt = features_before_on %>%
+  inner_join(
+    data_before %>% 
+      select(person_id, screening_date, people) %>%
+      unnest() %>%
+      select(person_id, screening_date, race, sex, name),
+    by = c("person_id","screening_date")
+  ) %>%
+  inner_join(features_on, by = c("person_id","screening_date")) %>%
+  inner_join(outcomes, by = c("person_id","screening_date")) %>%
+  filter(`Risk of Recidivism_decile_score` != -1, `Risk of Violence_decile_score` != -1) %>% # Filter 1
+  filter(!is.na(current_offense_date)) %>% # Filter 3
+  filter(screening_date <= current_offense_date_limit) %>% # Filter 4
+  mutate(recid_use = as.factor(recid), # Select recidivism or violent recidivism to use in this script 
+         decile_use = `Risk of Recidivism_decile_score`) # Select recidivism or violent recidivism decile score to use in this script
+
+## Select features and round count features
+train = features_filt %>%
+  transmute(
+    p_current_age,
+    p_age_first_offense,
+    p_charge,
+    p_jail30 = pmin(p_jail30,5),
+    p_prison = pmin(p_prison,5),
+    p_probation = pmin(p_probation,5),
+    recid_use)
+
+train = train[1:100,] # Uncomment for full training set. This is just for testing.
+
+## Format for xgboost
+train_xgb = xgb.DMatrix(
+  "data" = train %>% select(-recid_use) %>% as.matrix(),
+  "label" = train %>% select(recid_use) %>% as.matrix()
+)
+```
+
+
+### Train xgboost
+
+```{r}
+# Specify each parameter as a single value or a vector of values
+# Each combination will be tested
+param_xgb <- list(
+  objective = "binary:logistic",
+  eta = c(.05,.1),
+  gamma = c(.5), 
+  max_depth = c(2),
+  min_child_weight = c(5),
+  subsample = c(1),
+  colsample_bytree = c(1),
+  early_stopping_rounds=50
+)
+
+param_xgb = expand.grid(param_xgb) # Each row is a set of parameters to be cross validated
+
+# Only one value for each of these parameters is allowed
+setup_xgb = list(
+  nrounds=10000,
+  nfold=5
+)
+```
+
+```{r}
+set.seed(2812)
+out = fit_xgb_auc(train_xgb, param_xgb, setup_xgb)
+```
+
+```{r}
+out$performance
+```
