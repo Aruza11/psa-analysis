@@ -7,8 +7,7 @@ fit_xgb_auc <- function(train, param, setup) {
   # train is formatted for xgboost input
   ###
   
-  param_df = expand.grid(param) # Each row is a set of parameters to be cross validated
-  n_param = nrow(param_df)
+  n_param = nrow(param)
   
   ## Allocate space for performance statistics (and set seeds)
   performance = data.frame(
@@ -27,11 +26,12 @@ fit_xgb_auc <- function(train, param, setup) {
     set.seed(performance$seed[i_param])
     
     mdcv = xgb.cv(data=train, 
-                  params = list(param_df[i_param,])[[1]], 
+                  params = list(param[i_param,])[[1]], 
                   nrounds = setup$nrounds,
                   nfold = setup$nfold,
                   verbose = FALSE, 
                   metrics = "auc",
+                  eval_metric = "auc",
                   maximize=TRUE)
     
     performance[i_param,col_eval_log] = mdcv$evaluation_log[which.max(mdcv$evaluation_log$test_auc_mean),]
@@ -39,12 +39,14 @@ fit_xgb_auc <- function(train, param, setup) {
   
   ## Train on best parameters using best number of rounds
   i_param_best = performance$i_param[which.max(performance$test_auc_mean)]
-  print(t(param_df[i_param_best,])) #Prints the best parameters
+  
+  print("Best parameters:")
+  print(t(param[i_param_best,])) #Prints the best parameters
   
   set.seed(performance$seed[i_param_best])
   
   mdl_best = xgb.train(data=train, 
-                       params=list(param_df[i_param_best,])[[1]], 
+                       params=list(param[i_param_best,])[[1]], 
                        nrounds=performance$iter[i_param_best])
   
   return(list(mdl_best=mdl_best, performance=performance))

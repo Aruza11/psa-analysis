@@ -61,7 +61,6 @@ train_xgb = xgb.DMatrix(
 # Each combination will be tested
 param_xgb <- list(
   objective = "binary:logistic",
-  eval_metric = "auc",
   eta = c(.05,.1),
   gamma = c(.5), 
   max_depth = c(2),
@@ -70,6 +69,8 @@ param_xgb <- list(
   colsample_bytree = c(1),
   early_stopping_rounds=50
 )
+
+param_xgb = expand.grid(param_xgb) # Each row is a set of parameters to be cross validated
 
 # Only one value for each of these parameters is allowed
 setup_xgb = list(
@@ -83,3 +84,6 @@ set.seed(2812)
 out = fit_xgb_auc(train_xgb, param_xgb, setup_xgb)
 ```
 
+```{r}
+out$performance
+```
