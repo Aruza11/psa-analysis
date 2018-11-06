@@ -10,6 +10,7 @@ library(tidyverse)
 
 source('util.R')
 load("expanded_features.Rdata")
+load("compas_psa.Rdata")
 ```
 
 ### Prepare data 
@@ -27,6 +28,7 @@ features_filt = features_before_on %>%
     by = c("person_id","screening_date")
   ) %>%
   inner_join(features_on, by = c("person_id","screening_date")) %>%
+  inner_join(psa_features, by = c("person_id","screening_date"))%>%
   inner_join(outcomes, by = c("person_id","screening_date")) %>%
   filter(`Risk of Recidivism_decile_score` != -1, `Risk of Violence_decile_score` != -1) %>% # Filter 1
   filter(!is.na(current_offense_date)) %>% # Filter 3
@@ -37,12 +39,36 @@ features_filt = features_before_on %>%
 ## Select features and round count features
 train = features_filt %>%
   transmute(
+    #COMPAS Risk of Recidivism Features
     p_current_age,
     p_age_first_offense,
     p_charge,
     p_jail30 = pmin(p_jail30,5),
     p_prison = pmin(p_prison,5),
     p_probation = pmin(p_probation,5),
+    
+    #COMPAS Risk of violent recidivism features
+    p_juv_fel_count,
+    p_felprop_violarrest,
+    p_murder_arrest,
+    p_felassault_arrest,
+    p_misdemassault_arrest,
+    p_famviol_arrest,
+    p_sex_arrest,
+    p_weapons_arrest,
+    
+    #Misc Features
+    p_arrest,
+    p_property,
+    p_traffic,
+    p_drug,
+    p_dui,
+    p_domestic,
+    p_stalking,
+    p_voyeurism,
+    p_fraud,
+    p_stealing,
+    p_trespass,
     recid_use)
 
 train = train[1:100,] # Comment for full training set. This is just for testing.

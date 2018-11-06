@@ -90,6 +90,38 @@ compute_features = function(person_id,screening_date,first_offense_date,current_
   # Number of times on probation
   out$p_probation =  ifelse(is.null(prob), 0, sum(prob$prob_event=="On" & prob$EventDate < current_offense_date, na.rm = TRUE))
   
+  ### Additional features
+  
+  #Property  charge
+  out$p_property =  ifelse(is.null(charge), 0, sum(charge$is_property, na.rm = TRUE))
+   
+  #Traffic  charges
+  out$p_traffic =  ifelse(is.null(charge), 0, sum(charge$is_traffic, na.rm = TRUE))
+  
+  #Drug charges
+  out$p_drug =  ifelse(is.null(charge), 0, sum(charge$is_drug, na.rm = TRUE))
+
+  #DUI charges
+  out$p_dui =  ifelse(is.null(charge), 0, sum(charge$is_dui, na.rm = TRUE))
+
+  #Domestic Violence charges
+  out$p_domestic =  ifelse(is.null(charge), 0, sum(charge$is_domestic_viol, na.rm = TRUE))
+
+  #Stalking charges
+  out$p_stalking =  ifelse(is.null(charge), 0, sum(charge$is_stalking, na.rm = TRUE))
+
+  #Voyeurism charges
+  out$p_voyeurism =  ifelse(is.null(charge), 0, sum(charge$is_voyeurism, na.rm = TRUE))
+
+  #Fraud charges
+  out$p_fraud =  ifelse(is.null(charge), 0, sum(charge$is_stalking, na.rm = TRUE))
+
+  #Stealing charges
+  out$p_stealing =  ifelse(is.null(charge), 0, sum(charge$is_stealing, na.rm = TRUE))
+
+  #Trespass charges
+  out$p_trespass =  ifelse(is.null(charge), 0, sum(charge$is_trespass, na.rm = TRUE))
+
   return(out)
 }
 
