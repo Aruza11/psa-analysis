@@ -9,6 +9,7 @@ output: html_document
 library(tidyverse)
 
 source('util.R')
+load("expanded_features.Rdata")
 ```
 
 ### Prepare data 
@@ -44,7 +45,7 @@ train = features_filt %>%
     p_probation = pmin(p_probation,5),
     recid_use)
 
-train = train[1:100,] # Uncomment for full training set. This is just for testing.
+train = train[1:100,] # Comment for full training set. This is just for testing.
 
 ## Format for xgboost
 train_xgb = xgb.DMatrix(
