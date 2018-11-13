@@ -5,6 +5,7 @@ date: "11/5/2018"
 output: html_document
 ---
 
+Here, we use out-of-box ML methods to predict recidivism (currently, xgBoost)
 ```{r}
 library(tidyverse)
 library(xgboost)
@@ -15,8 +16,6 @@ load("compas_psa.Rdata")
 ```
 
 ### Prepare data 
-
-This is just an example with the features from the age of unfairness paper. The `Table_construction.Rdata` file needs to be loaded if you want to run this.
 
 ```{r}
 ### Add useful columns to features and apply row filters used for all models

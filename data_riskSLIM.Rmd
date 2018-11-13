@@ -1,0 +1,162 @@
+---
+title: "data_riskSLIM"
+output: html_notebook
+---
+
+In this notebook we convert the features_before_on (stored in expanded_features.Rdata) to a format suitable for riskSLIM, and convert to csv.
+riskSLIM load_data_from_csv() docstring: 
+    """
+    Parameters
+    ----------
+    dataset_csv_file                csv file containing the training data
+                                    see /datasets/adult_data.csv for an example
+                                    training data stored as a table with N+1 rows and d+1 columns
+                                    column 1 is the outcome variable entries must be (-1,1) or (0,1)
+                                    column 2 to d+1 are the d input variables
+                                    row 1 contains unique names for the outcome variable, and the input variable
+
+    sample_weights_csv_file         csv file containing sample weights for the training data
+                                    weights stored as a table with N rows and 1 column
+                                    all sample weights must be non-negative
+
+    fold_csv_file                   csv file containing indices of folds for K-fold cross validation
+                                    fold indices stored as a table with N rows and 1 column
+                                    folds must be integers between 1 to K
+                                    if fold_csv_file is None, then we do not use folds
+
+    fold_num                        int between 0 to K, where K is set by the fold_csv_file
+                                    let fold_idx be the N x 1 index vector listed in fold_csv_file
+                                    samples where fold_idx == fold_num will be used to test
+                                    samples where fold_idx != fold_num will be used to train the model
+                                    fold_num = 0 means use "all" of the training data (since all values of fold_idx \in [1,K])
+                                    if fold_csv_file is None, then fold_num is set to 0
+
+    Returns
+    -------
+    dictionary containing training data for a binary classification problem with the fields:
+
+     - 'X' N x P matrix of features (numpy.ndarray) with a column of 1s for the '(Intercept)'
+     - 'Y' N x 1 vector of labels (+1/-1) (numpy.ndarray)
+     - 'variable_names' list of strings containing the names of each feature (list)
+     - 'Y_name' string containing the name of the output (optional)
+     - 'sample_weights' N x 1 vector of sample weights, must all be positive
+
+    """
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(caret)
+```
+
+
+```{r}
+data_path = ""
+load(paste0(data_path,"expanded_features.Rdata"))
+load(paste0(data_path,"compas_psa.Rdata"))
+
+```
+
+Using compas and PSA features in addition to features we computed ourselves. 
+```{r}
+### Add useful columns to features and apply row filters used for all models
+features_filt = features_before_on %>%
+  inner_join(
+    psa_features%>%
+      select(-c(p_current_age,p_prison)), 
+    by = c("person_id","screening_date"))%>%
+  inner_join(outcomes, by = c("person_id","screening_date")) %>%
+  filter(`Risk of Recidivism_decile_score` != -1, `Risk of Violence_decile_score` != -1) %>% # Filter 1
+  filter(!is.na(current_offense_date)) %>% # Filter 3
+  filter(screening_date <= current_offense_date_limit) %>% # Filter 4
+  mutate(recid_use = recid) # Select recidivism or violent recidivism to use in this script 
+         
+## Select features and round count features
+train = features_filt %>%
+  transmute(
+    #COMPAS Risk of Recidivism Features (excluding age)
+    p_charge,
+    p_jail30 = pmin(p_jail30,5),
+    p_prison = pmin(p_prison,5),
+    p_probation = pmin(p_probation,5),
+    
+    #COMPAS Risk of violent recidivism features
+    p_juv_fel_count,
+    p_felprop_violarrest,
+    p_murder_arrest,
+    p_felassault_arrest,
+    p_misdemassault_arrest,
+    p_famviol_arrest,
+    p_sex_arrest,
+    p_weapons_arrest,
+    
+    #Misc Features
+    p_arrest,
+    p_property,
+    p_traffic,
+    p_drug,
+    p_dui,
+    p_domestic,
+    p_stalking,
+    p_voyeurism,
+    p_fraud,
+    p_stealing,
+    p_trespass,
+    
+    #Binning age features 
+    p_current_age21 = if_else(p_current_age<=21, 1, 0),
+    p_current_age23 = if_else(p_current_age<=23, 1, 0),
+    p_current_age25 = if_else(p_current_age<=25, 1, 0),
+    p_current_age27 = if_else(p_current_age<=27, 1, 0),
+    p_current_age29 = if_else(p_current_age<=29, 1, 0),
+    
+    p_current_age32 = if_else(p_current_age<=32, 1, 0),
+    p_current_age35 = if_else(p_current_age<=35, 1, 0),
+    p_current_age38 = if_else(p_current_age<=38, 1, 0),
+    
+    p_current_age42 = if_else(p_current_age<=42, 1, 0),
+    p_current_age46 = if_else(p_current_age<=46, 1, 0),
+    p_current_age51 = if_else(p_current_age<=51, 1, 0),
+    p_current_age56 = if_else(p_current_age<=56, 1, 0),
+    p_current_age62 = if_else(p_current_age<=62, 1, 0),
+    p_current_age68 = if_else(p_current_age<=68, 1, 0),
+    p_current_age75 = if_else(p_current_age<=75, 1, 0),
+
+    p_age_first_offense21 = if_else(p_age_first_offense<=21, 1, 0),
+    p_age_first_offense23 = if_else(p_age_first_offense<=23, 1, 0),
+    p_age_first_offense25 = if_else(p_age_first_offense<=25, 1, 0),
+    p_age_first_offense27 = if_else(p_age_first_offense<=27, 1, 0),
+    p_age_first_offense29 = if_else(p_age_first_offense<=29, 1, 0),
+    
+    p_age_first_offense32 = if_else(p_age_first_offense<=32, 1, 0),
+    p_age_first_offense35 = if_else(p_age_first_offense<=35, 1, 0),
+    p_age_first_offense38 = if_else(p_age_first_offense<=38, 1, 0),
+    
+    p_age_first_offense42 = if_else(p_age_first_offense<=42, 1, 0),
+    p_age_first_offense46 = if_else(p_age_first_offense<=46, 1, 0),
+    p_age_first_offense51 = if_else(p_age_first_offense<=51, 1, 0),
+    p_age_first_offense56 = if_else(p_age_first_offense<=56, 1, 0),
+    p_age_first_offense62 = if_else(p_age_first_offense<=62, 1, 0),
+    p_age_first_offense68 = if_else(p_age_first_offense<=68, 1, 0),
+    p_age_first_offense75 = if_else(p_age_first_offense<=75, 1, 0),
+    
+    #refactor labelfrom {0,1} to {-1,1} 
+    recid_use = ifelse(recid_use == 0, -1, recid_use))
+
+#label must be first column for riskSLIM
+train=train[,c(ncol(train),2:ncol(train))]
+```
+
+Create K folds csv. riskSLIM pkg requires K \in [1,N], where N is the number of data points
+```{r}
+folds=as.data.frame(createFolds(train$recid_use, k = 5, list = F, returnTrain = T),make.names = F)
+
+```
+
+```{r}
+write.table(train, file="riskSLIM_data.csv",
+            sep=",", row.names = F)
+write.table(folds,file= "riskSLIM_folds.csv",
+            sep = ",", col.names = F,row.names =F)
+
+```
+
