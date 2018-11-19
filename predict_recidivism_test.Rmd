@@ -7,7 +7,6 @@ output: html_document
 
 ```{r}
 library(tidyverse)
-library(xgboost)
 
 source('util.R')
 load("expanded_features.Rdata")
@@ -76,18 +75,23 @@ train = features_filt %>%
     recid_use)
 
 # train = train[1:100,] # Comment for full training set. This is just for testing.
-
-## Format for xgboost
-train_xgb = xgb.DMatrix(
-  "data" = train %>% select(-recid_use) %>% as.matrix(),
-  "label" = train %>% select(recid_use) %>% as.matrix()
-)
 ```
 
 
 ### Train xgboost
 
 ```{r}
+library(xgboost)
+```
+
+
+```{r}
+## Format for xgboost
+train_xgb = xgb.DMatrix(
+  "data" = train %>% select(-recid_use) %>% as.matrix(),
+  "label" = train %>% select(recid_use) %>% as.matrix()
+)
+
 # Specify each parameter as a single value or a vector of values
 # Each combination will be tested
 param_xgb <- list(
@@ -117,4 +121,45 @@ out = fit_xgb_auc(train_xgb, param_xgb, setup_xgb)
 
 ```{r}
 out$performance
+```
+
+### Train BART
+
+```{r}
+options(java.parameters = "-Xmx2g") 
+library(bartMachine)
+```
+
+
+```{r}
+param_bart = expand.grid(list(
+  num_trees = c(50, 75),
+  alpha = 0.95, 
+  beta = 2, 
+  k = c(2), 
+  q = 0.9, 
+  nu = 3)
+)
+
+setup_bart = list(
+  nfold=2
+)
+
+out_bart = train %>%
+  mutate(y = as.factor(recid_use)) %>%
+  select(-recid_use) %>%
+  fit_bart_auc(param_bart,setup_bart)
+```
+
+```{r}
+out_bart$performance
+```
+
+
+```{r}
+plot_convergence_diagnostics(out_bart$mdl_best)
+```
+
+```{r}
+investigate_var_importance(out_bart$mdl_best, num_replicates_for_avg = 20)
 ```
