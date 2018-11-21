@@ -24,13 +24,13 @@ fold_num = 5 #fold held out for testing
 sample_weights_csv_file = None                              # csv file of sample weights for the dataset (optional)
 
 # problem parameters
-max_coefficient = 6                                         # value of largest/smallest coefficient
+max_coefficient = 6   
+min_coefficient = 0                                         # value of largest/smallest coefficient
 max_L0_value = 6                                            # maximum model size
 max_offset = 50                                             # maximum value of offset parameter (optional)
 c0_value = 1e-6                                             # L0-penalty parameter such that c0_value > 0; larger values -> sparser models; we set to a small value (1e-6) so that we get a model with max_L0_value terms
 w_pos = 1.00                                                # relative weight on examples with y = +1; w_neg = 1.00 (optional)
 
-#5-fold validation
 
 # load data from disk
 data = load_data_from_csv(dataset_csv_file = data_csv_file, 
@@ -40,7 +40,7 @@ data = load_data_from_csv(dataset_csv_file = data_csv_file,
 N, P = data['X'].shape
 
 # create coefficient set and set the value of the offset parameter
-coef_set = CoefficientSet(variable_names=data['variable_names'], lb=-max_coefficient, ub=max_coefficient, sign=1)
+coef_set = CoefficientSet(variable_names=data['variable_names'], lb=0, ub=min_coefficient, sign=1)
 conservative_offset = get_conservative_offset(data, coef_set, max_L0_value)
 max_offset = min(max_offset, conservative_offset)
 coef_set['(Intercept)'].ub = max_offset
@@ -131,11 +131,26 @@ pickling_on = open("riskSLIM_model.pickle","wb")
 pickle.dump(model_info, pickling_on)
 pickling_on.close()
 
-pickle_off = open("riskSLIM_model.pickle","rb")
-model_info = pickle.load(pickle_off)
+# pickle_off = open("riskSLIM_model.pickle","rb")
+# model_info = pickle.load(pickle_off)
 
-## predict on held out test data ##
-df = pd.read_csv(data_csv_file, sep=',').as_matrix()
+# ###predict on held out test data ######
+# model_info = {'data_time': 0.429002046585083,
+#  'loss_value': 0.6242337422520895,
+#  'nodes_processed': 432081,
+#  'objective_value': 0.6242387422520895,
+#  'optimality_gap': 0.07066716970224067,
+#  'run_time': 300.0914874076843,
+#  'solution': np.array([-1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,      0.,
+#         0.,  0.,  0.,  0.,  0.,  0.,  0.,  6.,  0.,  0.,  0.,  0.,  0.,
+#         0.,  0.,  0.,  0.,  0.,  0.,  0.,  0., -0., -0., -0.,  4., -5.,
+#         0.,  1.,  0.,  0.,  0.,  0., -0.,  0.,  0.,  1.,  0., -0., -0.,
+#         0.,  0.]),
+#  'solver_time': 299.4157371520996,
+#  'w_pos': 1.0}
+
+df = pd.read_csv(data_csv_file, sep=',')
+raw_data = df.as_matrix()
 data_headers = list(df.columns.values)
 N = raw_data.shape[0]
 
@@ -163,7 +178,7 @@ else:
     else:
         raise IOError('could not find sample_weights_csv_file: %s' % sample_weights_csv_file)
 
-testdata = {
+test = {
     'X': X,
     'Y': Y,
     'variable_names': variable_names,
@@ -178,14 +193,24 @@ test['X'] = test['X'][test_idx,]
 test['Y'] = test['Y'][test_idx]
 
 #run riskSLIM on test data and report auc
-def predict(model_info,dataX):
-    rho = model_info['solution'] #model parameters
-    score = np.dot(dataX,rho)
+rho = model_info['solution'][1:] #model parameters
+
+def predict(rho,dataX):
+    # score = np.apply_along_axis(np.dot(),0, dataX,a=rho)
+    score = np.dot(dataX, rho)
     return score #a np array containing prediction  results
 
-score = predict(model_info, test['X'])
-testdata['prob_recid'] =  1/(1 + np.exp(4 - score))
-print("The AUC of riskSLIM is: ",roc_auc_score(testdata['Y'], testdata['prob_recid']))
+score = predict(rho, test['X'])
+#TODO: REPLACE HARD CODED INTERCEPT WITH ACTUAL CODE
+intercept = model_info['solution'][0]
+test['prob_recid'] =  1/(1 + np.exp(intercept - score))
+
+
+print("The AUC of riskSLIM is: ",roc_auc_score(test['Y'], test['prob_recid']))
+print("Variabes are:\n")
+for i,name in enumerate(list(variable_names)): 
+    if rho[i]!=0: 
+        print(name, "\n")
 
 
 

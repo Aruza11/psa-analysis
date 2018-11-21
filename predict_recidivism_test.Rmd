@@ -8,7 +8,6 @@ output: html_document
 Here, we use out-of-box ML methods to predict recidivism (currently, xgBoost)
 ```{r}
 library(tidyverse)
-
 source('util.R')
 load("expanded_features.Rdata")
 load("compas_psa.Rdata")
@@ -116,6 +115,7 @@ setup_xgb = list(
 ```{r}
 set.seed(2812)
 out = fit_xgb_auc(train_xgb, param_xgb, setup_xgb)
+
 ```
 
 ```{r}
@@ -162,3 +162,63 @@ plot_convergence_diagnostics(out_bart$mdl_best)
 ```{r}
 investigate_var_importance(out_bart$mdl_best, num_replicates_for_avg = 20)
 ```
+
+
+### Train logistic regression
+0.6740003 accuracy
+```{r}
+setup_glm = list(
+  nfold=5
+)
+
+# mdl_glm = glm(recid_use ~ ., family=binomial(link='logit'), data=train)
+# res_error[res_error$Group==1,]$glm = mean(if_else(predict(mdl_glm, type='response', newdata=train)>.5,1,0) != train$recid_use) # ADJUST GROUP
+
+out_glm = train %>%
+          mutate(y = as.factor(recid_use)) %>%
+          select(-recid_use) %>%
+          fit_glm_auc(setup_glm)
+
+out_glm$performance
+```
+
+```{r}
+  train_fold = train %>%
+    mutate(y = as.factor(recid_use)) %>%
+    select(-recid_use) %>%
+
+    modelr::crossv_kfold(k = setup_glm[["nfold"]]) %>%
+    transmute(X = map(train, ~ as.data.frame(select(as.data.frame(.x), -y))),
+              y = map(train, ~ as.data.frame(.x)$y),
+              X_test = map(test, ~ as.data.frame(select(as.data.frame(.x), -y))),
+              y_test = map(test, ~ as.data.frame(.x)$y))
+  
+    # Train model on each fold
+    res = train_fold %>%
+      mutate(model = map2(X,y, ~ glm(.y ~., 
+                                     family = binomial(link = 'logit'), 
+                                     data = .x))) 
+    print(res)
+
+```
+
+
+### Train random forest
+```{r}
+set.seed(784)
+mdl_rf = randomForest(
+  formula = recid_use ~ .,
+  data = train
+)
+res_error[res_error$Group==1,]$rf = mean(mdl_rf$predicted != train$recid_use) # ADJUST GROUP
+```
+
+
+### Train SVM
+
+```{r}
+mdl_svm = fit_svm(recid_use ~ ., train, param_svm)
+res_error[res_error$Group==1,]$svm = mean(mdl_svm$fitted != train$recid_use) # ADJUST GROUP
+```
+
+

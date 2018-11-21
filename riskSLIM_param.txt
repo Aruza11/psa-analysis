@@ -11,3 +11,18 @@
         0.,  0.]),
  'solver_time': 299.4157371520996,
  'w_pos': 1.0}
+
+The AUC of riskSLIM is:  0.6285162759786126
+Variabes are:
+
+p_voyeurism
+
+p_current_age68
+
+p_current_age75
+
+p_age_first_offense23
+
+p_age_first_offense46
+
+

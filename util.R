@@ -131,3 +131,50 @@ fit_bart_auc <- function(train, param, setup) {
   
   return(list(mdl_best=mdl_best, performance=performance))
 }
+
+fit_glm_auc <- function(train, setup) {
+  ###
+  # Trains glm, returns cross validated AUC on training set and test set
+  # train MUST have response variable named "y"
+  ###
+  
+  ## Allocate space for performance statistics
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std")
+  
+  performance = data.frame(
+    # seed = sample.int(10000, 1),
+    matrix(NA,nrow=1,
+           ncol=length(eval_varnames),
+           dimnames=list(NULL,eval_varnames)))
+  
+  ## Divide into folds
+  train_fold = train %>%
+    modelr::crossv_kfold(k = setup[["nfold"]]) %>%
+    transmute(X = map(train, ~ as.data.frame(select(as.data.frame(.x), -y))),
+              y = map(train, ~ as.data.frame(.x)$y),
+              X_test = map(test, ~ as.data.frame(select(as.data.frame(.x), -y))),
+              y_test = map(test, ~ as.data.frame(.x)$y))
+  
+    # Train model on each fold
+    res = train_fold %>%
+      mutate(model = map2(X,y, ~ glm(.y ~., 
+                                     family = binomial(link = 'logit'), 
+                                     data = .x))) 
+    print(res)
+      # Compute performance statistics
+    res%>%  mutate(auc_train = pmap_dbl(list(X,y,model), ~ pROC::auc(response=..2,predictor=predict(..3,new_data=..1))),
+             auc_test = pmap_dbl(list(X_test,y_test,model), ~ pROC::auc(response=..2,predictor=predict(..3,new_data=..1)))
+      ) %>%
+      
+      # Record performance fit statistics over folds
+      summarize(train_auc_mean = mean(auc_train), # Order should match columns of performance
+                train_auc_std = sd(auc_train),
+                test_auc_mean = mean(auc_test),
+                test_auc_std = sd(auc_train))
+    
+  performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
+  #trains glm on all data
+  mdl_glm = glm(y ~ ., family=binomial(link='logit'), data=train)
+  
+  return(list(mdl_glm=mdl_glm, performance=performance))
+}
