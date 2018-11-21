@@ -171,54 +171,49 @@ setup_glm = list(
   nfold=5
 )
 
-# mdl_glm = glm(recid_use ~ ., family=binomial(link='logit'), data=train)
-# res_error[res_error$Group==1,]$glm = mean(if_else(predict(mdl_glm, type='response', newdata=train)>.5,1,0) != train$recid_use) # ADJUST GROUP
-
 out_glm = train %>%
           mutate(y = as.factor(recid_use)) %>%
           select(-recid_use) %>%
           fit_glm_auc(setup_glm)
 
 out_glm$performance
-```
-
-```{r}
-  train_fold = train %>%
-    mutate(y = as.factor(recid_use)) %>%
-    select(-recid_use) %>%
-
-    modelr::crossv_kfold(k = setup_glm[["nfold"]]) %>%
-    transmute(X = map(train, ~ as.data.frame(select(as.data.frame(.x), -y))),
-              y = map(train, ~ as.data.frame(.x)$y),
-              X_test = map(test, ~ as.data.frame(select(as.data.frame(.x), -y))),
-              y_test = map(test, ~ as.data.frame(.x)$y))
-  
-    # Train model on each fold
-    res = train_fold %>%
-      mutate(model = map2(X,y, ~ glm(.y ~., 
-                                     family = binomial(link = 'logit'), 
-                                     data = .x))) 
-    print(res)
-
+print("accuracy is:  ")
+1-mean(if_else(predict(out_glm$mdl_glm, type='response', newdata=train)>.5,1,0) != train$recid_use)
 ```
 
 
 ### Train random forest
+```{r}
+library(randomForest)
+```
+
+
 ```{r}
 set.seed(784)
 mdl_rf = randomForest(
   formula = recid_use ~ .,
   data = train
 )
-res_error[res_error$Group==1,]$rf = mean(mdl_rf$predicted != train$recid_use) # ADJUST GROUP
+
+print("Accuracy is: ")
+1-mean(mdl_rf$predicted != train$recid_use) # ADJUST GROUP
 ```
 
 
 ### Train SVM
 
 ```{r}
+param_svm = list(
+  type = 'C-classification',
+  cost = c(0.5,1,2),
+  epsilon = .1, # This parameter isn't used for classification but need to set anyway or it will break
+  gamma_scale = c(0.5,1,2)
+)
 mdl_svm = fit_svm(recid_use ~ ., train, param_svm)
-res_error[res_error$Group==1,]$svm = mean(mdl_svm$fitted != train$recid_use) # ADJUST GROUP
+
+print("Accuracy is: ")
+1-mean(mdl_svm$fitted != train$recid_use) # ADJUST GROUP
+
 ```
 
 
