@@ -166,7 +166,7 @@ investigate_var_importance(out_bart$mdl_best, num_replicates_for_avg = 20)
 
 ### Train logistic regression
 0.6740003 accuracy
-```{r}
+```{r knitr::opts_chunk$set(message = FALSE)}
 setup_glm = list(
   nfold=5
 )
@@ -181,26 +181,47 @@ print("accuracy is:  ")
 1-mean(if_else(predict(out_glm$mdl_glm, type='response', newdata=train)>.5,1,0) != train$recid_use)
 ```
 
+### Train LASSO 
+```{r}
+
+```
 
 ### Train random forest
-```{r}
+ seed train_auc_mean train_auc_std test_auc_mean test_auc_std
+1  784      0.8856112   0.003304293     0.6066994  0.003304293
+[1] "Accuracy is:  "
+[1] 0.6668413
+
+```{r knitr::opts_chunk$set(message = FALSE)}
 library(randomForest)
 ```
 
 
 ```{r}
-set.seed(784)
-mdl_rf = randomForest(
-  formula = recid_use ~ .,
-  data = train
+setup_rf = list(
+  nfold=5, 
+  seed = 784
 )
 
-print("Accuracy is: ")
-1-mean(mdl_rf$predicted != train$recid_use) # ADJUST GROUP
+out_rf =  train %>%
+          mutate(y = as.factor(recid_use)) %>%
+          select(-recid_use) %>%
+          fit_rf_auc(setup_rf)
+
+out_rf$performance
+print("Accuracy is:  ")
+1-mean(out_rf$pred != train$recid_use) # ADJUST GROUP
+```
+
+### Train CART
+```{r}
+
 ```
 
 
+
 ### Train SVM
+0.7059543 accuracy
 
 ```{r}
 param_svm = list(
@@ -209,11 +230,16 @@ param_svm = list(
   epsilon = .1, # This parameter isn't used for classification but need to set anyway or it will break
   gamma_scale = c(0.5,1,2)
 )
-mdl_svm = fit_svm(recid_use ~ ., train, param_svm)
+# mdl_svm = fit_svm(recid_use ~ ., train, param_svm)
 
+out_svm = train %>%
+          mutate(y = as.factor(recid_use)) %>%
+          select(-recid_use) %>%
+          fit_svm(recid_use ~ ., train, param_svm)
+
+out_svm$performance
 print("Accuracy is: ")
 1-mean(mdl_svm$fitted != train$recid_use) # ADJUST GROUP
 
 ```
-
 
