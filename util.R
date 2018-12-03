@@ -178,6 +178,55 @@ fit_glm_auc <- function(train, setup) {
   return(list(mdl_glm=mdl_glm, performance=performance))
 }
 
+fit_lasso_auc <- function(train, setup) {
+  ###
+  # Trains LASSO, returns cross validated AUC on training set and test set
+  # train MUST have response variable named "y"
+  ###
+  
+  ## Allocate space for performance statistics
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std")
+  
+  performance = data.frame(
+    seed = sample.int(10000, 1),
+    matrix(NA,nrow=1,
+           ncol=length(eval_varnames),
+           dimnames=list(NULL,eval_varnames)))
+  
+  ## Divide into folds
+  train_fold = train %>%
+    modelr::crossv_kfold(k = setup[["nfold"]]) %>%
+    transmute(X = map(train, ~ as.data.frame(select(as.data.frame(.x), -y))),
+              y = map(train, ~ as.data.frame(.x)$y),
+              X_test = map(test, ~ as.data.frame(select(as.data.frame(.x), -y))),
+              y_test = map(test, ~ as.data.frame(.x)$y))
+  
+  # Train model on each fold
+  
+  # cv =cv.glmnet()
+  res = train_fold %>%
+    mutate(model = map2(X,y, ~ glmnet(.x, y= .y ,
+                                      alpha=1,
+                                      family = "binomial"))) %>%
+    # Compute performance statistics
+    #IMPLEMENT CROSS VALIDATION??
+    mutate(auc_train = pmap_dbl(list(X,y,model), ~ pROC::auc(response=..2,predictor=predict(..3,type='response',newx=..1))),
+           auc_test = pmap_dbl(list(X_test,y_test,model), ~ pROC::auc(response=..2,predictor=predict(..3,type='response',newx=..1)))
+    ) %>%
+    
+    # Record performance fit statistics over folds
+    summarize(train_auc_mean = mean(auc_train), # Order should match columns of performance
+              train_auc_std = sd(auc_train),
+              test_auc_mean = mean(auc_test),
+              test_auc_std = sd(auc_train))
+  
+  performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
+  #trains glm on all data
+  mdl_glm = glm(y ~ ., family=binomial(link='logit'), data=train)
+  
+  return(list(mdl_glm=mdl_glm, performance=performance))
+}
+
 fit_rf_auc <- function(train, setup) {
   ###
   # Trains random forest, returns cross validated AUC on training set and test set
@@ -221,6 +270,72 @@ fit_rf_auc <- function(train, setup) {
   mdl_rf = randomForest(formula = y ~ ., data=train)
   
   return(list(pred=as.numeric(as.character(mdl_rf$predicted)), performance=performance))
+}
+
+fit_cart_auc <- function(train, param, setup) {
+  ###
+  # Trains CART on each combination of parameters,
+  # returns cross validated AUC on training set and test set
+  # train MUST have response variable named "y"
+  ###
+  
+  ## Allocate space for performance statistics
+  n_param = nrow(param)
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std")
+  
+  performance = data.frame(
+    i_param = 1:n_param,
+    seed = sample.int(10000, n_param),
+    matrix(NA,nrow=n_param,
+           ncol=length(eval_varnames),
+           dimnames=list(NULL,eval_varnames)))
+  
+  
+  train_fold = train %>%
+    modelr::crossv_kfold(k = setup[["nfold"]]) %>%
+    transmute(X = map(train, ~ as.data.frame(select(as.data.frame(.x), -y))),
+              y = map(train, ~ as.data.frame(.x)$y),
+              X_test = map(test, ~ as.data.frame(select(as.data.frame(.x), -y))),
+              y_test = map(test, ~ as.data.frame(.x)$y))
+  
+  cat("Training on",n_param,"sets of parameters.\n")
+
+  ## Loop through the different parameters sets
+  for (i_param in 1:n_param) {
+    set.seed(performance$seed[i_param])
+    
+    # Train model on each fold
+    res = train_fold %>%
+      mutate(model = map2(X,y, ~rpart(formula = .y ~., 
+                                      data = .x, method="class", 
+                                      control=rpart.control(cp = param[i_param, "cp"]) )
+                          ))%>%
+      
+      # Compute performance statistics
+      mutate(auc_train = pmap_dbl(list(X,y,model), ~  pROC::auc(response=..2,predictor=as.numeric(as.character(predict(..3, newdata=..1, type = "class"))))),
+             auc_test = pmap_dbl(list(X_test,y_test,model), ~  pROC::auc(response=..2,predictor=as.numeric(as.character(predict(..3, newdata=..1, type = "class")))))
+      ) %>%
+      
+      # Record performance fit statistics over folds
+      summarize(train_auc_mean = mean(auc_train), # Order should match columns of performance
+                train_auc_std = sd(auc_train),
+                test_auc_mean = mean(auc_test),
+                test_auc_std = sd(auc_train))
+    
+    performance[i_param,eval_varnames] = as.numeric(res[1,eval_varnames])
+  }
+  
+  #Train all data using best parameters
+  i_param_best = performance$i_param[which.max(performance$test_auc_mean)]
+  print("Best parameters:")
+  print(t(param[i_param_best,])) #Prints the best parameters
+  set.seed(performance$seed[i_param_best])
+  
+  mdl_best =rpart(formula = y ~., 
+                  data = train, method="class", 
+                  control=rpart.control(cp = param[i_param_best, "cp"]) )
+  
+  return(list(pred=mdl_best, performance=performance))
 }
 
 fit_svm <- function(formula, train, param) {
