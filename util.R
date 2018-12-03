@@ -205,26 +205,41 @@ fit_lasso_auc <- function(train, setup) {
   
   # cv =cv.glmnet()
   res = train_fold %>%
-    mutate(model = map2(X,y, ~ glmnet(.x, y= .y ,
+    mutate(model = map2(X,y, ~ glmnet(x=data.matrix(.x), y=as.numeric(data.matrix(.y)),
                                       alpha=1,
-                                      family = "binomial"))) %>%
-    # Compute performance statistics
-    #IMPLEMENT CROSS VALIDATION??
-    mutate(auc_train = pmap_dbl(list(X,y,model), ~ pROC::auc(response=..2,predictor=predict(..3,type='response',newx=..1))),
-           auc_test = pmap_dbl(list(X_test,y_test,model), ~ pROC::auc(response=..2,predictor=predict(..3,type='response',newx=..1)))
+                                      family = "binomial")), 
+           best_lambda = map2(X, y, ~cv.glmnet(x=data.matrix(.x), 
+                                               y = as.numeric(data.matrix(.y)), 
+                                               alpha = 1 )$lambda.min)
     ) %>%
     
-    # Record performance fit statistics over folds
+    # Compute performance statistics
+    #IMPLEMENT CROSS VALIDATION??
+    mutate(auc_train = pmap_dbl(list(X,y,model,best_lambda), ~ pROC::auc(response=..2,
+                                                                         predictor=as.numeric(predict(..3,
+                                                                                                      type='response',
+                                                                                                      newx=data.matrix(..1), 
+                                                                                                      s = ..4)))),
+           auc_test = pmap_dbl(list(X_test,y_test,model,best_lambda), ~ pROC::auc(response=..2,
+                                                                                  predictor=as.numeric(predict(..3,
+                                                                                                               type='response',
+                                                                                                               newx=data.matrix(..1),
+                                                                                                               s = ..4))))
+    ) %>%
     summarize(train_auc_mean = mean(auc_train), # Order should match columns of performance
               train_auc_std = sd(auc_train),
               test_auc_mean = mean(auc_test),
               test_auc_std = sd(auc_train))
   
   performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
-  #trains glm on all data
-  mdl_glm = glm(y ~ ., family=binomial(link='logit'), data=train)
   
-  return(list(mdl_glm=mdl_glm, performance=performance))
+  #trains lasso on all data
+  X = train%>% select(-c(y))%>%data.matrix()
+  y = train%>% select(y) %>% data.matrix() %>% as.numeric
+  mdl_lasso = glmnet(x=X,y=y, family="binomial", alpha=1)
+  best_lambda = cv.glmnet(x=X, y=y, alpha = 1)$lambda.min
+  
+  return(list(mdl_lasso=mdl_lasso, performance=performance, best_lambda = best_lambda))
 }
 
 fit_rf_auc <- function(train, setup) {
