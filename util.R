@@ -47,8 +47,16 @@ fit_xgb_auc <- function(train, param, setup) {
   mdl_best = xgb.train(data=train, 
                        params=list(param[i_param_best,])[[1]], 
                        nrounds=performance$iter[i_param_best])
+  # preds = predict(mdl_best,train$data )
+  # roc = roc(train$label,preds , percent = F, boot.n = 1000,
+  #           ci.alpha = .9, stratified = F,  
+  #           reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
+  #           print.thres.cex = .7, 
+  #           main = paste("ROC curve using N = ", nrow(train)),
+  #           smooth =T, show.thres = T, legacy.axes = T,
+  #           plot = T, grid =T )
   
-  return(list(mdl_best=mdl_best, performance=performance))
+  return(list(mdl_best=mdl_best, performance=performance, roc = roc))
 }
 
 
@@ -128,8 +136,16 @@ fit_bart_auc <- function(train, param, setup) {
                         q = param[i_param_best,"q"], 
                         nu = param[i_param_best,"nu"]
   )
+  preds = predict(mdl_best, new_data = as.data.frame(select(train,-y)) )
+  roc = roc(train$y,preds , percent = F, boot.n = 1000,
+            ci.alpha = .9, stratified = F,
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars",
+            print.thres.cex = .7,
+            main = paste("ROC curve using N = ", nrow(train)),
+            smooth =T, show.thres = T, legacy.axes = T,
+            plot = T, grid =T )
   
-  return(list(mdl_best=mdl_best, performance=performance))
+  return(list(mdl_best=mdl_best, performance=performance, roc = roc))
 }
 
 fit_glm_auc <- function(train, setup) {
@@ -173,9 +189,16 @@ fit_glm_auc <- function(train, setup) {
     
   performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
   #trains glm on all data
-  mdl_glm = glm(y ~ ., family=binomial(link='logit'), data=train)
+  fit = glm(y ~ ., family=binomial(link='logit'), data=train)
+  #create ROC
+  # par(pty = "s")
+  roc = roc(train$y,as.vector(fitted.values(fit)) , percent = F, boot.n = 1000,
+            ci.alpha = .9, stratified = F,  
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
+            smooth = T
+            )
   
-  return(list(mdl_glm=mdl_glm, performance=performance))
+  return(list(fit_glm=fit, performance=performance, roc = roc))
 }
 
 fit_lasso_auc <- function(train, setup) {
@@ -236,10 +259,21 @@ fit_lasso_auc <- function(train, setup) {
   #trains lasso on all data
   X = train%>% select(-c(y))%>%data.matrix()
   y = train%>% select(y) %>% data.matrix() %>% as.numeric
-  mdl_lasso = glmnet(x=X,y=y, family="binomial", alpha=1)
+  fit = glmnet(x=X,y=y, family="binomial", alpha=1)
   best_lambda = cv.glmnet(x=X, y=y, alpha = 1)$lambda.min
+  preds = as.numeric(predict(fit,
+                     type='response',
+                     newx=X, 
+                     s = best_lambda))
+  #create ROC
+  roc = roc(y,preds, percent = F, boot.n = 1000,
+            ci.alpha = .9, stratified = F,  
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
+            smooth = T
+  )
   
-  return(list(mdl_lasso=mdl_lasso, performance=performance, best_lambda = best_lambda))
+  
+  return(list(fit_lasso=fit, performance=performance, best_lambda = best_lambda, roc = roc))
 }
 
 fit_rf_auc <- function(train, setup) {
@@ -281,10 +315,23 @@ fit_rf_auc <- function(train, setup) {
               test_auc_std = sd(auc_train))
   
   performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
-  #trains rf on all data
-  mdl_rf = randomForest(formula = y ~ ., data=train)
   
-  return(list(pred=as.numeric(as.character(mdl_rf$predicted)), performance=performance))
+  #trains rf on all data and predicts on all data
+  mdl_rf = randomForest(formula = y ~ ., data=train)
+  X = train%>% select(-c(y))%>%data.matrix()
+  y = train%>% select(y) %>% data.matrix() %>% as.numeric
+  preds = predict(mdl_rf, newdata=X, type = "response") %>%
+          as.character()%>%
+          as.numeric()
+  
+  #create ROC
+  roc = roc(y,preds, percent = F, boot.n = 1000,
+            ci.alpha = .9, stratified = F,  
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
+            # smooth = T
+            )
+            
+  return(list(pred=as.numeric(as.character(mdl_rf$predicted)), performance=performance, roc = roc))
 }
 
 fit_cart_auc <- function(train, param, setup) {

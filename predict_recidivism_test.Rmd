@@ -5,19 +5,17 @@ date: "11/5/2018"
 output: html_document
 ---
 
+
+**NOTE: MUST CREATE HELD OUT TEST SET
+
 Here, we use out-of-box ML methods to predict recidivism 
-```{r}
+```{r include = FALSE}
 library(tidyverse)
 library(magrittr)
+library(pROC)
 source('util.R')
 load("expanded_features.Rdata")
 load("compas_psa.Rdata")
-```
-
-```{r}
-obj=roc(outcome~s100b, aSAH, smooth =TRUE, plot = TRUE)
-
-
 ```
 
 ### Prepare data 
@@ -85,7 +83,7 @@ train = features_filt %>%
 
 ### Train xgboost
 
-```{r}
+```{r include = FALSE}
 library(xgboost)
 ```
 
@@ -121,17 +119,14 @@ setup_xgb = list(
 
 ```{r}
 set.seed(2812)
-out = fit_xgb_auc(train_xgb, param_xgb, setup_xgb)
-
-```
-
-```{r}
-out$performance
+out_xgb = fit_xgb_auc(train_xgb, param_xgb, setup_xgb)
+out_xgb$performance
+out_xgb$roc
 ```
 
 ### Train BART
 
-```{r}
+```{r include = FALSE}
 options(java.parameters = "-Xmx2g") 
 library(bartMachine)
 ```
@@ -156,9 +151,18 @@ out_bart = train %>%
   select(-recid_use) %>%
   fit_bart_auc(param_bart,setup_bart)
 ```
-
+  i_param seed train_auc_mean train_auc_std test_auc_mean test_auc_std
+1       1 5908      0.7317067    0.01156313     0.7041193   0.01156313
+2       2 8371      0.7340461    0.01171209     0.7064116   0.01171209
 ```{r}
 out_bart$performance
+plot(out_bart$roc, percent = F, 
+            ci.alpha = .9, stratified = F,
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars",
+            print.thres.cex = .7,
+            main = paste("ROC curve using N = ", nrow(train)),
+            smooth =T, show.thres = T, legacy.axes = T,
+            plot = T, grid =T )
 ```
 
 
@@ -174,7 +178,7 @@ investigate_var_importance(out_bart$mdl_best, num_replicates_for_avg = 20)
 ### Train logistic regression classifier
 train_auc_mean train_auc_std test_auc_mean test_auc_std
 1      0.7034106   0.004943927     0.6955958  0.004943927
-```{r knitr::opts_chunk$set(message = FALSE)}
+```{r include = FALSE}
 setup_glm = list(
   nfold=5
 )
@@ -185,6 +189,11 @@ out_glm = train %>%
           fit_glm_auc(setup_glm)
 
 out_glm$performance
+plot(out_glm$roc,
+     print.auc = T,
+     main = paste("ROC curve using N = ", nrow(train)),
+     legacy.axes = T,
+     grid =T )
 # print("accuracy is:  ")
 # 1-mean(if_else(predict(out_glm$mdl_glm, type='response', newdata=train)>.5,1,0) != train$recid_use)
 ```
@@ -192,7 +201,7 @@ out_glm$performance
 ### Train LASSO 
   seed train_auc_mean train_auc_std test_auc_mean test_auc_std
 1 8363      0.7011165    0.00243117     0.6962465   0.00243117
-```{r knitr::opts_chunk$set(message = FALSE)}
+```{r include = FALSE}
 library(glmnet)
 setup_lasso = list(
   nfold=5
@@ -203,9 +212,14 @@ setup_lasso = list(
 out_lasso = train %>%
           mutate(y = as.factor(recid_use)) %>%
           select(-recid_use) %>%
-          fit_lasso_auc(setup_glm)
+          fit_lasso_auc(setup_lasso)
 
 out_lasso$performance
+plot(out_lasso$roc,
+     print.auc = T,
+     main = paste("ROC curve using N = ", nrow(train)),
+     legacy.axes = T,
+     grid =T )
 
 ```
 
@@ -214,7 +228,7 @@ out_lasso$performance
  seed train_auc_mean train_auc_std test_auc_mean test_auc_std
 1  784      0.8856112   0.003304293     0.6066994  0.003304293
 
-```{r knitr::opts_chunk$set(message = FALSE)}
+```{r include = FALSE}
 library(randomForest)
 setup_rf = list(
   nfold=5, 
@@ -230,6 +244,12 @@ out_rf =  train %>%
           fit_rf_auc(setup_rf)
 
 out_rf$performance
+plot(out_rf$roc,
+     print.auc = T,
+     main = paste("ROC curve using N = ", nrow(train)),
+     legacy.axes = T,
+     grid =T )
+
 ```
 
 ### Train CART

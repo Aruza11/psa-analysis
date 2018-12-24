@@ -1,0 +1,17 @@
+Regular FRL output: 
+
+if ('p_age_first_offense32=1', 'p_age_first_offense75=1'), then prob. = 0.412998 (+: 1792, -: 2547, obj.: 0.444814)
+else if ('p_property=1', 'p_juv_fel_count=0'), then prob. = 0.255814 (+: 44, -: 128, obj.: 0.022355)
+else if ('p_dui=0', 'p_age_first_offense51=1'), then prob. = 0.234772 (+: 185, -: 603, obj.: 0.105310)
+else if ('p_arrest=3', 'p_current_age68=1'), then prob. = 0.158730 (+: 10, -: 53, obj.: 0.009257)
+else if ('p_felprop_violarrest=1', 'p_age_first_offense62=1'), then prob. = 0.142857 (+: 1, -: 6, obj.: 0.001049)
+else if ('p_current_age46=0', 'p_age_first_offense56=1'), then prob. = 0.142045 (+: 25, -: 151, obj.: 0.026372)
+else if ('p_misdemassault_arrest=1', 'p_felassault_arrest=0'), then prob. = 0.138889 (+: 5, -: 31, obj.: 0.005415)
+else prob. = 0.048276 (+: 7, -: 138, obj.: 0.008557)
+objective = 0.623130
+
+Hyperparameters: 
+w = 7
+C = 0.000001
+prob_terminate = 0.01
+T_FRL = 3000

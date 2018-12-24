@@ -18,7 +18,6 @@ from riskslim.lattice_cpa import setup_lattice_cpa, finish_lattice_cpa
 data_name = "\\riskSLIM"                                      # name of the data
 data_dir = os.getcwd()                                      # directory where datasets are stored
 data_csv_file = data_dir + data_name + '_data.csv'          # csv file for the dataset
-data_csv_file = data_dir + data_name + '_data.csv'          # csv file for the dataset
 fold_csv_file = data_dir + data_name + '_folds.csv'
 fold_num = 5 #fold held out for testing
 sample_weights_csv_file = None                              # csv file of sample weights for the dataset (optional)
