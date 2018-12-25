@@ -230,10 +230,11 @@ plot(out_lasso$roc,
 
 ```{r include = FALSE}
 library(randomForest)
-setup_rf = list(
+setup = list(
   nfold=5, 
   seed = 784
 )
+
 ```
 
 
@@ -262,9 +263,8 @@ plot(out_rf$roc,
 6       6 1592      0.5416409    0.05702557     0.5361078   0.05702557
 7       7  181      0.6135910    0.01825666     0.6048626   0.01825666
 8       8  805      0.5416409    0.05702557     0.5361078   0.05702557
-```{r}
+```{r include = FALSE}
 library(rpart)
-
 setup_cart = list(
   nfold=5
 )
@@ -285,13 +285,18 @@ out_cart =  train %>%
           fit_cart_auc(param_cart, setup_cart)
 
 out_cart$performance
+plot(out_cart$roc,
+     print.auc = T,
+     main = paste("ROC curve using N = ", nrow(train)),
+     legacy.axes = T,
+     grid =T )
+
 ```
 
 
 
 ### Train SVM
 0.7059543 accuracy
-
 ```{r}
 param_svm = list(
   type = 'C-classification',
@@ -299,7 +304,12 @@ param_svm = list(
   epsilon = .1, # This parameter isn't used for classification but need to set anyway or it will break
   gamma_scale = c(0.5,1,2)
 )
-# mdl_svm = fit_svm(recid_use ~ ., train, param_svm)
+
+```
+
+
+```{r}
+# mdl_svm =fit_svm(recid_use ~ ., train, param_svm)
 
 out_svm = train %>%
           mutate(y = as.factor(recid_use)) %>%
@@ -307,8 +317,15 @@ out_svm = train %>%
           fit_svm(recid_use ~ ., train, param_svm)
 
 out_svm$performance
-print("Accuracy is: ")
-1-mean(mdl_svm$fitted != train$recid_use) # ADJUST GROUP
+plot(out_svm$roc,
+     print.auc = T,
+     main = paste("ROC curve using N = ", nrow(train)),
+     legacy.axes = T,
+     grid =T )
+
+
+# print("Accuracy is: ")
+# 1-mean(mdl_svm$fitted != train$recid_use) # ADJUST GROUP
 
 ```
 

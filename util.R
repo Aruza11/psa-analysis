@@ -320,15 +320,17 @@ fit_rf_auc <- function(train, setup) {
   mdl_rf = randomForest(formula = y ~ ., data=train)
   X = train%>% select(-c(y))%>%data.matrix()
   y = train%>% select(y) %>% data.matrix() %>% as.numeric
-  preds = predict(mdl_rf, newdata=X, type = "response") %>%
-          as.character()%>%
+  preds = predict(mdl_rf, newdata=X, type = "prob") %>%
+          as_data_frame()%>%
+          select(`1`)%>%
+          unlist()%>%
           as.numeric()
   
   #create ROC
   roc = roc(y,preds, percent = F, boot.n = 1000,
             ci.alpha = .9, stratified = F,  
             reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-            # smooth = T
+            smooth = F
             )
             
   return(list(pred=as.numeric(as.character(mdl_rf$predicted)), performance=performance, roc = roc))
@@ -397,10 +399,27 @@ fit_cart_auc <- function(train, param, setup) {
                   data = train, method="class", 
                   control=rpart.control(cp = param[i_param_best, "cp"]) )
   
-  return(list(pred=mdl_best, performance=performance))
+  X = train%>% select(-c(y))
+  y = train%>% select(y) %>%unlist()%>% as.numeric
+  preds = predict(mdl_best, newdata=X, type = "prob") %>%
+    as_data_frame()%>%
+    select(`1`)%>%
+    unlist()%>%
+    as.numeric()
+  
+  
+  # preds = as.numeric(as.character(predict(mdl_best, newdata=..1, type = "class")))
+  roc = roc(y,preds, percent = F, boot.n = 1000,
+            ci.alpha = .9, stratified = F,  
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
+            smooth = F
+  )
+  
+  return(list(pred=mdl_best, performance=performance, roc=roc))
 }
 
 fit_svm <- function(formula, train, param) {
+  #MUST CHANGE THIS TO PICK BEST MODEL BASED ON AUC
   ###
   # Cross validates each combination of parameters in param and returns best model
   # param is a list of svm parameters as vectors
@@ -473,7 +492,23 @@ fit_svm <- function(formula, train, param) {
                                          epsilon = param_df$epsilon[i_param_best],
                                          cost = param_df$cost[i_param_best],
                                          cross = 5,
-                                         scale = TRUE))
+                                         scale = TRUE, 
+                                         probability = TRUE))
   
-  return(mdl_best)
-}
+  X = train%>% select(-c(y)) %>% data.matrix()
+  y = train%>% select(y) %>% unlist()%>% as.numeric
+  
+  preds = predict(mdl_best, newdata=X, probability = TRUE) %>%
+    as_data_frame()%>%
+    select(`1`)%>%
+    unlist()%>%
+    as.numeric()
+  
+  roc = roc(y,preds, percent = F, boot.n = 1000,
+            ci.alpha = .9, stratified = F,  
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
+            smooth = F
+  )
+  
+  return(list(pred=mdl_best, performance=performance, roc=roc))
+  }
