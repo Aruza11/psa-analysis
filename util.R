@@ -418,7 +418,106 @@ fit_cart_auc <- function(train, param, setup) {
   return(list(pred=mdl_best, performance=performance, roc=roc))
 }
 
-fit_svm <- function(formula, train, param) {
+fit_svm_auc <- function(train, param, setup) {
+  ###
+  # Trains CART on each combination of parameters,
+  # returns cross validated AUC on training set and test set
+  # train MUST have response variable named "y"
+  ###
+  
+  ## Allocate space for performance statistics
+  n_param = nrow(param)
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std")
+  
+  performance = data.frame(
+    i_param = 1:n_param,
+    seed = sample.int(10000, n_param),
+    matrix(NA,nrow=n_param,
+           ncol=length(eval_varnames),
+           dimnames=list(NULL,eval_varnames)))
+  
+  
+  train_fold = train %>%
+    modelr::crossv_kfold(k = setup[["nfold"]]) %>%
+    transmute(X = map(train, ~ as.data.frame(select(as.data.frame(.x), -y))),
+              y = map(train, ~ as.data.frame(.x)$y),
+              X_test = map(test, ~ as.data.frame(select(as.data.frame(.x), -y))),
+              y_test = map(test, ~ as.data.frame(.x)$y))
+  
+  cat("Training on",n_param,"sets of parameters.\n")
+  
+  ## Loop through the different parameters sets
+  for (i_param in 1:n_param) {
+    set.seed(performance$seed[i_param])
+    
+    
+    # Train model on each fold
+    res = train_fold %>%
+      mutate(model = map2(X,y, ~suppressWarnings(
+                                e1071::svm(formula = .y ~., 
+                                           data = .x, 
+                                           type = param[i_param, 'type'], 
+                                           kernel = 'radial', 
+                                           gamma = param[i_param, 'gamma'], 
+                                           epsilon = param[i_param, 'epsilon'], 
+                                           cost = param[i_param,  'cost'], 
+                                           cross = 5, 
+                                           scale = TRUE, 
+                                           probability = TRUE
+      ))))%>%
+      
+      # Compute performance statistics
+      mutate(auc_train = pmap_dbl(list(X,y,model), ~  pROC::auc(response=..2,predictor=as.numeric(as.character((predict(..3, newdata=..1, probability = F))))),
+             auc_test = pmap_dbl(list(X_test,y_test,model), ~  pROC::auc(response=..2,predictor=as.numeric(as.character(predict(..3, newdata=..1, probability = F)))))
+      ) %>%
+      
+      # Record performance fit statistics over folds
+      summarize(train_auc_mean = mean(auc_train), # Order should match columns of performance
+                train_auc_std = sd(auc_train),
+                test_auc_mean = mean(auc_test),
+                test_auc_std = sd(auc_train))
+    
+    performance[i_param,eval_varnames] = as.numeric(res[1,eval_varnames])
+  }
+  
+  #Train all data using best parameters
+  i_param_best = performance$i_param[which.max(performance$test_auc_mean)]
+  print("Best parameters:")
+  print(t(param[i_param_best,])) #Prints the best parameters
+  set.seed(performance$seed[i_param_best])
+  
+  mdl_best =suppressWarnings(e1071::svm(formula = y~., 
+                                        data = train, 
+                                        type = param$type,
+                                        kernel = 'radial',
+                                        gamma = param_df$gamma[i_param_best],
+                                        epsilon = param_df$epsilon[i_param_best],
+                                        cost = param_df$cost[i_param_best],
+                                        # cross = 5,
+                                        scale = TRUE, 
+                                        probability = TRUE))
+  
+  X = train%>% select(-c(y))%>%data.matrix()
+  y = train%>% select(y) %>% unlist()%>% as.numeric()
+  
+  preds = predict(mdl_best, newdata=X, probability = TRUE) %>%
+    as_data_frame()%>%
+    select(`1`)%>%
+    unlist()%>%
+    as.numeric()
+  
+  
+  # preds = as.numeric(as.character(predict(mdl_best, newdata=..1, type = "class")))
+  roc = roc(y,preds, percent = F, boot.n = 1000,
+            ci.alpha = .9, stratified = F,  
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
+            smooth = F
+  )
+  
+  return(list(pred=mdl_best, performance=performance, roc=roc))
+}
+
+fit_svm <- function(train, param) {
   #MUST CHANGE THIS TO PICK BEST MODEL BASED ON AUC
   ###
   # Cross validates each combination of parameters in param and returns best model
@@ -495,20 +594,7 @@ fit_svm <- function(formula, train, param) {
                                          scale = TRUE, 
                                          probability = TRUE))
   
-  X = train%>% select(-c(y)) %>% data.matrix()
-  y = train%>% select(y) %>% unlist()%>% as.numeric
+
   
-  preds = predict(mdl_best, newdata=X, probability = TRUE) %>%
-    as_data_frame()%>%
-    select(`1`)%>%
-    unlist()%>%
-    as.numeric()
-  
-  roc = roc(y,preds, percent = F, boot.n = 1000,
-            ci.alpha = .9, stratified = F,  
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-            smooth = F
-  )
-  
-  return(list(pred=mdl_best, performance=performance, roc=roc))
+  return(list(pred=mdl_best, performance=performance))
   }

@@ -14,8 +14,12 @@ library(tidyverse)
 library(magrittr)
 library(pROC)
 source('util.R')
+```
+
+```{r}
 load("expanded_features.Rdata")
 load("compas_psa.Rdata")
+
 ```
 
 ### Prepare data 
@@ -298,12 +302,24 @@ plot(out_cart$roc,
 ### Train SVM
 0.7059543 accuracy
 ```{r}
-param_svm = list(
-  type = 'C-classification',
-  cost = c(0.5,1,2),
-  epsilon = .1, # This parameter isn't used for classification but need to set anyway or it will break
-  gamma_scale = c(0.5,1,2)
+setup_svm = list(
+  nfold=5
 )
+
+# param_svm = expand.grid(list(
+#   type = 'C-classification',
+#   cost = c(0.5,1,2),
+#   epsilon = .1, # This parameter isn't used for classification but need to set anyway or it will break
+#   gamma = c(0.5,1,2)
+# ))
+
+
+param_svm = expand.grid(list(
+  type = 'C-classification',
+  cost = c(0.5,2),
+  epsilon = .1, # This parameter isn't used for classification but need to set anyway or it will break
+  gamma = c(.5)
+))
 
 ```
 
@@ -314,7 +330,7 @@ param_svm = list(
 out_svm = train %>%
           mutate(y = as.factor(recid_use)) %>%
           select(-recid_use) %>%
-          fit_svm(recid_use ~ ., train, param_svm)
+          fit_svm_auc(param_svm, setup_svm)
 
 out_svm$performance
 plot(out_svm$roc,
@@ -323,8 +339,7 @@ plot(out_svm$roc,
      legacy.axes = T,
      grid =T )
 
-
-# print("Accuracy is: ")
+# print("Accuracy is: "
 # 1-mean(mdl_svm$fitted != train$recid_use) # ADJUST GROUP
 
 ```
