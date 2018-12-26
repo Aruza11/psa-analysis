@@ -321,8 +321,36 @@ param_svm = expand.grid(list(
   gamma = c(.5)
 ))
 
+train2 = train%>%head(500)%>%
+  mutate(y = as.factor(recid_use)) %>%
+          select(-recid_use) 
 ```
 
+
+```{r}
+ mdl_best =suppressWarnings(e1071::svm(formula = y~., 
+                                        data = train2, 
+                                        type = 'C-classification',
+                                        kernel = 'radial',
+                                        gamma = param_svm[1, "gamma"],
+                                        epsilon = param_svm[1, "epsilon"],
+                                        cost = param_svm[1, "cost"],
+                                        # cross = 5,
+                                        scale = TRUE, 
+                                        probability = TRUE))
+  
+  X = train2%>% select(-c(y))%>%data.matrix()
+  y = train2%>% select(y) %>% unlist()%>% as.numeric()
+  
+  preds = predict(mdl_best, newdata=X, 
+                  probability = TRUE
+                  ) 
+    # as_data_frame()
+    # select(`1`)%>%
+    # unlist()%>%
+    # as.numeric()
+ 
+```
 
 ```{r}
 # mdl_svm =fit_svm(recid_use ~ ., train, param_svm)

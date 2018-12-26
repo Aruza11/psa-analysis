@@ -467,7 +467,7 @@ fit_svm_auc <- function(train, param, setup) {
       ))))%>%
       
       # Compute performance statistics
-      mutate(auc_train = pmap_dbl(list(X,y,model), ~  pROC::auc(response=..2,predictor=as.numeric(as.character((predict(..3, newdata=..1, probability = F))))),
+      mutate(auc_train = pmap_dbl(list(X,y,model), ~  pROC::auc(response=..2,predictor=as.numeric(as.character(predict(..3, newdata=..1, probability = F))))),
              auc_test = pmap_dbl(list(X_test,y_test,model), ~  pROC::auc(response=..2,predictor=as.numeric(as.character(predict(..3, newdata=..1, probability = F)))))
       ) %>%
       
@@ -490,9 +490,9 @@ fit_svm_auc <- function(train, param, setup) {
                                         data = train, 
                                         type = param$type,
                                         kernel = 'radial',
-                                        gamma = param_df$gamma[i_param_best],
-                                        epsilon = param_df$epsilon[i_param_best],
-                                        cost = param_df$cost[i_param_best],
+                                        gamma = param[i_param_best, "gamma"],
+                                        epsilon = param[i_param_best, "epsilon"],
+                                        cost = param[i_param_best, "cost"],
                                         # cross = 5,
                                         scale = TRUE, 
                                         probability = TRUE))
@@ -501,100 +501,18 @@ fit_svm_auc <- function(train, param, setup) {
   y = train%>% select(y) %>% unlist()%>% as.numeric()
   
   preds = predict(mdl_best, newdata=X, probability = TRUE) %>%
+    attr("prob")%>%
     as_data_frame()%>%
     select(`1`)%>%
     unlist()%>%
     as.numeric()
   
   
-  # preds = as.numeric(as.character(predict(mdl_best, newdata=..1, type = "class")))
   roc = roc(y,preds, percent = F, boot.n = 1000,
-            ci.alpha = .9, stratified = F,  
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
+            ci.alpha = .9, stratified = F,
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars",
             smooth = F
   )
   
   return(list(pred=mdl_best, performance=performance, roc=roc))
 }
-
-fit_svm <- function(train, param) {
-  #MUST CHANGE THIS TO PICK BEST MODEL BASED ON AUC
-  ###
-  # Cross validates each combination of parameters in param and returns best model
-  # param is a list of svm parameters as vectors
-  # svm parameters are cost, epsilon, and gamma_scale (a scaling factor on the default gamma value)
-  # train is formatted for xgboost input
-  ###
-  
-  
-  param_df = expand.grid(param) # Each row is a set of parameters to be cross validated
-  n_param = nrow(param_df)
-  
-  ## Compute default gamma parameter
-  gamma_default = 1/ncol(train)
-  param_df = param_df %>%
-    mutate(gamma = gamma_scale * gamma_default)
-  
-  ## Make sure only one type parameter
-  if(length(param$type) == 1){
-    
-    if(str_detect(param$type,'regression')){
-      reg_or_class = 'reg'
-    } else if (str_detect(param$type,'classification')) {
-      reg_or_class = 'class'
-    }
-  } else{
-    stop('Can only handle one type parameter')
-  }
-  
-  ## Allocate space for performance statistics (and set seeds)
-  performance = rep(NA,n_param)
-  
-  cat("Training on",n_param,"sets of parameters.\n")
-  
-  ## Loop through the different parameters sets
-  for (i_param in 1:n_param) {
-    
-    mdcv = suppressWarnings(e1071::svm(formula = formula, 
-                                       data = train, 
-                                       type = param$type,
-                                       kernel = 'radial',
-                                       gamma = param_df$gamma[i_param],
-                                       epsilon = param_df$epsilon[i_param],
-                                       cost = param_df$cost[i_param],
-                                       cross = 5,
-                                       scale = TRUE))
-    
-    if(reg_or_class == "reg"){
-      performance[i_param] = mdcv$tot.MSE
-    } else if (reg_or_class == "class") {
-      performance[i_param] = mdcv$tot.accuracy
-    }
-    
-  }
-  
-  ## Train on best parameters using best number of rounds
-  if(reg_or_class == "reg"){
-    i_param_best = which.min(performance)
-  } else if (reg_or_class == "class") {
-    i_param_best = which.max(performance)
-  }
-  
-  print("Best parameters:")
-  print(t(param_df[i_param_best,]))
-  
-  mdl_best = suppressWarnings(e1071::svm(formula = formula, 
-                                         data = train, 
-                                         type = param$type,
-                                         kernel = 'radial',
-                                         gamma = param_df$gamma[i_param_best],
-                                         epsilon = param_df$epsilon[i_param_best],
-                                         cost = param_df$cost[i_param_best],
-                                         cross = 5,
-                                         scale = TRUE, 
-                                         probability = TRUE))
-  
-
-  
-  return(list(pred=mdl_best, performance=performance))
-  }
