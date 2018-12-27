@@ -47,9 +47,10 @@ features_filt = features_before_on %>%
          decile_use = `Risk of Recidivism_decile_score`) # Select recidivism or violent recidivism decile score to use in this script
 
 ## Select features and round count features
-train = features_filt %>%
+df = features_filt %>%
   transmute(
-    #COMPAS Risk of Recidivism Features
+    person_id,
+    #COMPAS Risk of Recidivism Features\
     p_current_age,
     p_age_first_offense,
     p_charge,
@@ -79,9 +80,16 @@ train = features_filt %>%
     p_fraud,
     p_stealing,
     p_trespass,
-    recid_use)
+    recid_use) 
+df = df[1:100,] # Comment for full training set. This is just for testing.
 
-# train = train[1:100,] # Comment for full training set. This is just for testing.
+set.seed(283)
+train = sample_frac(df,.8)
+test = anti_join(df, train, by = 'person_id')
+
+train = select(train, -person_id)
+test = select(test, -person_id)
+
 ```
 
 
@@ -123,7 +131,7 @@ setup_xgb = list(
 
 ```{r}
 set.seed(2812)
-out_xgb = fit_xgb_auc(train_xgb, param_xgb, setup_xgb)
+out_xgb = fit_xgb_auc(train_xgb, test, param_xgb, setup_xgb)
 out_xgb$performance
 out_xgb$roc
 ```
@@ -153,7 +161,7 @@ setup_bart = list(
 out_bart = train %>%
   mutate(y = as.factor(recid_use)) %>%
   select(-recid_use) %>%
-  fit_bart_auc(param_bart,setup_bart)
+  fit_bart_auc(test, param_bart,setup_bart)
 ```
   i_param seed train_auc_mean train_auc_std test_auc_mean test_auc_std
 1       1 5908      0.7317067    0.01156313     0.7041193   0.01156313
@@ -321,36 +329,8 @@ param_svm = expand.grid(list(
   gamma = c(.5)
 ))
 
-train2 = train%>%head(500)%>%
-  mutate(y = as.factor(recid_use)) %>%
-          select(-recid_use) 
 ```
 
-
-```{r}
- mdl_best =suppressWarnings(e1071::svm(formula = y~., 
-                                        data = train2, 
-                                        type = 'C-classification',
-                                        kernel = 'radial',
-                                        gamma = param_svm[1, "gamma"],
-                                        epsilon = param_svm[1, "epsilon"],
-                                        cost = param_svm[1, "cost"],
-                                        # cross = 5,
-                                        scale = TRUE, 
-                                        probability = TRUE))
-  
-  X = train2%>% select(-c(y))%>%data.matrix()
-  y = train2%>% select(y) %>% unlist()%>% as.numeric()
-  
-  preds = predict(mdl_best, newdata=X, 
-                  probability = TRUE
-                  ) 
-    # as_data_frame()
-    # select(`1`)%>%
-    # unlist()%>%
-    # as.numeric()
- 
-```
 
 ```{r}
 # mdl_svm =fit_svm(recid_use ~ ., train, param_svm)

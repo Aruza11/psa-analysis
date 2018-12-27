@@ -1,4 +1,4 @@
-fit_xgb_auc <- function(train, param, setup) {
+fit_xgb_auc <- function(train, test,param, setup) {
   ###
   # Cross validates each combination of parameters in param and returns best model
   # param is a list of xgboost parameters as vectors
@@ -47,20 +47,22 @@ fit_xgb_auc <- function(train, param, setup) {
   mdl_best = xgb.train(data=train, 
                        params=list(param[i_param_best,])[[1]], 
                        nrounds=performance$iter[i_param_best])
-  # preds = predict(mdl_best,train$data )
-  # roc = roc(train$label,preds , percent = F, boot.n = 1000,
-  #           ci.alpha = .9, stratified = F,  
-  #           reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-  #           print.thres.cex = .7, 
-  #           main = paste("ROC curve using N = ", nrow(train)),
-  #           smooth =T, show.thres = T, legacy.axes = T,
-  #           plot = T, grid =T )
+  
+  labels = test %>% select(recid_use) %>% as.character() %>% as.numeric()
+  preds = predict(mdl_best, newdata = test%>% select(-recid_use)%>%data.matrix() )
+  roc = roc(labels,preds , percent = F, boot.n = 1000,
+            ci.alpha = .9, stratified = F,
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars",
+            print.thres.cex = .7,
+            main = paste("ROC curve using N = ", nrow(train)),
+            smooth =T, show.thres = T, legacy.axes = T,
+            plot = T, grid =T )
   
   return(list(mdl_best=mdl_best, performance=performance, roc = roc))
 }
 
 
-fit_bart_auc <- function(train, param, setup) {
+fit_bart_auc <- function(train, test, param, setup) {
   ###
   # Cross validates each combination of parameters in param and returns best model
   # train MUST have response variable named "y"
@@ -136,8 +138,10 @@ fit_bart_auc <- function(train, param, setup) {
                         q = param[i_param_best,"q"], 
                         nu = param[i_param_best,"nu"]
   )
-  preds = predict(mdl_best, new_data = as.data.frame(select(train,-y)) )
-  roc = roc(train$y,preds , percent = F, boot.n = 1000,
+  
+  labels = test %>% select(recid_use) %>% as.character() %>% as.numeric()
+  preds = predict(mdl_best, new_data = as.data.frame(select(test,-recid_use)) )
+  roc = roc(labels,preds , percent = F, boot.n = 1000,
             ci.alpha = .9, stratified = F,
             reuse.auc = T, print.auc = T, ci = T, ci.type = "bars",
             print.thres.cex = .7,
@@ -148,7 +152,7 @@ fit_bart_auc <- function(train, param, setup) {
   return(list(mdl_best=mdl_best, performance=performance, roc = roc))
 }
 
-fit_glm_auc <- function(train, setup) {
+fit_glm_auc <- function(train, test,setup) {
   ###
   # Trains glm, returns cross validated AUC on training set and test set
   # train MUST have response variable named "y"
@@ -189,16 +193,18 @@ fit_glm_auc <- function(train, setup) {
     
   performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
   #trains glm on all data
-  fit = glm(y ~ ., family=binomial(link='logit'), data=train)
+  best_mdl = glm(y ~ ., family=binomial(link='logit'), data=train)
   #create ROC
   # par(pty = "s")
-  roc = roc(train$y,as.vector(fitted.values(fit)) , percent = F, boot.n = 1000,
+  labels = test %>% select(recid_use) %>% as.character() %>% as.numeric()
+  preds = predict(best_mdl, newdata = test %>%select(-recid_use),type = "response")
+  roc = roc(labels,preds , percent = F, boot.n = 1000,
             ci.alpha = .9, stratified = F,  
             reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
             smooth = T
             )
   
-  return(list(fit_glm=fit, performance=performance, roc = roc))
+  return(list(best_mdl=best-mdl, performance=performance, roc = roc))
 }
 
 fit_lasso_auc <- function(train, setup) {
