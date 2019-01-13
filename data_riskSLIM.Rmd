@@ -3,7 +3,8 @@ title: "data_riskSLIM"
 output: html_notebook
 ---
 
-In this notebook we convert the features_before_on (stored in expanded_features.Rdata) to a format suitable for riskSLIM, and convert to csv.
+In this notebook we convert the features_before_on (stored in expanded_features.Rdata) to a format suitable for riskSLIM, and convert to two csvs: a training set and a held out test (same as the one used in predict_recidivism.Rmd)
+
 riskSLIM load_data_from_csv() docstring: 
     """
     Parameters
@@ -71,9 +72,10 @@ features_filt = features_before_on %>%
   mutate(recid_use = recid) # Select recidivism or violent recidivism to use in this script 
          
 ## Select features and round count features
-train = features_filt %>%
+df = features_filt %>%
   transmute(
     #COMPAS Risk of Recidivism Features (excluding age)
+    person_id,
     p_charge,
     p_jail30 = pmin(p_jail30,5),
     p_prison = pmin(p_prison,5),
@@ -143,20 +145,32 @@ train = features_filt %>%
     recid_use = ifelse(recid_use == 0, -1, recid_use))
 
 #label must be first column for riskSLIM
+set.seed(283)
+train = df %>% sample_frac(.8)
+test = df %>% anti_join(train, by = 'person_id') #change to account for screening date!
+
+train = select(train, -person_id)
+test = select(test, -person_id)
+
 train=train[,c(ncol(train),2:ncol(train)-1)]
+test=test[,c(ncol(test),2:ncol(test)-1)]
+
 ```
 
 Create K folds csv. riskSLIM pkg requires K \in [1,N], where N is the number of data points
 ```{r}
-folds=as.data.frame(createFolds(train$recid_use, k = 5, list = F, returnTrain = T),make.names = F)
+# folds=as.data.frame(createFolds(train$recid_use, k = 5, list = F, returnTrain = T),make.names = F)
 
 ```
 
 ```{r}
-write.table(train, file="riskSLIM_data.csv",
+write.table(train, file="riskSLIM_train_data.csv",
             sep=",", row.names = F)
-write.table(folds,file= "riskSLIM_folds.csv",
-            sep = ",", col.names = F,row.names =F)
+write.table(test, file="riskSLIM_test_data.csv",
+            sep=",", row.names = F)
+
+# write.table(folds,file= "riskSLIM_folds.csv",
+#             sep = ",", col.names = F,row.names =F)
 
 ```
 

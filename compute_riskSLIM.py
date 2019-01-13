@@ -4,7 +4,11 @@ sys.path.insert(0, srcpath)
 
 import numpy as np
 import pandas as pd
+from itertools import product
+
 from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import KFold
+
 import pickle
 import cplex as cplex
 from pprint import pprint
@@ -13,203 +17,237 @@ from riskslim.setup_functions import get_conservative_offset
 from riskslim.coefficient_set import CoefficientSet
 from riskslim.lattice_cpa import setup_lattice_cpa, finish_lattice_cpa
 
+# def predict(rho,dataX):
+#     # score = np.apply_along_axis(np.dot(),0, dataX,a=rho)
+#     score = np.dot(dataX, rho)
+#     return score #a np array containing prediction  results
 
-# data
-data_name = "\\riskSLIM"                                      # name of the data
-data_dir = os.getcwd()                                      # directory where datasets are stored
-data_csv_file = data_dir + data_name + '_data.csv'          # csv file for the dataset
-fold_csv_file = data_dir + data_name + '_folds.csv'
-fold_num = 5 #fold held out for testing
-sample_weights_csv_file = None                              # csv file of sample weights for the dataset (optional)
-
-# problem parameters
-max_coefficient = 6   
-min_coefficient = 0                                         # value of largest/smallest coefficient
-max_L0_value = 6                                            # maximum model size
-max_offset = 50                                             # maximum value of offset parameter (optional)
-c0_value = 1e-6                                             # L0-penalty parameter such that c0_value > 0; larger values -> sparser models; we set to a small value (1e-6) so that we get a model with max_L0_value terms
-w_pos = 1.00                                                # relative weight on examples with y = +1; w_neg = 1.00 (optional)
+# score = predict(rho, test['X'])
+# #TODO: REPLACE HARD CODED INTERCEPT WITH ACTUAL CODE
+# intercept = model_info['solution'][0]
+# test['prob_recid'] =  1/(1 + np.exp(intercept - score))
 
 
-# load data from disk
-data = load_data_from_csv(dataset_csv_file = data_csv_file, 
-                        sample_weights_csv_file = sample_weights_csv_file,
-                        fold_csv_file= fold_csv_file, 
-                        fold_num = fold_num)
-N, P = data['X'].shape
+# print("The AUC of riskSLIM is: ",roc_auc_score(test['Y'], test['prob_recid']))
+# print("Variabes are:\n")
+# for i,name in enumerate(list(variable_names)): 
+#     if rho[i]!=0: 
+#         print(name, "\n")
 
-# create coefficient set and set the value of the offset parameter
-coef_set = CoefficientSet(variable_names=data['variable_names'], lb=0, ub=min_coefficient, sign=1)
-conservative_offset = get_conservative_offset(data, coef_set, max_L0_value)
-max_offset = min(max_offset, conservative_offset)
-coef_set['(Intercept)'].ub = max_offset
-coef_set['(Intercept)'].lb = -max_offset
+def expand_grid(param_dict):
+	'''
+	@params: dictionary where each key is a possible parameter and 
+	each item is a list of possible parameter values 
+	returns: a list of dicts where each dict holds unique combination 
+			of possible parameter values
+	'''
+	param_df = pd.DataFrame([row for row in product(*param_dict.values())], 
+					   columns=param_dict.keys())
 
-# create constraint
-trivial_L0_max = P - np.sum(coef_set.C_0j == 0)
-max_L0_value = min(max_L0_value, trivial_L0_max)
+	param_grid = []
+	for i, row in param_df.iterrows(): 
+		param_grid.append({colname:row[colname] for colname in list(param_df)})
+	return param_grid
 
-constraints = {
-    'L0_min': 0,
-    'L0_max': max_L0_value,
-    'coef_set':coef_set,
-}
+def fit_riskSLIM(data, params): 
+	'''
+	@param data = {
+		"X": train,
+		"Y": test, 
+		"sample_weights": sample_weights
+		"variable_names": variable_names
+	}
+	@param params: dictionary containing parameters 
+	'''
 
+	settings = {
+		# Problem Parameters
+		'c0_value': params['c0_value'],
+		'w_pos': params['w_pos'],
+		#
+		# LCPA Settings
+		'max_runtime': 300.0,                               # max runtime for LCPA
+		'max_tolerance': np.finfo('float').eps,             # tolerance to stop LCPA (set to 0 to return provably optimal solution)
+		'display_cplex_progress': True,                     # print CPLEX progress on screen
+		'loss_computation': 'normal',                       # how to compute the loss function ('normal','fast','lookup')
+		#
+		# RiskSLIM MIP settings
+		'drop_variables': False,
+		#
+		# LCPA Improvements
+		'round_flag': False,                                # round continuous solutions with SeqRd
+		'polish_flag': False,                               # polish integer feasible solutions with DCD
+		'chained_updates_flag': False,                      # use chained updates
+		'initialization_flag': False,                       # use initialization procedure
+		'init_max_runtime': 300.0,                          # max time to run CPA in initialization procedure
+		'add_cuts_at_heuristic_solutions': True,            # add cuts at integer feasible solutions found using polishing/rounding
+		#
+		# CPLEX Solver Parameters
+		'cplex_randomseed': 0,                              # random seed
+		'cplex_mipemphasis': 0,                             # cplex MIP strategy
+	}
 
-# major settings (see riskslim_ex_02_complete for full set of options)
-settings = {
-    # Problem Parameters
-    'c0_value': c0_value,
-    'w_pos': w_pos,
-    #
-    # LCPA Settings
-    'max_runtime': 300.0,                               # max runtime for LCPA
-    'max_tolerance': np.finfo('float').eps,             # tolerance to stop LCPA (set to 0 to return provably optimal solution)
-    'display_cplex_progress': True,                     # print CPLEX progress on screen
-    'loss_computation': 'normal',                       # how to compute the loss function ('normal','fast','lookup')
-    #
-    # RiskSLIM MIP settings
-    'drop_variables': False,
-    #
-    # LCPA Improvements
-    'round_flag': False,                                # round continuous solutions with SeqRd
-    'polish_flag': False,                               # polish integer feasible solutions with DCD
-    'chained_updates_flag': False,                      # use chained updates
-    'initialization_flag': False,                       # use initialization procedure
-    'init_max_runtime': 300.0,                          # max time to run CPA in initialization procedure
-    'add_cuts_at_heuristic_solutions': True,            # add cuts at integer feasible solutions found using polishing/rounding
-    #
-    # CPLEX Solver Parameters
-    'cplex_randomseed': 0,                              # random seed
-    'cplex_mipemphasis': 0,                             # cplex MIP strategy
-}
+	# # turn on at your own risk
+	# settings['round_flag'] = False
+	# settings['polish_flag'] = False
+	# settings['chained_updates_flag'] = False
+	# settings['initialization_flag'] = False
+	N, P = data["X"].shape
 
-# turn on at your own risk
-settings['round_flag'] = False
-settings['polish_flag'] = False
-settings['chained_updates_flag'] = False
-settings['initialization_flag'] = False
+	# create coefficient set and set the value of the offset parameter
+	coef_set = CoefficientSet(variable_names=data['variable_names'], lb=0, ub=params['min_coefficient'], sign=1)
+	# print("MAX L0 VALUE IS", params['max_L0_value'])
+	conservative_offset = get_conservative_offset(data, coef_set, int(params['max_L0_value']))
+	max_offset = min(params['max_offset'], conservative_offset)
+	coef_set['(Intercept)'].ub = max_offset
+	coef_set['(Intercept)'].lb = -max_offset
 
+	# create constraint
+	trivial_L0_max = P - np.sum(coef_set.C_0j == 0)
+	max_L0_value = min(int(params['max_L0_value']), trivial_L0_max)
 
-# initialize MIP for lattice CPA
-mip_objects = setup_lattice_cpa(data, constraints, settings)
+	constraints = {
+		'L0_min': 0,
+		'L0_max': max_L0_value,
+		'coef_set':coef_set,
+	}
 
-# add operational constraints
-mip, indices = mip_objects['mip'], mip_objects['indices']
-get_alpha_name = lambda var_name: 'alpha_' + str(data['variable_names'].index(var_name))
-get_alpha_ind = lambda var_names: [get_alpha_name(v) for v in var_names]
+	# initialize MIP for lattice CPA
+	mip_objects = setup_lattice_cpa(data, constraints, settings)
 
-# to add a constraint like "either "CellSize" or "CellShape"
-# you must formulate the constraint in terms of the alpha variables
-# alpha[cell_size] + alpha[cell_shape] <= 1 to MIP
-# mip.linear_constraints.add(
-#         names = ["EitherOr_CellSize_or_CellShape"],
-#         lin_expr = [cplex.SparsePair(ind = get_alpha_ind(['UniformityOfCellSize', 'UniformityOfCellShape']),
-#                                      val = [1.0, 1.0])],
-#         senses = "L",
-#         rhs = [1.0])
+	# add operational constraints
+	mip, indices = mip_objects['mip'], mip_objects['indices']
+	get_alpha_name = lambda var_name: 'alpha_' + str(data['variable_names'].index(var_name))
+	get_alpha_ind = lambda var_names: [get_alpha_name(v) for v in var_names]
 
-mip_objects['mip'] = mip
+	# to add a constraint like "either "CellSize" or "CellShape"
+	# you must formulate the constraint in terms of the alpha variables
+	# alpha[cell_size] + alpha[cell_shape] <= 1 to MIP
+	# mip.linear_constraints.add(
+	#         names = ["EitherOr_CellSize_or_CellShape"],
+	#         lin_expr = [cplex.SparsePair(ind = get_alpha_ind(['UniformityOfCellSize', 'UniformityOfCellShape']),
+	#                                      val = [1.0, 1.0])],
+	#         senses = "L",
+	#         rhs = [1.0])
 
-# pass MIP back to lattice CPA so that it will solve
-model_info, mip_info, lcpa_info = finish_lattice_cpa(data, constraints, mip_objects, settings)
+	mip_objects['mip'] = mip
 
-#model info contains key results
-pprint(model_info)
-print_model(model_info['solution'], data)
+	# pass MIP back to lattice CPA so that it will solve
+	model_info, mip_info, lcpa_info = finish_lattice_cpa(data, constraints, mip_objects, settings)
 
-# mip_output contains information to access the MIP
-mip_info['risk_slim_mip'] #CPLEX mip
-mip_info['risk_slim_idx'] #indices of the relevant constraints
+	#model info contains key results
+	pprint(model_info)
+	print_model(model_info['solution'], data)
 
-# lcpa_output contains detailed information about LCPA
-pprint(lcpa_info)
+	# mip_output contains information to access the MIP
+	mip_info['risk_slim_mip'] #CPLEX mip
+	mip_info['risk_slim_idx'] #indices of the relevant constraints
 
-#save model 
-pickling_on = open("riskSLIM_model.pickle","wb")
-pickle.dump(model_info, pickling_on)
-pickling_on.close()
+	# lcpa_output contains detailed information about LCPA
+	pprint(lcpa_info)
+	return model_info
 
-# pickle_off = open("riskSLIM_model.pickle","rb")
-# model_info = pickle.load(pickle_off)
+#todo: implement cross validation on riskSLIM the way we do it in R
+'''i.e. 1) Initialize an array of training parameters and split data into train, test 
+		2) Loop through params, performing cross validation at each step to obtain auc summary statistics for model. 
+		 Save in performance array 
+			i) Cross validation procedure: 
+			Shuffle the dataset randomly.
+			Split the dataset into k groups
+			For each unique group:
+			Take the group as a hold out or test data set
+			Take the remaining groups as a training data set
+			Fit a model on the training set and evaluate it on the test set
+			Retain the evaluation score and discard the model
+			Summarize the skill of the model using the sample of model evaluation scores
+		3) Pick model with highest mean c.v. auc. Train model on all data using these hyperparameters. 
+		4) Evaluate on test set using auc. 
 
-# ###predict on held out test data ######
-# model_info = {'data_time': 0.429002046585083,
-#  'loss_value': 0.6242337422520895,
-#  'nodes_processed': 432081,
-#  'objective_value': 0.6242387422520895,
-#  'optimality_gap': 0.07066716970224067,
-#  'run_time': 300.0914874076843,
-#  'solution': np.array([-1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,      0.,
-#         0.,  0.,  0.,  0.,  0.,  0.,  0.,  6.,  0.,  0.,  0.,  0.,  0.,
-#         0.,  0.,  0.,  0.,  0.,  0.,  0.,  0., -0., -0., -0.,  4., -5.,
-#         0.,  1.,  0.,  0.,  0.,  0., -0.,  0.,  0.,  1.,  0., -0., -0.,
-#         0.,  0.]),
-#  'solver_time': 299.4157371520996,
-#  'w_pos': 1.0}
+''' 
+if __name__ == '__main__':
 
-df = pd.read_csv(data_csv_file, sep=',')
-raw_data = df.as_matrix()
-data_headers = list(df.columns.values)
-N = raw_data.shape[0]
+	# data
+	train_name = "\\riskSLIM_train"                                      
+	test_name = "\\riskSLIM_test"                                      # name of the data
 
-# setup Y vector and Y_name
-Y_col_idx = [0]
-Y = raw_data[:, Y_col_idx]
-Y_name = data_headers[Y_col_idx[0]]
-Y[Y == 0] = -1
+	data_dir = os.getcwd()                                      # directory where datasets are stored
+	train_csv = data_dir + train_name + '_data.csv'          # csv file for the train dataset
+	test_csv = data_dir + test_name + '_data.csv'          # csv file for the test dataset
 
-# setup X and select X used in score
-X_col_idx = [j for j in range(raw_data.shape[1]) if j not in Y_col_idx]
-X = raw_data[:, X_col_idx]
-variable_names = [data_headers[j] for j in X_col_idx]
+	# load data from disk
+	data = load_data_from_csv(dataset_csv_file = train_csv)
+	heldout_test_data = load_data_from_csv(dataset_csv_file = test_csv)
 
-# # insert a column of ones to X for the intercept
-# X = np.insert(arr=X, obj=0, values=np.ones(N), axis=1)
-# variable_names.insert(0, '(Intercept)')
+	# problem parameters
+	params = {
+		"max_coefficient" : [6],    #UNUSED?
+		"min_coefficient" : [0],                                         # value of largest/smallest coefficient
+		"max_L0_value" : [6],                                            # maximum model size
+		"max_offset" : [50],                                             # maximum value of offset parameter (optional)
+		"c0_value" : [1e-6],                                             # L0-penalty parameter such that c0_value > 0; larger values -> sparser models; we set to a small value (1e-6) so that we get a model with max_L0_value terms
+		"w_pos" : [1.00]                                                 # relative weight on examples with y = +1; w_neg = 1.00 (optional)
+	}
 
-if sample_weights_csv_file is None:
-    sample_weights = np.ones(N)
-else:
-    if os.path.isfile(sample_weights_csv_file):
-        sample_weights = pd.read_csv(sample_weights_csv_file, sep=',', header=None)
-        sample_weights = sample_weights.as_matrix()
-    else:
-        raise IOError('could not find sample_weights_csv_file: %s' % sample_weights_csv_file)
-
-test = {
-    'X': X,
-    'Y': Y,
-    'variable_names': variable_names,
-    'outcome_name': Y_name,
-    'sample_weights': sample_weights,
-    }
-
-fold_idx = pd.read_csv(fold_csv_file, sep=',', header=None)
-fold_idx = fold_idx.values.flatten()
-test_idx = fold_num == fold_idx
-test['X'] = test['X'][test_idx,]
-test['Y'] = test['Y'][test_idx]
-
-#run riskSLIM on test data and report auc
-rho = model_info['solution'][1:] #model parameters
-
-def predict(rho,dataX):
-    # score = np.apply_along_axis(np.dot(),0, dataX,a=rho)
-    score = np.dot(dataX, rho)
-    return score #a np array containing prediction  results
-
-score = predict(rho, test['X'])
-#TODO: REPLACE HARD CODED INTERCEPT WITH ACTUAL CODE
-intercept = model_info['solution'][0]
-test['prob_recid'] =  1/(1 + np.exp(intercept - score))
+	setup = {
+		"nfolds" : 5
+	}
 
 
-print("The AUC of riskSLIM is: ",roc_auc_score(test['Y'], test['prob_recid']))
-print("Variabes are:\n")
-for i,name in enumerate(list(variable_names)): 
-    if rho[i]!=0: 
-        print(name, "\n")
+	param_grid = expand_grid(params) #list of dictionaries 
+	print(param_grid)
+	nparam = len(param_grid)
+	i_param_best = 0
+	eval_varnames = dict.fromkeys(["train_auc_mean","train_auc_std","test_auc_mean","test_auc_std"])
+	seeds = np.random.randint(10000, size = nparam)
+	performance = [] #a list of dictionaries 
+
+	for i, param_dict in enumerate(param_grid): 
+		kfold = KFold(setup["nfolds"], shuffle = True, random_state = seeds[i])
+		performance.append({
+			"i_param": i, 
+			"seed": seeds[i]}.update(eval_varnames)
+			)
+
+		for train_folds, test_folds in kfold.split(data['X'], data['Y']):
+			data_split = {
+				"X": data['X'][train_folds],  #features
+				"Y": data['Y'][train_folds],  #labels
+				"sample_weights":  data['sample_weights'][train_folds],
+				"variable_names":  data['variable_names']
+			}
+
+			fit_riskSLIM(data_split , param_dict)
+			# evaluate(data['X'][test_folds], data['Y'][test_folds])
+
+
+	# #save model 
+	# pickling_on = open("riskSLIM_model.pickle","wb")
+	# pickle.dump(model_info, pickling_on)
+	# pickling_on.close()
+
+	# pickle_off = open("riskSLIM_model.pickle","rb")
+	# model_info = pickle.load(pickle_off)
+
+	# ###predict on held out test data ######
+	# model_info = {'data_time': 0.429002046585083,
+	#  'loss_value': 0.6242337422520895,
+	#  'nodes_processed': 432081,
+	#  'objective_value': 0.6242387422520895,
+	#  'optimality_gap': 0.07066716970224067,
+	#  'run_time': 300.0914874076843,
+	#  'solution': np.array([-1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,      0.,
+	#         0.,  0.,  0.,  0.,  0.,  0.,  0.,  6.,  0.,  0.,  0.,  0.,  0.,
+	#         0.,  0.,  0.,  0.,  0.,  0.,  0.,  0., -0., -0., -0.,  4., -5.,
+	#         0.,  1.,  0.,  0.,  0.,  0., -0.,  0.,  0.,  1.,  0., -0., -0.,
+	#         0.,  0.]),
+	#  'solver_time': 299.4157371520996,
+	#  'w_pos': 1.0}
+
+	# df = pd.read_csv(data_csv_file, sep=',')
+	# raw_data = df.as_matrix()
+	# data_headers = list(df.columns.values)
+	# N = raw_data.shape[0]
+
 
 
 

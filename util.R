@@ -48,15 +48,14 @@ fit_xgb_auc <- function(train, test,param, setup) {
                        params=list(param[i_param_best,])[[1]], 
                        nrounds=performance$iter[i_param_best])
   
-  labels = test %>% select(recid_use) %>% as.character() %>% as.numeric()
+  labels = test %>% select(recid_use) %>% unlist()%>%as.numeric() -1 #sub 1 b/c casting to numeric gives vecto of 1s and 2s
   preds = predict(mdl_best, newdata = test%>% select(-recid_use)%>%data.matrix() )
   roc = roc(labels,preds , percent = F, boot.n = 1000,
-            ci.alpha = .9, stratified = F,
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars",
-            print.thres.cex = .7,
-            main = paste("ROC curve using N = ", nrow(train)),
-            smooth =T, show.thres = T, legacy.axes = T,
-            plot = T, grid =T )
+            ci.alpha = .9, stratified = F,  
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
+            smooth = F
+  )
+  
   
   return(list(mdl_best=mdl_best, performance=performance, roc = roc))
 }
@@ -138,16 +137,14 @@ fit_bart_auc <- function(train, test, param, setup) {
                         q = param[i_param_best,"q"], 
                         nu = param[i_param_best,"nu"]
   )
-  
-  labels = test %>% select(recid_use) %>% as.character() %>% as.numeric()
+
+  labels = test %>% select(recid_use) %>% unlist() %>% as.numeric() -1
   preds = predict(mdl_best, new_data = as.data.frame(select(test,-recid_use)) )
   roc = roc(labels,preds , percent = F, boot.n = 1000,
-            ci.alpha = .9, stratified = F,
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars",
-            print.thres.cex = .7,
-            main = paste("ROC curve using N = ", nrow(train)),
-            smooth =T, show.thres = T, legacy.axes = T,
-            plot = T, grid =T )
+            ci.alpha = .9, stratified = F,  
+            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
+            smooth = F
+  )
   
   return(list(mdl_best=mdl_best, performance=performance, roc = roc))
 }
@@ -193,21 +190,21 @@ fit_glm_auc <- function(train, test,setup) {
     
   performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
   #trains glm on all data
-  best_mdl = glm(y ~ ., family=binomial(link='logit'), data=train)
+  mdl_best = glm(y ~ ., family=binomial(link='logit'), data=train)
   #create ROC
   # par(pty = "s")
-  labels = test %>% select(recid_use) %>% as.character() %>% as.numeric()
-  preds = predict(best_mdl, newdata = test %>%select(-recid_use),type = "response")
+  labels = test %>% select(recid_use) %>% unlist() %>% as.numeric() - 1
+  preds = predict(mdl_best, newdata = test %>%select(-recid_use),type = "response")
   roc = roc(labels,preds , percent = F, boot.n = 1000,
             ci.alpha = .9, stratified = F,  
             reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-            smooth = T
+            smooth = F
             )
   
-  return(list(best_mdl=best-mdl, performance=performance, roc = roc))
+  return(list(mdl_best=mdl_best, performance=performance, roc = roc))
 }
 
-fit_lasso_auc <- function(train, setup) {
+fit_lasso_auc <- function(train, test, setup) {
   ###
   # Trains LASSO, returns cross validated AUC on training set and test set
   # train MUST have response variable named "y"
@@ -263,26 +260,28 @@ fit_lasso_auc <- function(train, setup) {
   performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
   
   #trains lasso on all data
-  X = train%>% select(-c(y))%>%data.matrix()
+  X = train%>% select(-y)%>%data.matrix()
   y = train%>% select(y) %>% data.matrix() %>% as.numeric
-  fit = glmnet(x=X,y=y, family="binomial", alpha=1)
+  mdl_best = glmnet(x=X,y=y, family="binomial", alpha=1)
   best_lambda = cv.glmnet(x=X, y=y, alpha = 1)$lambda.min
-  preds = as.numeric(predict(fit,
+  
+  labels = test %>% select(recid_use) %>% unlist()%>%as.numeric() -1 #sub 1 b/c casting to numeric gives vecto of 1s and 2s
+  preds = as.numeric(predict(mdl_best,
                      type='response',
-                     newx=X, 
+                     newx=test %>% select(-recid_use)%>%data.matrix(), 
                      s = best_lambda))
   #create ROC
-  roc = roc(y,preds, percent = F, boot.n = 1000,
+  roc = roc(labels,preds, percent = F, boot.n = 1000,
             ci.alpha = .9, stratified = F,  
             reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-            smooth = T
+            smooth = F
   )
   
   
-  return(list(fit_lasso=fit, performance=performance, best_lambda = best_lambda, roc = roc))
+  return(list(mdl_best=mdl_best, performance=performance, best_lambda = best_lambda, roc = roc))
 }
 
-fit_rf_auc <- function(train, setup) {
+fit_rf_auc <- function(train, test, setup) {
   ###
   # Trains random forest, returns cross validated AUC on training set and test set
   # train MUST have response variable named "y"
@@ -323,26 +322,30 @@ fit_rf_auc <- function(train, setup) {
   performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
   
   #trains rf on all data and predicts on all data
-  mdl_rf = randomForest(formula = y ~ ., data=train)
-  X = train%>% select(-c(y))%>%data.matrix()
-  y = train%>% select(y) %>% data.matrix() %>% as.numeric
-  preds = predict(mdl_rf, newdata=X, type = "prob") %>%
+  mdl_best = randomForest(formula = y ~ ., data=train)
+  # X = train%>% select(-c(y))%>%data.matrix()
+  # y = train%>% select(y) %>% data.matrix() %>% as.numeric
+  
+  labels = test %>% select(recid_use) %>% unlist()%>%as.numeric() -1 #sub 1 b/c casting to numeric gives vecto of 1s and 2s
+  preds = predict(mdl_best, 
+                  newdata=test%>% select(-recid_use)%>%data.matrix(), 
+                  type = "prob") %>%
           as_data_frame()%>%
           select(`1`)%>%
           unlist()%>%
           as.numeric()
   
   #create ROC
-  roc = roc(y,preds, percent = F, boot.n = 1000,
+  roc = roc(labels,preds, percent = F, boot.n = 1000,
             ci.alpha = .9, stratified = F,  
             reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-            smooth = F
+            smooth  = F
             )
             
-  return(list(pred=as.numeric(as.character(mdl_rf$predicted)), performance=performance, roc = roc))
+  return(list(mdl_best = mdl_best, performance=performance, roc = roc))
 }
 
-fit_cart_auc <- function(train, param, setup) {
+fit_cart_auc <- function(train, test, param, setup) {
   ###
   # Trains CART on each combination of parameters,
   # returns cross validated AUC on training set and test set
@@ -405,9 +408,13 @@ fit_cart_auc <- function(train, param, setup) {
                   data = train, method="class", 
                   control=rpart.control(cp = param[i_param_best, "cp"]) )
   
-  X = train%>% select(-c(y))
-  y = train%>% select(y) %>%unlist()%>% as.numeric
-  preds = predict(mdl_best, newdata=X, type = "prob") %>%
+  # X = train%>% select(-c(y))
+
+  labels = test %>% select(recid_use) %>% unlist()%>%as.numeric() -1 #sub 1 b/c casting to numeric gives vecto of 1s and 2s
+  
+  preds = predict(mdl_best, 
+                  newdata= test%>% select(-recid_use),  
+                  type = "prob") %>%
     as_data_frame()%>%
     select(`1`)%>%
     unlist()%>%
@@ -415,16 +422,16 @@ fit_cart_auc <- function(train, param, setup) {
   
   
   # preds = as.numeric(as.character(predict(mdl_best, newdata=..1, type = "class")))
-  roc = roc(y,preds, percent = F, boot.n = 1000,
+  roc = roc(labels,preds, percent = F, boot.n = 1000,
             ci.alpha = .9, stratified = F,  
             reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
             smooth = F
   )
   
-  return(list(pred=mdl_best, performance=performance, roc=roc))
+  return(list(mdl_best=mdl_best, performance=performance, roc=roc))
 }
 
-fit_svm_auc <- function(train, param, setup) {
+fit_svm_auc <- function(train, test, param, setup) {
   ###
   # Trains CART on each combination of parameters,
   # returns cross validated AUC on training set and test set
@@ -503,10 +510,11 @@ fit_svm_auc <- function(train, param, setup) {
                                         scale = TRUE, 
                                         probability = TRUE))
   
-  X = train%>% select(-c(y))%>%data.matrix()
-  y = train%>% select(y) %>% unlist()%>% as.numeric()
+  labels = test %>% select(recid_use) %>% unlist()%>%as.numeric() -1 #sub 1 b/c casting to numeric gives vecto of 1s and 2s
   
-  preds = predict(mdl_best, newdata=X, probability = TRUE) %>%
+  preds = predict(mdl_best, 
+                  newdata=test %>% select(-recid_use) %>% data.matrix(), 
+                  probability = TRUE) %>%
     attr("prob")%>%
     as_data_frame()%>%
     select(`1`)%>%
@@ -514,11 +522,11 @@ fit_svm_auc <- function(train, param, setup) {
     as.numeric()
   
   
-  roc = roc(y,preds, percent = F, boot.n = 1000,
+  roc = roc(labels,preds, percent = F, boot.n = 1000,
             ci.alpha = .9, stratified = F,
             reuse.auc = T, print.auc = T, ci = T, ci.type = "bars",
             smooth = F
   )
   
-  return(list(pred=mdl_best, performance=performance, roc=roc))
+  return(list(mdl_best=mdl_best, performance=performance, roc=roc))
 }

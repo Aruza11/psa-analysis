@@ -81,14 +81,31 @@ df = features_filt %>%
     p_stealing,
     p_trespass,
     recid_use) 
-df = df[1:100,] # Comment for full training set. This is just for testing.
+# df = df[1:100,] # Comment for full training set. This is just for testing.
 
 set.seed(283)
 train = sample_frac(df,.8)
-test = anti_join(df, train, by = 'person_id')
+test = anti_join(df, train, by = 'person_id') #change to account for screening date!
+
+scores_outcomes = compas_psa_wide %>%
+                  filter(`Risk of Violence_decile_score`>=0, 
+                         `Risk of Recidivism_decile_score`>=0, 
+                         `Risk of Failure to Appear_decile_score`>=0)%>%
+                  left_join(outcomes, by=c("person_id","screening_date")) %>%
+                  filter(person_id %in% test$person_id)
 
 train = select(train, -person_id)
 test = select(test, -person_id)
+
+```
+
+### COMPAS and ARNOLD PSA AUC 
+
+```{r}
+scores_outcomes2 = scores_outcomes %>% filter(!is.na(arnold_nca_raw))
+auc(scores_outcomes2$recid, scores_outcomes2$arnold_nca_raw)
+auc(scores_outcomes$recid, scores_outcomes$`Risk of Recidivism_decile_score`)
+auc(scores_outcomes$recid, scores_outcomes$`Risk of Recidivism_raw_score`)
 
 ```
 
@@ -112,7 +129,7 @@ train_xgb = xgb.DMatrix(
 param_xgb <- list(
   objective = "binary:logistic",
   eta = c(.05,.1),
-  gamma = c(.5), 
+  gamma = c(.5),
   max_depth = c(2),
   min_child_weight = c(5),
   subsample = c(1),
@@ -133,7 +150,11 @@ setup_xgb = list(
 set.seed(2812)
 out_xgb = fit_xgb_auc(train_xgb, test, param_xgb, setup_xgb)
 out_xgb$performance
-out_xgb$roc
+plot(out_xgb$roc,
+     print.auc = T,
+     main = paste("XGBoost ROC curve using N = ", nrow(test)),
+     legacy.axes = T,
+     grid =T )
 ```
 
 ### Train BART
@@ -163,18 +184,18 @@ out_bart = train %>%
   select(-recid_use) %>%
   fit_bart_auc(test, param_bart,setup_bart)
 ```
+
   i_param seed train_auc_mean train_auc_std test_auc_mean test_auc_std
 1       1 5908      0.7317067    0.01156313     0.7041193   0.01156313
 2       2 8371      0.7340461    0.01171209     0.7064116   0.01171209
 ```{r}
 out_bart$performance
-plot(out_bart$roc, percent = F, 
-            ci.alpha = .9, stratified = F,
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars",
-            print.thres.cex = .7,
-            main = paste("ROC curve using N = ", nrow(train)),
-            smooth =T, show.thres = T, legacy.axes = T,
-            plot = T, grid =T )
+plot(out_bart$roc,
+     print.auc = T,
+     main = paste("BART ROC curve using N = ", nrow(test)),
+     legacy.axes = T,
+     grid =T )
+
 ```
 
 
@@ -198,12 +219,12 @@ setup_glm = list(
 out_glm = train %>%
           mutate(y = as.factor(recid_use)) %>%
           select(-recid_use) %>%
-          fit_glm_auc(setup_glm)
+          fit_glm_auc(test, setup_glm)
 
 out_glm$performance
 plot(out_glm$roc,
      print.auc = T,
-     main = paste("ROC curve using N = ", nrow(train)),
+     main = paste("GLM ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
 # print("accuracy is:  ")
@@ -224,12 +245,12 @@ setup_lasso = list(
 out_lasso = train %>%
           mutate(y = as.factor(recid_use)) %>%
           select(-recid_use) %>%
-          fit_lasso_auc(setup_lasso)
+          fit_lasso_auc(test, setup_lasso)
 
 out_lasso$performance
 plot(out_lasso$roc,
      print.auc = T,
-     main = paste("ROC curve using N = ", nrow(train)),
+     main = paste("LASSO ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
 
@@ -242,7 +263,7 @@ plot(out_lasso$roc,
 
 ```{r include = FALSE}
 library(randomForest)
-setup = list(
+setup_rf = list(
   nfold=5, 
   seed = 784
 )
@@ -254,12 +275,12 @@ setup = list(
 out_rf =  train %>%
           mutate(y = as.factor(recid_use)) %>%
           select(-recid_use) %>%
-          fit_rf_auc(setup_rf)
+          fit_rf_auc(test, setup_rf)
 
 out_rf$performance
 plot(out_rf$roc,
      print.auc = T,
-     main = paste("ROC curve using N = ", nrow(train)),
+     main = paste("RF ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
 
@@ -294,12 +315,12 @@ param_cart = expand.grid(list(
 out_cart =  train %>%
           mutate(y = as.factor(recid_use)) %>%
           select(-recid_use) %>%
-          fit_cart_auc(param_cart, setup_cart)
+          fit_cart_auc(test, param_cart, setup_cart)
 
 out_cart$performance
 plot(out_cart$roc,
      print.auc = T,
-     main = paste("ROC curve using N = ", nrow(train)),
+     main = paste("CART ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
 
@@ -338,12 +359,12 @@ param_svm = expand.grid(list(
 out_svm = train %>%
           mutate(y = as.factor(recid_use)) %>%
           select(-recid_use) %>%
-          fit_svm_auc(param_svm, setup_svm)
+          fit_svm_auc(test, param_svm, setup_svm)
 
 out_svm$performance
 plot(out_svm$roc,
      print.auc = T,
-     main = paste("ROC curve using N = ", nrow(train)),
+     main = paste("SVM ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
 
