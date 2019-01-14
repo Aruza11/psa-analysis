@@ -1,0 +1,66 @@
+---
+title: "feature_subset_selection"
+author: 
+date: 1/14/2019
+output: html_document
+---
+
+Here we use xgBoost to evaluate feature subset selections
+
+```{r include = FALSE}
+library(tidyverse)
+library(magrittr)
+library(pROC)
+
+library(xgboost)
+source('util.R')
+```
+
+Load in train/test datasets computed/saved in predict_recidivism.Rmd
+```{r}
+train <- readRDS(file="train.rds")
+test <- readRDS(file="test.rds")
+```
+
+
+```{r}
+
+# Specify each parameter as a single value or a vector of values
+# Each combination will be tested
+param_xgb <- list(
+  objective = "binary:logistic",
+  eta = c(.05,.1),
+  gamma = c(.5),
+  max_depth = c(2),
+  min_child_weight = c(5),
+  subsample = c(1),
+  colsample_bytree = c(1),
+  early_stopping_rounds=50
+)
+
+param_xgb = expand.grid(param_xgb) # Each row is a set of parameters to be cross validated
+
+# Only one value for each of these parameters is allowed
+setup_xgb = list(
+  nrounds=10000,
+  nfold=5
+)
+```
+
+
+##Baseline: all features 
+```{r}
+train_baseline = xgb.DMatrix(
+  "data" = train %>% select(-recid_use) %>% as.matrix(),
+  "label" = train %>% select(recid_use) %>% as.matrix()
+)
+
+set.seed(2812)
+out_baseline = fit_xgb_auc(train_baseline, test, param_xgb, setup_xgb)
+out_baseline$performance
+plot(out_baseline$roc,
+     print.auc = T,
+     main = paste("XGBoost ROC curve using N = ", nrow(test), " , baseline"),
+     legacy.axes = T,
+     grid =T )
+```

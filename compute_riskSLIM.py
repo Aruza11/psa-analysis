@@ -4,18 +4,20 @@ sys.path.insert(0, srcpath)
 
 import numpy as np
 import pandas as pd
-from itertools import product
+import pickle
 
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import KFold
 
-import pickle
+from utils import expand_grid
+
 import cplex as cplex
 from pprint import pprint
 from riskslim.helper_functions import load_data_from_csv, print_model
 from riskslim.setup_functions import get_conservative_offset
 from riskslim.coefficient_set import CoefficientSet
 from riskslim.lattice_cpa import setup_lattice_cpa, finish_lattice_cpa
+
 
 # def predict(rho,dataX):
 #     # score = np.apply_along_axis(np.dot(),0, dataX,a=rho)
@@ -34,26 +36,12 @@ from riskslim.lattice_cpa import setup_lattice_cpa, finish_lattice_cpa
 #     if rho[i]!=0: 
 #         print(name, "\n")
 
-def expand_grid(param_dict):
-	'''
-	@params: dictionary where each key is a possible parameter and 
-	each item is a list of possible parameter values 
-	returns: a list of dicts where each dict holds unique combination 
-			of possible parameter values
-	'''
-	param_df = pd.DataFrame([row for row in product(*param_dict.values())], 
-					   columns=param_dict.keys())
-
-	param_grid = []
-	for i, row in param_df.iterrows(): 
-		param_grid.append({colname:row[colname] for colname in list(param_df)})
-	return param_grid
 
 def fit_riskSLIM(data, params): 
 	'''
 	@param data = {
-		"X": train,
-		"Y": test, 
+		"X": train, (ndarray)
+		"Y": test,  (ndarray)
 		"sample_weights": sample_weights
 		"variable_names": variable_names
 	}
@@ -194,7 +182,6 @@ if __name__ == '__main__':
 
 
 	param_grid = expand_grid(params) #list of dictionaries 
-	print(param_grid)
 	nparam = len(param_grid)
 	i_param_best = 0
 	eval_varnames = dict.fromkeys(["train_auc_mean","train_auc_std","test_auc_mean","test_auc_std"])
@@ -208,16 +195,16 @@ if __name__ == '__main__':
 			"seed": seeds[i]}.update(eval_varnames)
 			)
 
-		for train_folds, test_folds in kfold.split(data['X'], data['Y']):
-			data_split = {
-				"X": data['X'][train_folds],  #features
-				"Y": data['Y'][train_folds],  #labels
-				"sample_weights":  data['sample_weights'][train_folds],
+		for train_inds, test_inds in kfold.split(data['X'], data['Y']):
+			train_folds = {
+				"X": data['X'][train_inds],  #features
+				"Y": data['Y'][train_inds],  #labels
+				"sample_weights":  data['sample_weights'][train_inds],
 				"variable_names":  data['variable_names']
 			}
 
-			fit_riskSLIM(data_split , param_dict)
-			# evaluate(data['X'][test_folds], data['Y'][test_folds])
+			fit_riskSLIM(train_folds , param_dict)
+			# evaluate(data['X'][test_inds], data['Y'][test_inds])
 
 
 	# #save model 

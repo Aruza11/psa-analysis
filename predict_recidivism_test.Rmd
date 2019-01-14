@@ -5,10 +5,7 @@ date: "11/5/2018"
 output: html_document
 ---
 
-
-**NOTE: MUST CREATE HELD OUT TEST SET
-
-Here, we use out-of-box ML methods to predict recidivism 
+Here, we use out-of-box ML methods to get baselines for the recidivism prediction problem
 ```{r include = FALSE}
 library(tidyverse)
 library(magrittr)
@@ -96,6 +93,8 @@ scores_outcomes = compas_psa_wide %>%
 
 train = select(train, -person_id)
 test = select(test, -person_id)
+# saveRDS(train, file="train.rds")
+# saveRDS(test, file="test.rds")
 
 ```
 

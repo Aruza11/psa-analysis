@@ -13,7 +13,7 @@
  'w_pos': 1.0}
 
 The AUC of riskSLIM is:  0.6285162759786126
-Variabes are:
+Variables are:
 
 p_voyeurism
 
