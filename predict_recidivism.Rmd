@@ -65,6 +65,17 @@ df = features_filt %>%
     p_sex_arrest,
     p_weapons_arrest,
     
+    #PSA Features (which were not named above)
+    fail_appear_two_yr, 
+    fail_appear_two_plus,
+    current_violent, 
+    current_violent20, 
+    pending_charge, 
+    prior_conviction_F, 
+    prior_conviction_M, 
+    violent_conviction, 
+    total_convictions, 
+    
     #Misc Features
     p_arrest,
     p_property,
@@ -93,8 +104,8 @@ scores_outcomes = compas_psa_wide %>%
 
 train = select(train, -person_id)
 test = select(test, -person_id)
-# saveRDS(train, file="train.rds")
-# saveRDS(test, file="test.rds")
+saveRDS(train, file="train.rds")
+saveRDS(test, file="test.rds")
 
 ```
 
@@ -237,6 +248,7 @@ plot(out_glm$roc,
 library(glmnet)
 setup_lasso = list(
   nfold=5
+  
 )
 ```
 

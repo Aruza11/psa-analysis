@@ -24,7 +24,6 @@ test <- readRDS(file="test.rds")
 
 
 ```{r}
-
 # Specify each parameter as a single value or a vector of values
 # Each combination will be tested
 param_xgb <- list(
@@ -48,6 +47,7 @@ setup_xgb = list(
 ```
 
 
+
 ##Baseline: all features 
 ```{r}
 train_baseline = xgb.DMatrix(
@@ -64,3 +64,66 @@ plot(out_baseline$roc,
      legacy.axes = T,
      grid =T )
 ```
+
+
+```{r}
+names(train)
+```
+
+Subsets
+```{r}
+#seeds 
+n_subsets <- 2
+seeds <- sample.int(10000, n_subsets)
+
+#Subset 1: features which capture petty offenses (reasoning: easy to recidivate)
+subset1 <- c("p_current_age","p_charge", "p_traffic",  "p_drug", 
+             "p_trespass","p_stealing", "p_misdemassault_arrest")
+
+#sanity check
+subset2 <- c("p_current_age")
+
+#arnold var
+subset3 <- c("p_current_age", )
+
+```
+
+
+```{r}
+run_xgb <- function(subset_list, train, test, param, setup, seed){
+  train_subset = xgb.DMatrix(
+    "data" = train %>% 
+              select(-recid_use)%>% #del label
+              select(subset_list) %>%
+              as.matrix(),
+    "label" = train %>% select(recid_use) %>% as.matrix()
+  )
+  
+  test_subset = test %>% select(subset_list, recid_use)
+  
+  set.seed(seed)
+  out = fit_xgb_auc(train_subset, test_subset, param, setup)
+  return(out)
+}
+
+```
+
+```{r}
+
+out = run_xgb(subset1, train, test, param_xgb, setup_xgb, seeds[1])
+out$performance
+plot(out$roc,
+     print.auc = T,
+     main = paste("XGBoost ROC curve using N = ", nrow(test), " , Subset 1"),
+     legacy.axes = T,
+     grid =T )
+
+```
+
+
+
+
+
+
+
+
