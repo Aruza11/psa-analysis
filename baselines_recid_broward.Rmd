@@ -1,5 +1,5 @@
 ---
-title: "predict_recidivism"
+title: "baselines_recid_broward"
 author: "Beau Coker"
 date: "11/5/2018"
 output: html_document
@@ -20,7 +20,7 @@ load("compas_psa.Rdata")
 ```
 
 ### Prepare data 
-
+Data processing is similar to Age of Unfairness repo except we remove var caps here.
 ```{r}
 ### Add useful columns to features and apply row filters used for all models
 features_filt = features_before_on %>%
@@ -43,7 +43,7 @@ features_filt = features_before_on %>%
   mutate(recid_use = as.factor(recid), # Select recidivism or violent recidivism to use in this script 
          decile_use = `Risk of Recidivism_decile_score`) # Select recidivism or violent recidivism decile score to use in this script
 
-## Select features and round count features
+## Select features
 df = features_filt %>%
   transmute(
     person_id,
@@ -51,9 +51,9 @@ df = features_filt %>%
     p_current_age,
     p_age_first_offense,
     p_charge,
-    p_jail30 = pmin(p_jail30,5),
-    p_prison = pmin(p_prison,5),
-    p_probation = pmin(p_probation,5),
+    p_jail30 = p_jail30,
+    p_prison = p_prison,
+    p_probation = p_probation,
     
     #COMPAS Risk of violent recidivism features
     p_juv_fel_count,
@@ -100,7 +100,7 @@ scores_outcomes = compas_psa_wide %>%
                          `Risk of Recidivism_decile_score`>=0, 
                          `Risk of Failure to Appear_decile_score`>=0)%>%
                   left_join(outcomes, by=c("person_id","screening_date")) %>%
-                  filter(person_id %in% test$person_id)
+                  mutate(in_test = person_id %in% test$person_id)
 
 train = select(train, -person_id)
 test = select(test, -person_id)
@@ -112,10 +112,30 @@ saveRDS(test, file="test.rds")
 ### COMPAS and ARNOLD PSA AUC 
 
 ```{r}
-scores_outcomes2 = scores_outcomes %>% filter(!is.na(arnold_nca_raw))
-auc(scores_outcomes2$recid, scores_outcomes2$arnold_nca_raw)
-auc(scores_outcomes$recid, scores_outcomes$`Risk of Recidivism_decile_score`)
-auc(scores_outcomes$recid, scores_outcomes$`Risk of Recidivism_raw_score`)
+#Only 353 obs remain when we only consider individuals in test set for Arnold PSA, so we instead consider all non-na obs. 
+scores_outcomes_psa = scores_outcomes %>% filter(!is.na(arnold_nca_raw))
+scores_outcomes_test = scores_outcomes %>% filter(in_test == T)
+
+riskscore_aucs = data.frame(
+  "Score" = c("Arnold NCA Raw", 
+              "Arnold NCA", 
+              "COMPAS Risk of Recid Raw", 
+              "COMPAS Risk of Recid Decile"),
+  "AUC" = c(
+    auc(scores_outcomes_psa$recid, scores_outcomes_psa$arnold_nca_raw),
+    auc(scores_outcomes_psa$recid, scores_outcomes_psa$arnold_nca),
+    
+    auc(scores_outcomes_test$recid, scores_outcomes_test$`Risk of Recidivism_raw_score`),
+    auc(scores_outcomes_test$recid, scores_outcomes_test$`Risk of Recidivism_decile_score`)),
+  "Number of observations" = c(
+    nrow(scores_outcomes_psa),
+    nrow(scores_outcomes_psa),
+    nrow(scores_outcomes_test),
+    nrow(scores_outcomes_test)
+  )
+  
+)
+knitr::kable(riskscore_aucs, format = 'pandoc') 
 
 ```
 
@@ -138,11 +158,11 @@ train_xgb = xgb.DMatrix(
 # Each combination will be tested
 param_xgb <- list(
   objective = "binary:logistic",
-  eta = c(.05,.1),
-  gamma = c(.5),
-  max_depth = c(2),
-  min_child_weight = c(5),
-  subsample = c(1),
+  eta = c(.01,.1),
+  gamma = c(.01,.1),
+  max_depth = c(2,6),
+  min_child_weight = c(.1,5),
+  subsample = c(0.5,1),
   colsample_bytree = c(1),
   early_stopping_rounds=50
 )
