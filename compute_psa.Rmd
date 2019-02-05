@@ -185,19 +185,22 @@ fta <-  data_before%>%
         inner_join(fta_subset,by=c("person_id","case_number"))%>%
 
         mutate(EventDate=mdy(EventDate,tz="UTC"), #format = "%m/%d/%Y"
+               screening_date = ymd(screening_date, tz = "UTC"), #format = '%y/%m/%d
 #mdy() fcn automatically converts to Date object, ymd_hms() function converts to POSIXt object, so
 #specify tz="UTC" to get mdy() to convert to POSIXt object
                days_bw=as.numeric(screening_date-EventDate,units="days"),
-               logical=days_bw<=730,
-               fail_appear_two_yr=if_else(logical&fail_appeared==1,1,0),
-               fail_appear_two_plus=if_else(!logical&fail_appeared==1,1,0)
+               # logical=days_bw<=730,
+               fail_appear_two_yr=if_else(days_bw <= 730 & days_bw >= 0 & fail_appeared==1,1,0),
+               fail_appear_two_plus=if_else(days_bw > 730 & days_bw >= 0 & fail_appeared==1,1,0) #only thing is 0
                )%>%
         select(person_id,screening_date,case_number,fail_appear_two_yr,fail_appear_two_plus)%>%
         group_by(person_id,screening_date)%>%
           summarise(fail_appear_two_yr=sum(fail_appear_two_yr),
-                    fail_appear_two_plus=sum(fail_appear_two_plus))
+                    fail_appear_two_plus=sum(fail_appear_two_plus))%>%
+        mutate(screening_date = as.Date(screening_date)) #cast back to date type 
+        
 
-rm(fta_subset,fta_prob)
+# rm(fta_subset,fta_prob)
   
 ```
 
@@ -281,7 +284,7 @@ compas_psa_wide=psa_features%>%
 
 ```{r}
 save(compas_psa_wide, psa_features, outcomes,
-     file = "compas_psa.Rdata")
+     file = "compas_psa.Rdata") 
 
 ```
 

@@ -47,6 +47,7 @@ riskSLIM load_data_from_csv() docstring:
 ```{r, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(caret)
+
 ```
 
 
@@ -76,24 +77,36 @@ df = features_filt %>%
   transmute(
     #COMPAS Risk of Recidivism Features (excluding age)
     person_id,
-    p_charge,
-    p_jail30 = pmin(p_jail30,5),
-    p_prison = pmin(p_prison,5),
-    p_probation = pmin(p_probation,5),
+    p_current_age,
+    p_charge = pmin(p_charge, 5),
+    p_jail30 = pmin(p_jail30, 5),
+    p_prison = pmin(p_prison, 5),
+    p_probation = pmin(p_probation, 5),
     
     #COMPAS Risk of violent recidivism features
-    p_juv_fel_count,
-    p_felprop_violarrest,
-    p_murder_arrest,
-    p_felassault_arrest,
-    p_misdemassault_arrest,
+    p_juv_fel_count = pmin(p_juv_fel_count, 5),
+    p_felprop_violarrest = pmin(p_felprop_violarrest, 5),
+    p_murder_arrest = pmin(p_murder_arrest, 5),
+    p_felassault_arrest = pmin(p_felassault_arrest, 5),
+    p_misdemassault_arrest = pmin(p_misdemassault_arrest, 5),
     p_famviol_arrest,
     p_sex_arrest,
     p_weapons_arrest,
     
+      #PSA Features (which were not named above)
+    fail_appear_two_yr, 
+    fail_appear_two_plus,
+    current_violent, 
+    current_violent20, 
+    pending_charge, 
+    prior_conviction_F, 
+    prior_conviction_M = pmin(prior_conviction_M, 5), 
+    violent_conviction, 
+    total_convictions = pmin(total_convictions, 5), 
+
     #Misc Features
     p_arrest,
-    p_property,
+    p_property = pmin(p_property, 5),
     p_traffic,
     p_drug,
     p_dui,
@@ -141,8 +154,37 @@ df = features_filt %>%
     p_age_first_offense68 = if_else(p_age_first_offense<=68, 1, 0),
     p_age_first_offense75 = if_else(p_age_first_offense<=75, 1, 0),
     
+    p_property0 = if_else(p_property == 0, 1, 0),
+    p_property13 = if_else(p_property >= 1 && p_property <=3, 1, 0),
+    p_property46 = if_else(p_property >= 4 && p_property <=6, 1, 0),
+    p_property7up = if_else(p_property >= 7, 1, 0),
+
+    prior_conviction_M0= if_else(prior_conviction_M == 0, 1, 0),
+    prior_conviction_M13 = if_else(prior_conviction_M >= 1 && prior_conviction_M <=3, 1, 0),
+    prior_conviction_M46 = if_else(prior_conviction_M >= 4 && prior_conviction_M <=6, 1, 0),
+    prior_conviction_M7up = if_else(prior_conviction_M >= 7, 1, 0),
+    
+    p_charge15 = if_else(p_charge >= 1 && p_charge <=5, 1, 0),
+    p_charge610 = if_else(p_charge >= 6 && p_charge <=10, 1, 0),
+    p_charge1120 = if_else(p_charge >=11  && p_charge <=20, 1, 0),
+    p_charge21up = if_else(p_charge >=21, 1, 0),
+    
+    p_felprop_violarrest0= if_else(p_felprop_violarrest == 0, 1, 0),
+    p_felprop_violarrest14 = if_else(prior_conviction_M >= 1 && prior_conviction_M <=4, 1, 0),
+    p_felprop_violarrest5up = if_else(prior_conviction_M >= 5, 1, 0),
+    
+    total_convictions0= if_else(total_convictions == 0, 1, 0),
+    total_convictions13 = if_else(total_convictions >= 1 && total_convictions <=3, 1, 0),
+    total_convictions46 = if_else(total_convictions >=4  && total_convictions <=6, 1, 0),
+    total_convictions7up = if_else(total_convictions >=7, 1, 0),
+    
+    
+
+    
+    
     #refactor labelfrom {0,1} to {-1,1} 
-    recid_use = ifelse(recid_use == 0, -1, recid_use))
+    recid_use = ifelse(recid_use == 0, -1, recid_use)) %>%
+    na.omit() #CREATES A LOT OF NAs
 
 #label must be first column for riskSLIM
 set.seed(283)

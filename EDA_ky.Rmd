@@ -1,0 +1,227 @@
+---
+title: "EDA"
+author: "Beau Coker"
+date: "1/14/2019"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+# Edit path_data to the directory with the kentucky data
+# path_data = '/Volumes/William H Taft/KY Pretrial + Court Data FY 10-18/Data/'
+path_data = '../KY Pretrial + Court Data FY 10-18/'
+```
+
+Note: all of the data files have a line like "\n (42352 row(s) affected) \n" at the end of the file. I manually removed this part to make it easier to read in. The code should run anyway but there will be a row of NAs in the dataframe if you don't remove this part
+
+## Defendants
+
+Includes Race, Ethnicity, Gender, and data source. Each row is a person 
+
+```{r}
+data_def = read_delim(paste0(path_data,'01_KY_Recidivism_Defendants.txt'), '|', col_names=TRUE) %>%
+  mutate_if(is.character, str_trim)
+
+data_def
+```
+
+No PersonID appears twice:
+```{r}
+length(unique(data_def$PersonID)) == nrow(data_def)
+```
+
+
+## 02 Interviews (int)
+
+```{r}
+data_int = read_delim(paste0(path_data,'02_KY_Recidivism_Interviews.txt'), '|', col_names=TRUE) %>%
+  mutate_if(is.character, str_trim)
+
+data_int
+```
+
+```{r}
+names(data_int)
+```
+
+```{r}
+data_int %>%
+  mutate_all(is.null) %>%
+  summarize_all(sum)
+```
+
+
+
+PersonIds often appear more than once:
+```{r}
+data_int %>%
+  group_by(PersonId) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
+```
+
+### Compute Arnold PSA
+
+
+```{r}
+# Add Felony or Misdemeanor column
+data_int = data_int %>%
+  mutate(RA2_Has_Prior_Felony_Misdemeanor = if_else(RA2_Has_Prior_Misdemeanor=="NULL" | RA2_Has_Prior_Felony=="NULL","NULL",
+                                                    if_else(RA2_Has_Prior_Misdemeanor=="2" | RA2_Has_Prior_Felony=="2","2","1")))
+```
+
+```{r}
+# Failure to Appear (FTA)
+FTA = data_int %>%
+  transmute(
+    RA2_New_Charge_While_Case_Pending = factor(RA2_New_Charge_While_Case_Pending, levels=c("1","2"), labels=c(1,0)),
+    RA2_Has_Prior_Felony_Misdemeanor = factor(RA2_Has_Prior_Felony_Misdemeanor, levels=c("1","2"), labels=c(1,0)),
+    RA2_How_Many_FTA_Last_2_Yrs = factor(RA2_How_Many_FTA_Last_2_Yrs, levels=c("1","2","3"), labels=c(0,1,2)), # Questions don't match documentation exactly
+    RA2_Has_Any_FTA_Older_2_Yrs = factor(RA2_Has_Any_FTA_Older_2_Yrs, levels=c("1","2"), labels=c(1,0))
+  ) %>%
+  mutate_all(as.character) %>%
+  mutate_all(as.numeric)
+
+FTA$score = apply(FTA,1,sum)
+```
+
+
+```{r}
+# New Criminal Activity (NCA)
+NCA = data_int %>%
+  transmute(
+    RA2_Age_At_Interview = factor(RA2_Age_At_Interview, levels=c("1","2","3"), labels=c(2,2,0)),
+    RA2_New_Charge_While_Case_Pending = factor(RA2_New_Charge_While_Case_Pending, levels=c("1","2"), labels=c(3,0)),
+    RA2_Has_Prior_Misdemeanor = factor(RA2_Has_Prior_Misdemeanor, levels=c("1","2"), labels=c(1,0)),
+    RA2_Has_Prior_Felony = factor(RA2_Has_Prior_Felony, levels=c("1","2"), labels=c(1,0)),
+    RA2_Num_Prior_Violent = factor(RA2_Num_Prior_Violent, levels=c("1","2","3"), labels=c(0,1,2)),
+    RA2_How_Many_FTA_Last_2_Yrs = factor(RA2_How_Many_FTA_Last_2_Yrs, levels=c("1","2","3"), labels=c(0,1,2)), # Questions don't match documentation exactly
+    RA2_Has_Prior_Incaceration = factor(RA2_Has_Prior_Felony, levels=c("1","2"), labels=c(2,0))
+  ) %>%
+  mutate_all(as.character) %>%
+  mutate_all(as.numeric) 
+
+NCA$score = apply(NCA,1,sum)
+```
+
+
+```{r}
+# New Violent Criminal Activity (NCA)
+NVCA = data_int %>%
+  transmute(
+    RA2_Current_Charge_Violent = factor(RA2_Current_Charge_Violent, levels=c("1","2"), labels=c(2,0)),
+    RA2_Violent_and_under_21 = factor(RA2_Violent_and_under_21, levels=c("1","2"), labels=c(1,0)),
+    RA2_New_Charge_While_Case_Pending = factor(RA2_New_Charge_While_Case_Pending, levels=c("1","2"), labels=c(1,0)),
+    RA2_Has_Prior_Felony_Misdemeanor = factor(RA2_Has_Prior_Felony_Misdemeanor, levels=c("1","2"), labels=c(1,0)),
+    RA2_Num_Prior_Violent = factor(RA2_Num_Prior_Violent, levels=c("1","2","3"), labels=c(0,1,2))
+  ) %>%
+  mutate_all(as.character) %>%
+  mutate_all(as.numeric)
+
+NVCA$score = apply(NVCA,1,sum)
+```
+
+
+```{r}
+bind_cols(
+  FTA=select(FTA,score),
+  NCA=select(NCA,score),
+  NVCA=select(NVCA,score)
+)
+```
+
+```{r}
+df = as.tbl(data.frame(
+  FTA$score,
+  NCA$score,
+  NVCA$score
+))
+
+df$all_na = apply(df,1,function(x) all(is.na(x)))
+df$any_na = apply(df,1,function(x) any(is.na(x)))
+
+df2 = df %>%
+  filter(!any_na) %>%
+  select(FTA.score,NCA.score,NVCA.score) %>%
+  mutate_all(as.factor)
+
+ggpairs(df2)
+```
+
+
+
+
+
+## 03 CNet_Cases 
+
+```{r}
+data_cnet_cases = read_delim(paste0(path_data,'03_KY_Recidivism_CNet_Cases.txt'), '|', col_names=TRUE) %>%
+  mutate_if(is.character, str_trim)
+
+data_cnet_cases
+```
+
+```{r}
+# Each row is a unique SeqCaseID
+length(unique(data_cnet_cases$SeqCaseID)) == nrow(data_cnet_cases)
+```
+
+
+
+## 04 PRIM_Cases 
+
+```{r}
+data_prim_cases = read_delim(paste0(path_data,'04_KY_Recidivism_PRIM_Cases.txt'), '|', col_names=TRUE) %>%
+  mutate_if(is.character, str_trim)
+
+data_prim_cases
+```
+
+```{r}
+# Each row is a unique CaseID (but SeqCaseID are repeated)
+length(unique(data_prim_cases$CaseID)) == nrow(data_prim_cases)
+```
+
+## 06 CNet_Charges
+
+```{r}
+data_cnet_charges = read_delim(paste0(path_data,'06_KY_Recidivism_CNet_Charges.txt'), '|', col_names=TRUE) %>%
+#data_cnet_charges = read_delim(paste0(path_data,'06_KY_Recidivism_CNet_Charges.txt'), '|', col_names=TRUE, n_max = 100) %>%
+  mutate_if(is.character, str_trim)
+
+data_cnet_charges
+```
+
+
+## 07 PRIM_Charges
+
+```{r}
+data_prim_charges = read_delim(paste0(path_data,'07_KY_Recidivism_PRIM_Charges.txt'), '|', col_names=TRUE) %>%
+  mutate_if(is.character, str_trim)
+
+data_prim_charges
+```
+
+## Comparing tables
+
+The dates for SeqCaseID==3993 are confusing to me. Looks like the offense happened in 1995 according to cnet but 2011 in prim (although there are no charges, just the case). I thought having the same SeqCaseID meant they were the same case?
+
+```{r}
+x = 3993
+
+cnet_case_x = filter(data_cnet_cases,SeqCaseID==x)
+prim_case_x = filter(data_prim_cases,SeqCaseId==x)
+
+cnet_charge_x = filter(data_cnet_charges,SeqCaseID==x)
+prim_charge_x = filter(data_prim_charges,SeqCaseID==x)
+
+View(cnet_case_x)
+View(prim_case_x)
+
+View(cnet_charge_x)
+View(prim_charge_x)
+```
+

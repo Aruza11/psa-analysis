@@ -530,3 +530,4 @@ fit_svm_auc <- function(train, test, param, setup) {
   
   return(list(mdl_best=mdl_best, performance=performance, roc=roc))
 }
+

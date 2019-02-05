@@ -11,7 +11,7 @@ Here we use xgBoost to evaluate feature subset selections (wrapper method)
 library(tidyverse)
 library(magrittr)
 library(pROC)
-
+library(corrplot)
 library(xgboost)
 source('util.R')
 ```
@@ -24,23 +24,11 @@ test <- readRDS(file="test.rds")
 
 
 ```{r}
-# Specify each parameter as a single value or a vector of values
-# Each combination will be tested
-# param_xgb <- list(
-#   objective = "binary:logistic",
-#   eta = c(.05,.1),
-#   gamma = c(.5),
-#   max_depth = c(2),
-#   min_child_weight = c(5),
-#   subsample = c(1),
-#   colsample_bytree = c(1),
-#   early_stopping_rounds=50
-# )
 
 param_xgb <- list(
   objective = "binary:logistic",
-  eta = c(.1),
-  gamma = c(.5),
+  eta = c(.01),
+  gamma = c(.01),
   max_depth = c(2),
   min_child_weight = c(5),
   subsample = c(1),
@@ -81,25 +69,43 @@ plot(out_baseline$roc,
 names(train)
 ```
 
+```{r}
+corr_matrix = train%>%
+            select(-recid_use)%>%
+            na.omit()%>%
+            cor()
+corr_matrix
+corrplot(corr_matrix,method = "shade", type = 'upper',tl.cex = 0.5)
+
+
+```
+
+
 Subsets
 ```{r}
 #seeds 
+n_subsets = 5
 seeds <- sample.int(10000, n_subsets)
 
-            #features which capture petty offenses (reasoning: easy to recidivate)
-subset <-c( #c("p_current_age","p_charge", "p_traffic",  "p_drug", 
-             #"p_trespass","p_stealing", "p_misdemassault_arrest"),
-            #sanity check
-            # c("p_current_age"),
-            #arnold var
-            # c("p_current_age","p_prison","p_jail30","fail_appear_two_yr", "fail_appear_two_plus","current_violent","current_violent20",  "pending_charge", "prior_conviction_F", "prior_conviction_M", "violent_conviction", "total_convictions"),
+subset <-list( 
+              #features which capture petty offenses (reasoning: easy to recidivate) #does best #AUC .695
+
+            # c("p_current_age","p_charge", "p_traffic",  "p_drug",  
+            #  "p_trespass","p_stealing", "p_misdemassault_arrest"),
+             
+            #sanity check get terrible auc
+          #  c("p_current_age"),
+  
+            #arnold var AUC .691
+             # c("p_current_age","p_prison","p_jail30","fail_appear_two_yr", "fail_appear_two_plus","current_violent","current_violent20",  "pending_charge", "prior_conviction_F", "prior_conviction_M", "violent_conviction", "total_convictions"),
             
-            c("p_current_age", "p_property","prior_conviction_M", "p_arrest" ), 
+            #all features AUC .696
+            # c("p_current_age","p_age_first_offense","p_charge","p_jail30","p_prison", "p_probation","p_juv_fel_count", "p_felprop_violarrest", "p_murder_arrest","p_felassault_arrest","p_misdemassault_arrest","p_famviol_arrest","p_sex_arrest","p_weapons_arrest","fail_appear_two_yr","fail_appear_two_plus","current_violent","current_violent20","pending_charge","prior_conviction_F","prior_conviction_M","violent_conviction","total_convictions","p_arrest","p_property","p_traffic","p_drug","p_dui","p_domestic","p_stalking","p_voyeurism","p_fraud","p_stealing","p_trespass"),
             
-            #all features
-            c("p_current_age","p_age_first_offense","p_charge","p_jail30","p_prison", "p_probation","p_juv_fel_count", "p_felprop_violarrest", "p_murder_arrest","p_felassault_arrest","p_misdemassault_arrest","p_famviol_arrest","p_sex_arrest","p_weapons_arrest","fail_appear_two_yr","fail_appear_two_plus","current_violent","current_violent20","pending_charge","prior_conviction_F","prior_conviction_M","violent_conviction","total_convictions","p_arrest","p_property","p_traffic","p_drug","p_dui","p_domestic","p_stalking","p_voyeurism","p_fraud","p_stealing","p_trespass")
+            #subset constructed from corr test AUC .690
+            c("p_current_age",  "p_property","prior_conviction_M", "p_charge", "p_felprop_violarrest", "total_convictions"  )
+            
             )
-n_subsets <- 
 
 
 ```
@@ -129,7 +135,7 @@ run_xgb <- function(subset_list, train, test, param, setup, seed){
 # train_sub = train[1:100,]
 # test_sub = test[1:10,]
 for (i in c(1:n_subsets)){
-  out = run_xgb(subset[i], train, test, param_xgb, setup_xgb, seeds[i])
+  out = run_xgb(subset[[i]], train, test, param_xgb, setup_xgb, seeds[i])
   print(out$performance)
   plot(out$roc,
        print.auc = T,
@@ -139,7 +145,88 @@ for (i in c(1:n_subsets)){
 }
 ```
 
+Find binning values for good subsets
+
+```{r}
+#var2bin = variables to bin
+var2bin = list(
+  # "p_current_age",  "p_property","prior_conviction_M", "p_charge", "p_felprop_violarrest", "total_convictions"  
+  p_current_age, p_property,prior_conviction_M
+  )
+
+for(var in var2bin){
+  print(var)
+  print(length(var))
+}
+```
 
 
+```{r}
+data_prob = train %>%
+  select("p_current_age", recid_use)%>%
+  mutate(recid_use = recid_use%>%unlist()%>%as.numeric() -1 )
 
+mdl = glm(recid_use ~ p_current_age, data=data_prob)
+
+ggplot(data=data_prob, aes_string(x="p_current_age", y="recid_use")) + 
+  geom_jitter(height=.05,alpha=.3, aes(color="Reoffend")) +
+  geom_smooth(method = "glm", 
+              method.args = list(family = "binomial"), 
+              se = FALSE,
+              aes(color="Probability of Reoffending")) +
+  theme_bw() +
+  xlab(var) +
+  ylab("")+
+  theme(text = element_text(size=14),
+        axis.text=element_text(size=14),
+        legend.position = "top") +
+  scale_color_discrete(name = element_blank())
+```
+
+Plot subset value against prob from GLM 
+```{r}
+for (var in var2bin){
+  # print(var)
+  df_prob = train %>%
+    select(var, recid_use) %>%
+    mutate(recid_use = recid_use%>%unlist()%>%as.numeric() -1,
+           factor_var= as.factor(eval(as.name(var))
+                                 )
+           )
+  
+  mdl = glm(substitute(recid_use ~ x, list(x = as.name(var))), data=df_prob)
+
+  print(ggplot(data=df_prob, aes_string(x=var, y="recid_use")) +
+    geom_jitter(height=.05,alpha=.3, aes(color="Reoffend")) +
+    geom_smooth(method = "glm",
+                method.args = list(family = "binomial"),
+                se = FALSE,
+                aes(color="Probability of Reoffending")) +
+    theme_bw() +
+    ylab("")+
+    theme(text = element_text(size=14),
+          axis.text=element_text(size=14),
+          legend.position = "top") +
+    scale_color_discrete(name = element_blank()))
+  
+df_percent <- df_prob %>%  
+                group_by(factor_var)%>%
+                summarize(
+                    perc_recid = sum(recid_use) / n(), 
+                    n = n()
+                  )
+                  #percent of people who recidivated in each count
+  
+  
+  print(ggplot(df_percent, aes(x = factor_var, y = perc_recid)) + 
+          geom_bar(stat = "identity") + 
+          xlab(var) + 
+          theme(axis.text = element_text(size = 5))
+        )
+
+
+}
+
+
+```
 

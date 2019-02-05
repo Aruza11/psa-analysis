@@ -97,9 +97,13 @@ if __name__ == '__main__':
     train_csv_file = data_dir + train_name + '_data.csv'          # csv file for the dataset
     test_csv_file = data_dir + test_name + '_data.csv'            # held out test set
 
+
     train_df, test_df = pd.read_csv(train_csv_file, sep=','), pd.read_csv(test_csv_file, sep=',')
+    subset = ["recid_use","p_current_age",  "p_property","prior_conviction_M", "p_charge", "p_felprop_violarrest", "total_convictions"]
+    train_df, test_df = train_df[subset], test_df[subset]
     variable_names = list(train_df)[1:] #do not want column name outcome label
-    
+    # print(variable_names)
+    # sys.exit(0)
     #remove label column and headers from data
     X_train, X_test = train_df.iloc[1:, 1:], test_df.iloc[1:, 1:]
     X_train, X_test = X_train.values.tolist(), X_test.values.tolist()
@@ -149,7 +153,7 @@ if __name__ == '__main__':
 
         train_auc, test_auc = [],[]
         for train_ind, test_ind in kfold.split(X_train, Y_train):
-            train_folds = {
+            train_fold = {
                 "X": [X_train[i] for i in train_ind],  #features
                 "Y": Y_train[train_ind],                   #labels
                 "variable_names" : variable_names
@@ -161,14 +165,15 @@ if __name__ == '__main__':
                 "variable_names" : variable_names
             }
 
-            FRL_clf = fit_FRL(train_folds , param_dict)
+            FRL_clf = fit_FRL(train_fold , param_dict)
 
             train_preds = predict(train_fold['X'],FRL_clf)
             test_preds = predict(test_fold['X'],FRL_clf)
+            print(test_preds)
+            train_auc.append(roc_auc_score(y_true = train_fold["Y"], y_score = train_preds))
+            test_auc.append(roc_auc_score(y_true = test_fold["Y"], y_score = test_preds))
 
-            train_auc.append(roc_auc_score(y_true = train_folds["Y"], y_score = train_preds))
-            test_auc.append(roc_auc_score(y_true = test_folds["Y"], y_score = test_preds))
-
+        print(train_auc, test_auc)
         performance[-1]['train_auc_mean'], performance[-1]['train_auc_std'] = np.mean(train_auc), np.std(train_auc) 
         performance[-1]['test_auc_mean'], performance[-1]['test_auc_std'] = np.mean(test_auc), np.std(test_auc) 
 
