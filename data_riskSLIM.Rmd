@@ -118,42 +118,46 @@ df = features_filt %>%
     p_trespass,
     
     #Binning age features 
-    p_current_age21 = if_else(p_current_age<=21, 1, 0),
-    p_current_age23 = if_else(p_current_age<=23, 1, 0),
-    p_current_age25 = if_else(p_current_age<=25, 1, 0),
-    p_current_age27 = if_else(p_current_age<=27, 1, 0),
-    p_current_age29 = if_else(p_current_age<=29, 1, 0),
-    
-    p_current_age32 = if_else(p_current_age<=32, 1, 0),
-    p_current_age35 = if_else(p_current_age<=35, 1, 0),
-    p_current_age38 = if_else(p_current_age<=38, 1, 0),
-    
-    p_current_age42 = if_else(p_current_age<=42, 1, 0),
-    p_current_age46 = if_else(p_current_age<=46, 1, 0),
-    p_current_age51 = if_else(p_current_age<=51, 1, 0),
-    p_current_age56 = if_else(p_current_age<=56, 1, 0),
-    p_current_age62 = if_else(p_current_age<=62, 1, 0),
-    p_current_age68 = if_else(p_current_age<=68, 1, 0),
-    p_current_age75 = if_else(p_current_age<=75, 1, 0),
+    p_current_age18 = if_else(p_current_age==18, 1, 0),
+    p_current_age1929 = if_else(p_current_age>18 && p_current_age<=29, 1, 0),
+    p_current_age3039 = if_else(p_current_age>29 && p_current_age <=39, 1, 0),
+    p_current_age4049 = if_else(p_current_age>39 && p_current_age <=49, 1, 0),
+    p_current_age5059 = if_else(p_current_age>49 && p_current_age <=59, 1, 0),
+    p_current_age60plus = if_else(p_current_age>=60, 1, 0),
 
-    p_age_first_offense21 = if_else(p_age_first_offense<=21, 1, 0),
-    p_age_first_offense23 = if_else(p_age_first_offense<=23, 1, 0),
-    p_age_first_offense25 = if_else(p_age_first_offense<=25, 1, 0),
-    p_age_first_offense27 = if_else(p_age_first_offense<=27, 1, 0),
-    p_age_first_offense29 = if_else(p_age_first_offense<=29, 1, 0),
-    
-    p_age_first_offense32 = if_else(p_age_first_offense<=32, 1, 0),
-    p_age_first_offense35 = if_else(p_age_first_offense<=35, 1, 0),
-    p_age_first_offense38 = if_else(p_age_first_offense<=38, 1, 0),
-    
-    p_age_first_offense42 = if_else(p_age_first_offense<=42, 1, 0),
-    p_age_first_offense46 = if_else(p_age_first_offense<=46, 1, 0),
-    p_age_first_offense51 = if_else(p_age_first_offense<=51, 1, 0),
-    p_age_first_offense56 = if_else(p_age_first_offense<=56, 1, 0),
-    p_age_first_offense62 = if_else(p_age_first_offense<=62, 1, 0),
-    p_age_first_offense68 = if_else(p_age_first_offense<=68, 1, 0),
-    p_age_first_offense75 = if_else(p_age_first_offense<=75, 1, 0),
-    
+    # p_current_age27 = if_else(p_current_age<=27, 1, 0),
+    # p_current_age29 = if_else(p_current_age<=29, 1, 0),
+    # 
+    # p_current_age32 = if_else(p_current_age<=32, 1, 0),
+    # p_current_age35 = if_else(p_current_age<=35, 1, 0),
+    # p_current_age38 = if_else(p_current_age<=38, 1, 0),
+    # 
+    # p_current_age42 = if_else(p_current_age<=42, 1, 0),
+    # p_current_age46 = if_else(p_current_age<=46, 1, 0),
+    # p_current_age51 = if_else(p_current_age<=51, 1, 0),
+    # p_current_age56 = if_else(p_current_age<=56, 1, 0),
+    # p_current_age62 = if_else(p_current_age<=62, 1, 0),
+    # p_current_age68 = if_else(p_current_age<=68, 1, 0),
+    # p_current_age75 = if_else(p_current_age<=75, 1, 0),
+
+    # p_age_first_offense21 = if_else(p_age_first_offense<=21, 1, 0),
+    # p_age_first_offense23 = if_else(p_age_first_offense<=23, 1, 0),
+    # p_age_first_offense25 = if_else(p_age_first_offense<=25, 1, 0),
+    # p_age_first_offense27 = if_else(p_age_first_offense<=27, 1, 0),
+    # p_age_first_offense29 = if_else(p_age_first_offense<=29, 1, 0),
+    # 
+    # p_age_first_offense32 = if_else(p_age_first_offense<=32, 1, 0),
+    # p_age_first_offense35 = if_else(p_age_first_offense<=35, 1, 0),
+    # p_age_first_offense38 = if_else(p_age_first_offense<=38, 1, 0),
+    # 
+    # p_age_first_offense42 = if_else(p_age_first_offense<=42, 1, 0),
+    # p_age_first_offense46 = if_else(p_age_first_offense<=46, 1, 0),
+    # p_age_first_offense51 = if_else(p_age_first_offense<=51, 1, 0),
+    # p_age_first_offense56 = if_else(p_age_first_offense<=56, 1, 0),
+    # p_age_first_offense62 = if_else(p_age_first_offense<=62, 1, 0),
+    # p_age_first_offense68 = if_else(p_age_first_offense<=68, 1, 0),
+    # p_age_first_offense75 = if_else(p_age_first_offense<=75, 1, 0),
+    # 
     p_property0 = if_else(p_property == 0, 1, 0),
     p_property13 = if_else(p_property >= 1 && p_property <=3, 1, 0),
     p_property46 = if_else(p_property >= 4 && p_property <=6, 1, 0),
@@ -164,6 +168,7 @@ df = features_filt %>%
     prior_conviction_M46 = if_else(prior_conviction_M >= 4 && prior_conviction_M <=6, 1, 0),
     prior_conviction_M7up = if_else(prior_conviction_M >= 7, 1, 0),
     
+    p_charge0 = if_else(p_charge ==0, 1, 0),
     p_charge15 = if_else(p_charge >= 1 && p_charge <=5, 1, 0),
     p_charge610 = if_else(p_charge >= 6 && p_charge <=10, 1, 0),
     p_charge1120 = if_else(p_charge >=11  && p_charge <=20, 1, 0),
@@ -177,14 +182,10 @@ df = features_filt %>%
     total_convictions13 = if_else(total_convictions >= 1 && total_convictions <=3, 1, 0),
     total_convictions46 = if_else(total_convictions >=4  && total_convictions <=6, 1, 0),
     total_convictions7up = if_else(total_convictions >=7, 1, 0),
-    
-    
 
-    
-    
     #refactor labelfrom {0,1} to {-1,1} 
-    recid_use = ifelse(recid_use == 0, -1, recid_use)) %>%
-    na.omit() #CREATES A LOT OF NAs
+    recid_use = ifelse(recid_use == 0, -1, recid_use)) 
+    # na.omit() #CREATES A LOT OF NAs
 
 #label must be first column for riskSLIM
 set.seed(283)

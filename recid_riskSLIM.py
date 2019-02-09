@@ -21,8 +21,14 @@ train_name = "\\riskSLIM_train"
 data_dir = os.getcwd()                                      # directory where datasets are stored
 train_csv = data_dir + train_name + '_data.csv'          # csv file for the train dataset
 
+
 # load data from disk
-subset = ["recid_use","p_current_age",  "p_property","prior_conviction_M", "p_charge", "p_felprop_violarrest", "total_convictions"]
+subset = ["recid_use","p_current_age18", "p_current_age1929", "p_current_age3039", "p_current_age4049", "p_current_age5059", "p_current_age60plus",
+  "p_property0","p_property13", "p_property46", "p_property7up", 
+  "prior_conviction_M0", "prior_conviction_M13", "prior_conviction_M46", "prior_conviction_M7up" ,
+  "p_charge0", "p_charge15", "p_charge610", "p_charge1120", "p_charge21up" , 
+  "p_felprop_violarrest0",  
+  "total_convictions0"]
 
 data = load_data_from_csv(dataset_csv_file = train_csv, subset = subset, sample_weights_csv_file = None)
 

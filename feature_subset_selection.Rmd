@@ -161,28 +161,6 @@ for(var in var2bin){
 ```
 
 
-```{r}
-data_prob = train %>%
-  select("p_current_age", recid_use)%>%
-  mutate(recid_use = recid_use%>%unlist()%>%as.numeric() -1 )
-
-mdl = glm(recid_use ~ p_current_age, data=data_prob)
-
-ggplot(data=data_prob, aes_string(x="p_current_age", y="recid_use")) + 
-  geom_jitter(height=.05,alpha=.3, aes(color="Reoffend")) +
-  geom_smooth(method = "glm", 
-              method.args = list(family = "binomial"), 
-              se = FALSE,
-              aes(color="Probability of Reoffending")) +
-  theme_bw() +
-  xlab(var) +
-  ylab("")+
-  theme(text = element_text(size=14),
-        axis.text=element_text(size=14),
-        legend.position = "top") +
-  scale_color_discrete(name = element_blank())
-```
-
 Plot subset value against prob from GLM 
 ```{r}
 for (var in var2bin){
@@ -221,10 +199,9 @@ df_percent <- df_prob %>%
   print(ggplot(df_percent, aes(x = factor_var, y = perc_recid)) + 
           geom_bar(stat = "identity") + 
           xlab(var) + 
+          scale_y_continuous(labels = scales::percent_format()) +
           theme(axis.text = element_text(size = 5))
         )
-
-
 }
 
 
