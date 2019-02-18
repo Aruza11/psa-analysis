@@ -50,14 +50,25 @@ fit_xgb_auc <- function(train, test,param, setup) {
   
   labels = test %>% select(recid_use) %>% unlist()%>%as.numeric() -1 #sub 1 b/c casting to numeric gives vecto of 1s and 2s
   preds = predict(mdl_best, newdata = test%>% select(-recid_use)%>%data.matrix() )
-  roc = roc(labels,preds , percent = F, boot.n = 1000,
-            ci.alpha = .9, stratified = F,  
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-            smooth = F
-  )
+  # roc = roc(labels,preds , percent = F, boot.n = 1000,
+  #           ci.alpha = .9, stratified = F,  
+  #           reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
+  #           smooth = F
+  # )
   
   
-  return(list(mdl_best=mdl_best, performance=performance, roc = roc))
+  #compute performance measures using ROCR package
+  pred_obj = prediction(preds, labels)
+  
+  perf_roc = performance(pred_obj, "tpr", "fpr")
+  perf_acc = performance(pred_obj, "acc")
+  perf_auc = performance(pred_obj, "auc")
+  
+  acc = max(perf_acc@y.values[[1]])
+  auc = perf_auc@y.values[[1]]
+  
+  
+  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
 }
 
 
@@ -140,13 +151,19 @@ fit_bart_auc <- function(train, test, param, setup) {
 
   labels = test %>% select(recid_use) %>% unlist() %>% as.numeric() -1
   preds = predict(mdl_best, new_data = as.data.frame(select(test,-recid_use)) )
-  roc = roc(labels,preds , percent = F, boot.n = 1000,
-            ci.alpha = .9, stratified = F,  
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-            smooth = F
-  )
   
-  return(list(mdl_best=mdl_best, performance=performance, roc = roc))
+  #compute performance measures using ROCR package
+  pred_obj = prediction(preds, labels)
+  
+  perf_roc = performance(pred_obj, "tpr", "fpr")
+  perf_acc = performance(pred_obj, "acc")
+  perf_auc = performance(pred_obj, "auc")
+  
+  acc = max(perf_acc@y.values[[1]])
+  auc = perf_auc@y.values[[1]]
+  
+  
+  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
 }
 
 fit_glm_auc <- function(train, test,setup) {
@@ -195,13 +212,21 @@ fit_glm_auc <- function(train, test,setup) {
   # par(pty = "s")
   labels = test %>% select(recid_use) %>% unlist() %>% as.numeric() - 1
   preds = predict(mdl_best, newdata = test %>%select(-recid_use),type = "response")
-  roc = roc(labels,preds , percent = F, boot.n = 1000,
-            ci.alpha = .9, stratified = F,  
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-            smooth = F
-            )
   
-  return(list(mdl_best=mdl_best, performance=performance, roc = roc))
+  #compute performance measures using ROCR package
+  pred_obj = prediction(preds, labels)
+  
+  perf_roc = performance(pred_obj, "tpr", "fpr")
+  perf_acc = performance(pred_obj, "acc")
+  perf_auc = performance(pred_obj, "auc")
+  
+  acc = max(perf_acc@y.values[[1]])
+  auc = perf_auc@y.values[[1]]
+  
+  
+  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
+  
+  # return(list(mdl_best=mdl_best, performance=performance, roc = roc))
 }
 
 fit_lasso_auc <- function(train, test, setup) {
@@ -270,15 +295,18 @@ fit_lasso_auc <- function(train, test, setup) {
                      type='response',
                      newx=test %>% select(-recid_use)%>%data.matrix(), 
                      s = best_lambda))
-  #create ROC
-  roc = roc(labels,preds, percent = F, boot.n = 1000,
-            ci.alpha = .9, stratified = F,  
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-            smooth = F
-  )
+  #compute performance measures using ROCR package
+  pred_obj = prediction(preds, labels)
+  
+  perf_roc = performance(pred_obj, "tpr", "fpr")
+  perf_acc = performance(pred_obj, "acc")
+  perf_auc = performance(pred_obj, "auc")
+  
+  acc = max(perf_acc@y.values[[1]])
+  auc = perf_auc@y.values[[1]]
   
   
-  return(list(mdl_best=mdl_best, performance=performance, best_lambda = best_lambda, roc = roc))
+  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc, best_lambda = best_lambda))
 }
 
 fit_rf_auc <- function(train, test, setup) {
@@ -335,14 +363,18 @@ fit_rf_auc <- function(train, test, setup) {
           unlist()%>%
           as.numeric()
   
-  #create ROC
-  roc = roc(labels,preds, percent = F, boot.n = 1000,
-            ci.alpha = .9, stratified = F,  
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-            smooth  = F
-            )
-            
-  return(list(mdl_best = mdl_best, performance=performance, roc = roc))
+  #compute performance measures using ROCR package
+  pred_obj = prediction(preds, labels)
+  
+  perf_roc = performance(pred_obj, "tpr", "fpr")
+  perf_acc = performance(pred_obj, "acc")
+  perf_auc = performance(pred_obj, "auc")
+  
+  acc = max(perf_acc@y.values[[1]])
+  auc = perf_auc@y.values[[1]]
+  
+  
+  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
 }
 
 fit_cart_auc <- function(train, test, param, setup) {
@@ -421,14 +453,18 @@ fit_cart_auc <- function(train, test, param, setup) {
     as.numeric()
   
   
-  # preds = as.numeric(as.character(predict(mdl_best, newdata=..1, type = "class")))
-  roc = roc(labels,preds, percent = F, boot.n = 1000,
-            ci.alpha = .9, stratified = F,  
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-            smooth = F
-  )
+  #compute performance measures using ROCR package
+  pred_obj = prediction(preds, labels)
   
-  return(list(mdl_best=mdl_best, performance=performance, roc=roc))
+  perf_roc = performance(pred_obj, "tpr", "fpr")
+  perf_acc = performance(pred_obj, "acc")
+  perf_auc = performance(pred_obj, "auc")
+  
+  acc = max(perf_acc@y.values[[1]])
+  auc = perf_auc@y.values[[1]]
+  
+  
+  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
 }
 
 fit_svm_auc <- function(train, test, param, setup) {
@@ -522,12 +558,17 @@ fit_svm_auc <- function(train, test, param, setup) {
     as.numeric()
   
   
-  roc = roc(labels,preds, percent = F, boot.n = 1000,
-            ci.alpha = .9, stratified = F,
-            reuse.auc = T, print.auc = T, ci = T, ci.type = "bars",
-            smooth = F
-  )
+  #compute performance measures using ROCR package
+  pred_obj = prediction(preds, labels)
   
-  return(list(mdl_best=mdl_best, performance=performance, roc=roc))
+  perf_roc = performance(pred_obj, "tpr", "fpr")
+  perf_acc = performance(pred_obj, "acc")
+  perf_auc = performance(pred_obj, "auc")
+  
+  acc = max(perf_acc@y.values[[1]])
+  auc = perf_auc@y.values[[1]]
+  
+  
+  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
 }
 

@@ -9,7 +9,7 @@ Here, we use out-of-box ML methods to get baselines for the recidivism predictio
 ```{r include = FALSE}
 library(tidyverse)
 library(magrittr)
-library(pROC)
+library(ROCR)
 source('util.R')
 ```
 
@@ -89,7 +89,8 @@ df = features_filt %>%
     p_fraud,
     p_stealing,
     p_trespass,
-    recid_use) 
+    recid_use) %>%
+  na.omit()
 # df = df[1:100,] # Comment for full training set. This is just for testing.
 
 set.seed(283)
@@ -113,8 +114,13 @@ test = select(test, -person_id)
 ### COMPAS and ARNOLD PSA AUC 
 ```{r}
 #Only 353 obs remain when we only consider individuals in test set for Arnold PSA, so we instead consider all non-na obs. 
-scores_outcomes_psa = scores_outcomes %>% filter(!is.na(arnold_nca_raw))
+scores_outcomes_psa = scores_outcomes %>% filter(!is.na(arnold_nca_raw)) 
 scores_outcomes_test = scores_outcomes %>% filter(in_test == T)
+
+pred_arnold_nca_raw = prediction(scores_outcomes_psa$arnold_nca_raw, scores_outcomes_psa$recid)
+pred_arnold_nca = prediction(scores_outcomes_psa$arnold_nca,scores_outcomes_psa$recid)
+pred_RR_raw = prediction(scores_outcomes_test$`Risk of Recidivism_raw_score`,scores_outcomes_test$recid)
+pred_RR_decile = prediction(scores_outcomes_test$`Risk of Recidivism_decile_score`,scores_outcomes_test$recid)
 
 riskscore_aucs = data.frame(
   "Score" = c("Arnold NCA Raw", 
@@ -123,10 +129,18 @@ riskscore_aucs = data.frame(
               "COMPAS Risk of Recid Decile"),
 
   "AUC" = c(
-    auc(scores_outcomes_psa$recid, scores_outcomes_psa$arnold_nca_raw),
-    auc(scores_outcomes_psa$recid, scores_outcomes_psa$arnold_nca),
-    auc(scores_outcomes_test$recid, scores_outcomes_test$`Risk of Recidivism_raw_score`),
-    auc(scores_outcomes_test$recid, scores_outcomes_test$`Risk of Recidivism_decile_score`)),
+    performance(pred_arnold_nca_raw, "auc")@y.values[[1]],
+    performance(pred_arnold_nca, "auc")@y.values[[1]],
+    performance(pred_RR_raw, "auc")@y.values[[1]],
+    performance(pred_RR_decile, "auc")@y.values[[1]]
+  ),
+  
+  "Accuracy" = c(
+    max(performance(pred_arnold_nca_raw, "acc")@y.values[[1]]),
+    max(performance(pred_arnold_nca, "acc")@y.values[[1]]),
+    max(performance(pred_RR_raw, "acc")@y.values[[1]]),
+    max(performance(pred_RR_decile, "acc")@y.values[[1]])
+  ),
   
   "Number of observations" = c(
     nrow(scores_outcomes_psa),
@@ -161,14 +175,14 @@ riskscore_roc_inputs = list(
 
 #Plotting ROC curves 
 for(i in c(1,2,3,4)){
-  roc =  roc(riskscore_roc_inputs[[i]][[1]], riskscore_roc_inputs[[i]][[2]], 
-             percent = F, boot.n = 1000,
-      ci.alpha = .9, stratified = F,  
-      reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-      smooth = F
-  )
+    #compute performance measures using ROCR package
+  labels = riskscore_roc_inputs[[i]][[1]]
+  preds = riskscore_roc_inputs[[i]][[2]]
+  pred_obj = prediction(preds, labels)
   
-  plot(roc,
+  perf_roc = performance(pred_obj, "tpr", "fpr")
+
+  plot(perf_roc,
        print.auc = T,
        main = paste(riskscore_roc_inputs[[i]][[3]]," ROC curve"),
        legacy.axes = T,
@@ -194,8 +208,8 @@ library(xgboost)
 ```{r}
 ## Format for xgboost
 train_xgb = xgb.DMatrix(
-  "data" = train %>% select(-recid_use) %>% as.matrix(),
-  "label" = train %>% select(recid_use) %>% as.matrix()
+  "data" = train %>% select(-recid_use) %>% data.matrix(),
+  "label" = train %>% select(recid_use) %>% data.matrix()
 )
 
 # Specify each parameter as a single value or a vector of values
@@ -223,15 +237,15 @@ setup_xgb = list(
 ```{r}
 set.seed(2812)
 out_xgb = fit_xgb_auc(train_xgb, test, param_xgb, setup_xgb)
-out_xgb$performance
-plot(out_xgb$roc,
-     print.auc = T,
-     main = paste("XGBoost ROC curve using N = ", nrow(test)),
-     legacy.axes = T,
-     grid =T )
 ```
 
 ```{r}
+out_xgb$performance
+print("Accuracy is: ")
+out_xgb$acc
+print("AUC is: ")
+out_xgb$auc
+
 plot(out_xgb$roc,
      print.auc = T,
      main = paste("XGBoost ROC curve using N = ", nrow(test)),
@@ -273,6 +287,11 @@ out_bart = train %>%
 2       2 8371      0.7340461    0.01171209     0.7064116   0.01171209
 ```{r}
 out_bart$performance
+print("Accuracy is: ")
+out_bart$acc
+print("AUC is: ")
+out_bart$auc
+
 plot(out_bart$roc,
      print.auc = T,
      main = paste("BART ROC curve using N = ", nrow(test)),
@@ -303,15 +322,19 @@ out_glm = train %>%
           mutate(y = as.factor(recid_use)) %>%
           select(-recid_use) %>%
           fit_glm_auc(test, setup_glm)
+```
 
+```{r}
 out_glm$performance
+print("Accuracy is: ")
+out_glm$acc
+print("AUC is: ")
+out_glm$auc
 plot(out_glm$roc,
      print.auc = T,
      main = paste("GLM ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
-# print("accuracy is:  ")
-# 1-mean(if_else(predict(out_glm$mdl_glm, type='response', newdata=train)>.5,1,0) != train$recid_use)
 ```
 
 ### Train LASSO 
@@ -332,6 +355,11 @@ out_lasso = train %>%
           fit_lasso_auc(test, setup_lasso)
 
 out_lasso$performance
+print("Accuracy is: ")
+out_lasso$acc
+print("AUC is: ")
+out_lasso$auc
+
 plot(out_lasso$roc,
      print.auc = T,
      main = paste("LASSO ROC curve using N = ", nrow(test)),
@@ -362,6 +390,11 @@ out_rf =  train %>%
           fit_rf_auc(test, setup_rf)
 
 out_rf$performance
+print("Accuracy is: ")
+out_rf$acc
+print("AUC is: ")
+out_rf$auc
+
 plot(out_rf$roc,
      print.auc = T,
      main = paste("RF ROC curve using N = ", nrow(test)),
@@ -402,6 +435,11 @@ out_cart =  train %>%
           fit_cart_auc(test, param_cart, setup_cart)
 
 out_cart$performance
+print("Accuracy is: ")
+out_cart$acc
+print("AUC is: ")
+out_cart$auc
+
 plot(out_cart$roc,
      print.auc = T,
      main = paste("CART ROC curve using N = ", nrow(test)),
@@ -413,7 +451,6 @@ plot(out_cart$roc,
 
 
 ### Train SVM
-0.7059543 accuracy
 ```{r}
 setup_svm = list(
   nfold=5
@@ -446,14 +483,16 @@ out_svm = train %>%
           fit_svm_auc(test, param_svm, setup_svm)
 
 out_svm$performance
+print("Accuracy is: ")
+out_svm$acc
+print("AUC is: ")
+out_svm$auc
+
 plot(out_svm$roc,
      print.auc = T,
      main = paste("SVM ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
-
-# print("Accuracy is: "
-# 1-mean(mdl_svm$fitted != train$recid_use) # ADJUST GROUP
 
 ```
 
