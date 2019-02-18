@@ -31,6 +31,7 @@ features_filt = features_before_on %>%
       select(person_id, screening_date, race, sex, name),
     by = c("person_id","screening_date")
   ) %>%
+  mutate(sex = ifelse(sex == "Male", 0, 1)) %>% #change sex variable to numeric encoding
   inner_join(features_on, by = c("person_id","screening_date")) %>%
   inner_join(
     psa_features%>%
@@ -381,6 +382,7 @@ setup_rf = list(
 )
 
 ```
+
 
 
 ```{r}
