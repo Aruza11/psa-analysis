@@ -63,6 +63,16 @@ Using compas and PSA features in addition to features we computed ourselves.
 ### Add useful columns to features and apply row filters used for all models
 features_filt = features_before_on %>%
   inner_join(
+    data_before %>% 
+      select(person_id, screening_date, people) %>%
+      unnest() %>%
+      select(person_id, screening_date, race, sex, name),
+    by = c("person_id","screening_date")
+  ) %>%
+  mutate(sex = ifelse(sex == "Male", 0, 1)) %>% #change sex variable to numeric encoding
+  inner_join(features_on, by = c("person_id","screening_date")) %>%
+
+  inner_join(
     psa_features%>%
       select(-c(p_current_age,p_prison)), 
     by = c("person_id","screening_date"))%>%
@@ -125,61 +135,43 @@ df = features_filt %>%
     p_current_age5059 = if_else(p_current_age>49 && p_current_age <=59, 1, 0),
     p_current_age60plus = if_else(p_current_age>=60, 1, 0),
 
-    # p_current_age27 = if_else(p_current_age<=27, 1, 0),
-    # p_current_age29 = if_else(p_current_age<=29, 1, 0),
-    # 
-    # p_current_age32 = if_else(p_current_age<=32, 1, 0),
-    # p_current_age35 = if_else(p_current_age<=35, 1, 0),
-    # p_current_age38 = if_else(p_current_age<=38, 1, 0),
-    # 
-    # p_current_age42 = if_else(p_current_age<=42, 1, 0),
-    # p_current_age46 = if_else(p_current_age<=46, 1, 0),
-    # p_current_age51 = if_else(p_current_age<=51, 1, 0),
-    # p_current_age56 = if_else(p_current_age<=56, 1, 0),
-    # p_current_age62 = if_else(p_current_age<=62, 1, 0),
-    # p_current_age68 = if_else(p_current_age<=68, 1, 0),
-    # p_current_age75 = if_else(p_current_age<=75, 1, 0),
-
     # p_age_first_offense21 = if_else(p_age_first_offense<=21, 1, 0),
     # p_age_first_offense23 = if_else(p_age_first_offense<=23, 1, 0),
     # p_age_first_offense25 = if_else(p_age_first_offense<=25, 1, 0),
     # p_age_first_offense27 = if_else(p_age_first_offense<=27, 1, 0),
     # p_age_first_offense29 = if_else(p_age_first_offense<=29, 1, 0),
     # 
-    # p_age_first_offense32 = if_else(p_age_first_offense<=32, 1, 0),
-    # p_age_first_offense35 = if_else(p_age_first_offense<=35, 1, 0),
-    # p_age_first_offense38 = if_else(p_age_first_offense<=38, 1, 0),
-    # 
-    # p_age_first_offense42 = if_else(p_age_first_offense<=42, 1, 0),
-    # p_age_first_offense46 = if_else(p_age_first_offense<=46, 1, 0),
-    # p_age_first_offense51 = if_else(p_age_first_offense<=51, 1, 0),
-    # p_age_first_offense56 = if_else(p_age_first_offense<=56, 1, 0),
-    # p_age_first_offense62 = if_else(p_age_first_offense<=62, 1, 0),
-    # p_age_first_offense68 = if_else(p_age_first_offense<=68, 1, 0),
-    # p_age_first_offense75 = if_else(p_age_first_offense<=75, 1, 0),
-    # 
     p_property0 = if_else(p_property == 0, 1, 0),
     p_property13 = if_else(p_property >= 1 && p_property <=3, 1, 0),
     p_property46 = if_else(p_property >= 4 && p_property <=6, 1, 0),
-    p_property7up = if_else(p_property >= 7, 1, 0),
+    p_property79 = if_else(p_property >= 7 && p_property <=9, 1, 0),
+    p_property10up = if_else(p_property >= 10, 1, 0),
 
-    prior_conviction_M0= if_else(prior_conviction_M == 0, 1, 0),
-    prior_conviction_M13 = if_else(prior_conviction_M >= 1 && prior_conviction_M <=3, 1, 0),
-    prior_conviction_M46 = if_else(prior_conviction_M >= 4 && prior_conviction_M <=6, 1, 0),
-    prior_conviction_M7up = if_else(prior_conviction_M >= 7, 1, 0),
+    prior_conviction_M01= if_else(prior_conviction_M == 0 || prior_conviction_M == 1, 1, 0),
+    prior_conviction_M24 = if_else(prior_conviction_M >= 2 && prior_conviction_M <=4, 1, 0),
+    prior_conviction_M57 = if_else(prior_conviction_M >= 5 && prior_conviction_M <=7, 1, 0),
+    prior_conviction_M810 = if_else(prior_conviction_M >= 8 && prior_conviction_M <=10, 1, 0),
+    prior_conviction_M11up = if_else(prior_conviction_M >= 11, 1, 0),
     
     p_charge0 = if_else(p_charge ==0, 1, 0),
-    p_charge15 = if_else(p_charge >= 1 && p_charge <=5, 1, 0),
-    p_charge610 = if_else(p_charge >= 6 && p_charge <=10, 1, 0),
-    p_charge1120 = if_else(p_charge >=11  && p_charge <=20, 1, 0),
-    p_charge21up = if_else(p_charge >=21, 1, 0),
-    
+    p_charge13 = if_else(p_charge >= 1 && p_charge <=3, 1, 0),
+    p_charge45 = if_else(p_charge == 4 || p_charge ==5, 1, 0),
+    p_charge67 = if_else(p_charge ==6  || p_charge ==7, 1, 0),
+    p_charge810 = if_else(p_charge >=8 && p_charge <=10, 1, 0),
+    p_charge11up = if_else(p_charge >= 11, 1, 0),
+
     p_felprop_violarrest0= if_else(p_felprop_violarrest == 0, 1, 0),
-    p_felprop_violarrest14 = if_else(prior_conviction_M >= 1 && prior_conviction_M <=4, 1, 0),
-    p_felprop_violarrest5up = if_else(prior_conviction_M >= 5, 1, 0),
+    p_felprop_violarrest1= if_else(p_felprop_violarrest == 1, 1, 0),
+    p_felprop_violarrest2= if_else(p_felprop_violarrest == 2, 1, 0),
+    p_felprop_violarrest3= if_else(p_felprop_violarrest == 3, 1, 0),
+
+    p_felprop_violarrest46 = if_else(prior_conviction_M >= 4 && prior_conviction_M <=6, 1, 0),
+    p_felprop_violarrest7up = if_else(prior_conviction_M >= 7, 1, 0),
     
     total_convictions0= if_else(total_convictions == 0, 1, 0),
-    total_convictions13 = if_else(total_convictions >= 1 && total_convictions <=3, 1, 0),
+    total_convictions1= if_else(total_convictions == 1, 1, 0),
+    total_convictions2= if_else(total_convictions == 2, 1, 0),
+    total_convictions3= if_else(total_convictions == 3, 1, 0),
     total_convictions46 = if_else(total_convictions >=4  && total_convictions <=6, 1, 0),
     total_convictions7up = if_else(total_convictions >=7, 1, 0),
 
