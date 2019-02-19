@@ -158,15 +158,21 @@ def fit_riskSLIM(data, params):
 if __name__ == '__main__':
 
     # data
-    train_name = "\\riskSLIM_train"                                      
-    test_name = "\\riskSLIM_test"                                      # name of the data
+    train_name = "\\bin_train"                                      
+    test_name = "\\bin_test"                                      # name of the data
 
     data_dir = os.getcwd()                                      # directory where datasets are stored
     train_csv = data_dir + train_name + '_data.csv'          # csv file for the train dataset
     test_csv = data_dir + test_name + '_data.csv'          # csv file for the test dataset
 
     # load data from disk
-    subset = ["recid_use","p_current_age32",  "p_property","prior_conviction_M", "p_charge", "p_felprop_violarrest", "total_convictions", "current_violent20", "fail_appear_two_plus"]
+    subset = ["recid_use",
+      "p_current_age18", "p_current_age1929", "p_current_age3039", "p_current_age4049", "p_current_age5059", "p_current_age60plus",
+      "p_property0","p_property13", "p_property46", "p_property79", "p_property10up", 
+      "prior_conviction_M01", "prior_conviction_M24", "prior_conviction_M57", "prior_conviction_M810" , "prior_conviction_M11up",
+      "p_charge0", "p_charge13", "p_charge45", "p_charge67", "p_charge810" , "p_charge11up", 
+      "p_felprop_violarrest0", "p_felprop_violarrest1", "p_felprop_violarrest2", "p_felprop_violarrest3", "p_felprop_violarrest46", "p_felprop_violarrest7up",  
+      "total_convictions0", "total_convictions1", "total_convictions2", "total_convictions3", "total_convictions46", "total_convictions7up"]
 
     train_df = load_data_from_csv(dataset_csv_file = train_csv, subset = subset)
     test_df = load_data_from_csv(dataset_csv_file = test_csv, subset = subset)

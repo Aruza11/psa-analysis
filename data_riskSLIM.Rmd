@@ -84,6 +84,7 @@ features_filt = features_before_on %>%
          
 ## Select features and round count features
 df = features_filt %>%
+  na.omit()%>%
   transmute(
     #COMPAS Risk of Recidivism Features (excluding age)
     person_id,
@@ -129,10 +130,10 @@ df = features_filt %>%
     
     #Binning age features 
     p_current_age18 = if_else(p_current_age==18, 1, 0),
-    p_current_age1929 = if_else(p_current_age>18 && p_current_age<=29, 1, 0),
-    p_current_age3039 = if_else(p_current_age>29 && p_current_age <=39, 1, 0),
-    p_current_age4049 = if_else(p_current_age>39 && p_current_age <=49, 1, 0),
-    p_current_age5059 = if_else(p_current_age>49 && p_current_age <=59, 1, 0),
+    p_current_age1929 = if_else(p_current_age>18 & p_current_age<=29, 1, 0),
+    p_current_age3039 = if_else(p_current_age>29 & p_current_age <=39, 1, 0),
+    p_current_age4049 = if_else(p_current_age>39 & p_current_age <=49, 1, 0),
+    p_current_age5059 = if_else(p_current_age>49 & p_current_age <=59, 1, 0),
     p_current_age60plus = if_else(p_current_age>=60, 1, 0),
 
     # p_age_first_offense21 = if_else(p_age_first_offense<=21, 1, 0),
@@ -142,42 +143,40 @@ df = features_filt %>%
     # p_age_first_offense29 = if_else(p_age_first_offense<=29, 1, 0),
     # 
     p_property0 = if_else(p_property == 0, 1, 0),
-    p_property13 = if_else(p_property >= 1 && p_property <=3, 1, 0),
-    p_property46 = if_else(p_property >= 4 && p_property <=6, 1, 0),
-    p_property79 = if_else(p_property >= 7 && p_property <=9, 1, 0),
+    p_property13 = if_else(p_property >= 1 & p_property <=3, 1, 0),
+    p_property46 = if_else(p_property >= 4 & p_property <=6, 1, 0),
+    p_property79 = if_else(p_property >= 7 & p_property <=9, 1, 0),
     p_property10up = if_else(p_property >= 10, 1, 0),
 
-    prior_conviction_M01= if_else(prior_conviction_M == 0 || prior_conviction_M == 1, 1, 0),
-    prior_conviction_M24 = if_else(prior_conviction_M >= 2 && prior_conviction_M <=4, 1, 0),
-    prior_conviction_M57 = if_else(prior_conviction_M >= 5 && prior_conviction_M <=7, 1, 0),
-    prior_conviction_M810 = if_else(prior_conviction_M >= 8 && prior_conviction_M <=10, 1, 0),
+    prior_conviction_M01= if_else(prior_conviction_M == 0 | prior_conviction_M == 1, 1, 0),
+    prior_conviction_M24 = if_else(prior_conviction_M >= 2 & prior_conviction_M <=4, 1, 0),
+    prior_conviction_M57 = if_else(prior_conviction_M >= 5 & prior_conviction_M <=7, 1, 0),
+    prior_conviction_M810 = if_else(prior_conviction_M >= 8 & prior_conviction_M <=10, 1, 0),
     prior_conviction_M11up = if_else(prior_conviction_M >= 11, 1, 0),
     
     p_charge0 = if_else(p_charge ==0, 1, 0),
-    p_charge13 = if_else(p_charge >= 1 && p_charge <=3, 1, 0),
-    p_charge45 = if_else(p_charge == 4 || p_charge ==5, 1, 0),
-    p_charge67 = if_else(p_charge ==6  || p_charge ==7, 1, 0),
-    p_charge810 = if_else(p_charge >=8 && p_charge <=10, 1, 0),
+    p_charge13 = if_else(p_charge >= 1 & p_charge <=3, 1, 0),
+    p_charge45 = if_else(p_charge == 4 | p_charge ==5, 1, 0),
+    p_charge67 = if_else(p_charge ==6  | p_charge ==7, 1, 0),
+    p_charge810 = if_else(p_charge >=8 & p_charge <=10, 1, 0),
     p_charge11up = if_else(p_charge >= 11, 1, 0),
 
     p_felprop_violarrest0= if_else(p_felprop_violarrest == 0, 1, 0),
     p_felprop_violarrest1= if_else(p_felprop_violarrest == 1, 1, 0),
     p_felprop_violarrest2= if_else(p_felprop_violarrest == 2, 1, 0),
     p_felprop_violarrest3= if_else(p_felprop_violarrest == 3, 1, 0),
-
-    p_felprop_violarrest46 = if_else(prior_conviction_M >= 4 && prior_conviction_M <=6, 1, 0),
+    p_felprop_violarrest46 = if_else(prior_conviction_M >= 4 & prior_conviction_M <=6, 1, 0),
     p_felprop_violarrest7up = if_else(prior_conviction_M >= 7, 1, 0),
     
     total_convictions0= if_else(total_convictions == 0, 1, 0),
     total_convictions1= if_else(total_convictions == 1, 1, 0),
     total_convictions2= if_else(total_convictions == 2, 1, 0),
     total_convictions3= if_else(total_convictions == 3, 1, 0),
-    total_convictions46 = if_else(total_convictions >=4  && total_convictions <=6, 1, 0),
+    total_convictions46 = if_else(total_convictions >=4  & total_convictions <=6, 1, 0),
     total_convictions7up = if_else(total_convictions >=7, 1, 0),
 
     #refactor labelfrom {0,1} to {-1,1} 
     recid_use = ifelse(recid_use == 0, -1, recid_use)) 
-    # na.omit() #CREATES A LOT OF NAs
 
 #label must be first column for riskSLIM
 set.seed(283)
@@ -199,9 +198,9 @@ Create K folds csv. riskSLIM pkg requires K \in [1,N], where N is the number of 
 ```
 
 ```{r}
-write.table(train, file="riskSLIM_train_data.csv",
+write.table(train, file="bin_train_data.csv",
             sep=",", row.names = F)
-write.table(test, file="riskSLIM_test_data.csv",
+write.table(test, file="bin_test_data.csv",
             sep=",", row.names = F)
 
 # write.table(folds,file= "riskSLIM_folds.csv",
