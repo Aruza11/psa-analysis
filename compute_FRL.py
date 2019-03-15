@@ -89,8 +89,8 @@ def predict(X,rule_list, threshold = None):
 
 
 if __name__ == '__main__':
-    train_name = "\\riskSLIM_train"
-    test_name = "\\riskSLIM_test"                              
+    train_name = "\\bin_train"
+    test_name = "\\bin_test"                              
    
 
     data_dir = os.getcwd()                                      # directory where datasets are stored
@@ -99,7 +99,13 @@ if __name__ == '__main__':
 
 
     train_df, test_df = pd.read_csv(train_csv_file, sep=','), pd.read_csv(test_csv_file, sep=',')
-    subset = ["recid_use","p_current_age",  "p_property","prior_conviction_M", "p_charge", "p_felprop_violarrest", "total_convictions"]
+    subset = ["recid_use",
+      "p_current_age18", "p_current_age1929", "p_current_age3039", "p_current_age4049", "p_current_age5059", "p_current_age60plus",
+      "p_property0","p_property13", "p_property46", "p_property79", "p_property10up", 
+      "prior_conviction_M01", "prior_conviction_M24", "prior_conviction_M57", "prior_conviction_M810" , "prior_conviction_M11up",
+      "p_charge0", "p_charge13", "p_charge45", "p_charge67", "p_charge810" , "p_charge11up", 
+      "p_felprop_violarrest0", "p_felprop_violarrest1", "p_felprop_violarrest2", "p_felprop_violarrest3", "p_felprop_violarrest46", "p_felprop_violarrest7up",  
+      "total_convictions0", "total_convictions1", "total_convictions2", "total_convictions3", "total_convictions46", "total_convictions7up"]
     train_df, test_df = train_df[subset], test_df[subset]
     variable_names = list(train_df)[1:] #do not want column name outcome label
     # print(variable_names)
@@ -119,10 +125,11 @@ if __name__ == '__main__':
             X_test[i][j] = f(j, i, X_test)
 
     #a numpy array
-    Y_train =  np.array(train_df.iloc[1:,0]) #check Y!!!!!
+    #FRL needs y in {0,1}
+    Y_train =  np.array(train_df.iloc[1:,0]) 
     Y_train[Y_train == -1] = 0
 
-    Y_test =  np.array(test_df.iloc[1:,0]) #check Y!!!!!
+    Y_test =  np.array(test_df.iloc[1:,0]) 
     Y_test[Y_test == -1] = 0
                 
     # problem parameters
