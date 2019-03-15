@@ -100,7 +100,7 @@ compute_features = function(person_id,screening_date,first_offense_date,current_
   #Traffic  charges
   out$p_traffic =  ifelse(is.null(charge), 0, sum(charge$is_traffic, na.rm = TRUE))
   
-  #Drug charges
+  #Drug charges-have to look into municipalities
   out$p_drug =  ifelse(is.null(charge), 0, sum(charge$is_drug, na.rm = TRUE))
 
   #DUI charges
