@@ -23,10 +23,12 @@ source('data_util.R')
 ### Local file paths
 
 # ProPublica analysis
-f_propub = "../compas-analysis-master/"
+#f_propub = "../compas-analysis-master/"
+f_propub = "../../Desktop/Research_Data/"
 
 # Data we have pulled
-f_our_data = "../../broward-data/"
+#f_our_data = "../../broward-data/"
+f_our_data = "../../Desktop/Research_Data/"
 ```
 
 ```{r}
@@ -42,7 +44,7 @@ casearrest_df <- tbl(db,"casearrest") %>%
 
 charge_df <- tbl(db,"charge") %>%
   as_data_frame() %>%
-  filter(charge_degree != "(0)") %>% # These are very minor offenses (e.g. traffic tickets). We will never use them.
+  #filter(charge_degree != "(0)") %>% # These are very minor offenses (e.g. traffic tickets). We will never use them.
   mutate(offense_date = as_date(ymd_hms(offense_date)))
 
 compas_df <- tbl(db,"compas") %>%
@@ -397,6 +399,7 @@ data_on = key_events %>%
   left_join(dyn_jail_on, by=c("person_id","screening_date")) %>%
   left_join(dyn_prison_on, by=c("person_id","screening_date")) %>%
   left_join(dyn_prob_on, by=c("person_id","screening_date"))
+
 ```
 
 ```{r}
@@ -452,6 +455,49 @@ data_after = key_events %>%
 
 ```{r}
 outcomes = pmap_dfr(data_after, .f=compute_outcomes)
+options(tibble.print_max = 150, tibble.print_min = 100)
+options(tibble.width = Inf)
+outcomes
+
+drug_amt = sum(outcomes$recid_drug, na.rm = TRUE)
+overall_amt = sum(outcomes$recid)
+property_amt = sum(outcomes$recid_property)
+stalking_amt = sum(outcomes$recid_stalking)
+dom_amt = sum(outcomes$recid_domestic)
+trespass_amt = sum(outcomes$recid_trespass)
+traffic_amt = sum(outcomes$recid_traffic)
+voy_amt = sum(outcomes$recid_voyeurism)
+fraud_amt = sum(outcomes$recid_fraud)
+steal_amt = sum(outcomes$recid_stealing)
+dui_amt = sum(outcomes$recid_dui)
+
+voverall_amt = sum(outcomes$recid_violent)
+vproperty_amt = sum(outcomes$recid_property_violent)
+vstalking_amt = sum(outcomes$recid_stalking_violent)
+vdom_amt = sum(outcomes$recid_domestic_violent)
+vtrespass_amt = sum(outcomes$recid_trespass_violent)
+vtraffic_amt = sum(outcomes$recid_traffic_violent)
+vvoy_amt = sum(outcomes$recid_voyeurism_violent)
+vfraud_amt = sum(outcomes$recid_fraud_violent)
+vsteal_amt = sum(outcomes$recid_stealing_violent)
+vdui_amt = sum(outcomes$recid_dui_violent)
+vdrug_amt = sum(outcomes$recid_drug_violent, na.rm = TRUE)
+#property_amt
+
+crimes <- c("Overall", "Drug", "Property", "Stalking", "Domestic Violence", "Trespass", "Traffic", "Voyeurism", "Fraud", "Stealing", "DUI")
+amt <- c(overall_amt, drug_amt, property_amt, stalking_amt, dom_amt, trespass_amt, traffic_amt, voy_amt, fraud_amt, steal_amt, dui_amt)
+vamt <- c(voverall_amt, vdrug_amt, vproperty_amt, vstalking_amt, vdom_amt, vtrespass_amt, vtraffic_amt, vvoy_amt, vfraud_amt, vsteal_amt, vdui_amt)
+out_graph = data.frame(Crime = crimes, Frequency = amt, Frequency_Violent = vamt)
+
+out_graph
+#ggplot(data = out_graph, mapping = aes(x = Crime)) +
+#  geom_bar() + labs(title = "Crimed Recidivised", x = "Crime", y = "Frequency") 
+
+#out_graph = pmap_dfr(data_after, .f=compute_outcomes_graph)
+#out_graph
+#ggplot(data = out_graph, mapping = aes(x = crime)) +
+#  geom_bar() + labs(title = "Crimed Committed", x = "Crime", y = "Frequency") 
+
 ```
 
 ## Save
