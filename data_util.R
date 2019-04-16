@@ -1,4 +1,3 @@
-#See if I can commit
 #Bhrij Patel
 compute_features = function(person_id,screening_date,first_offense_date,current_offense_date,
                             arrest,charge,jail,prison,prob,people) {
@@ -90,7 +89,7 @@ compute_features = function(person_id,screening_date,first_offense_date,current_
   out$p_prison =  ifelse(is.null(prison), 0, nrow(prison))
   
   # Number of times on probation
-  out$p_probation =  ifelse(is.null(prob), 0, sum(prob$prob_event=="On" & prob$EventDate < current_offense_date, na.rm = TRUE))
+  out$p_probation =  ifelse(is.null(prob), 0, sum(prob$prob_event== "On" & prob$EventDate < current_offense_date, na.rm = TRUE))
   
   ### Additional features
   
@@ -163,6 +162,7 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
   
   if(is.null(charge)) {
     out$recid = 0
+    out$recidnot = 0
     out$recid_drug = 0
     out$recid_property = 0
     out$recid_stalking = 0
@@ -197,7 +197,7 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
     date_next_offense = charge$offense_date[1]
     years_next_offense = as.numeric(as.period(interval(screening_date,date_next_offense)), "years")
     out$recid = if_else(years_next_offense<= 2, 1, 0)
-    
+    out$recidnot = if_else(out$recid == 0, 1, 0)
     out$recid_drug = if_else(years_next_offense <= 2 && charge$is_drug, 1, 0)
     out$recid_property = if_else(years_next_offense <= 2 && charge$is_property, 1, 0)
     out$recid_stalking = if_else(years_next_offense <= 2 && charge$is_stalking, 1, 0)
@@ -208,14 +208,13 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
     out$recid_stealing = if_else(years_next_offense <= 2 && charge$is_stealing, 1, 0)
     out$recid_dui = if_else(years_next_offense <= 2 && charge$is_dui, 1, 0)   
     out$recid_domestic = if_else(years_next_offense <= 2 && charge$is_domestic_viol, 1, 0)
+    
     # Violent recidivism
     date_next_offense_violent = filter(charge,is_violent==1)$offense_date[1]
     
     if(is.na(date_next_offense_violent)) {
       out$recid_violent = 0
       out$recid_domestic_violent = 0
-      
-
       out$recid_drug_violent = 0
       out$recid_property_violent = 0
       out$recid_stalking_violent = 0
