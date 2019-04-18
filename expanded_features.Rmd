@@ -44,8 +44,9 @@ casearrest_df <- tbl(db,"casearrest") %>%
 
 charge_df <- tbl(db,"charge") %>%
   as_data_frame() %>%
-  #filter(charge_degree != "(0)") %>% # These are very minor offenses (e.g. traffic tickets). We will never use them.
+  filter(charge_degree != "(0)") %>% # These are very minor offenses (e.g. traffic tickets). We will never use them.
   mutate(offense_date = as_date(ymd_hms(offense_date)))
+
 
 compas_df <- tbl(db,"compas") %>%
   as_data_frame() %>%
@@ -70,7 +71,10 @@ people_df<-tbl(db,"people") %>%
 ## Cleanup
 rm(db)
 gc()
-nrow(casearrest_df)
+
+charge_df %>% filter(charge_degree == "(TCX)") %>% count(statute)
+
+nrow(charge_df) #this is charge_df without all the "0" charge_degrees, minor offenses
 ```
 
 ```{r, message=FALSE, warning=FALSE}
@@ -114,6 +118,8 @@ prob_df = prob_df %>%
     is_revoke = if_else(prob_event == "Off" & any(Description %in% event_revoke), 1, 0)
   ) %>%
   arrange(person_id, EventDate) # This is important
+
+nrow(prob_df)
 ```
 
 
@@ -182,8 +188,7 @@ charge_df = charge_df %>%
     is_property=if_else(substr(statute,1,3) %in% c("806","810","812"),1,0),
     is_murder=if_else(substr(statute,1,3) %in% c("782"),1,0),
     is_assault=if_else(substr(statute,1,3) %in% c("784"),1,0),
-    #not including murder, sex, domestic violence, but I
-    #think I need to look at this more closely
+    
     is_family_violence=if_else(substr(statute,1,6)=="741.28",1,0),
     is_sex_offense=if_else(substr(statute,1,3)=="794"|
                              substr(statute,1,7)=="784.046",1,0),
@@ -195,25 +200,28 @@ charge_df = charge_df %>%
     is_juv = age_offense < 18,
   
     #additional features calculated for psa_analysis
-    is_traffic = if_else(substr(charge_degree, 0, 4) =="(TCX)" | charge_degree=="(0)",1,0),
-    #is_traffic = if_else(substr(statute,1,7) %in% c("322.034"), 1, 0),
+    #is_traffic = if_else(substr(charge_degree, 0, 5) =="(TCX)") | charge_degree=="(0)",1,0),
+      #is_traffic = if_else(substr(statute,1,7) %in% c("322.034"), 1, 0),
     #is_traffic = if_else(substr(statute,1,7) == "322.034", 1, 0),
-    is_drug = if_else(substr(statute,1,3)=="893" | 
+    is_traffic = if_else(substr(charge_degree, 0, 5) %in% c("(TCX)"), 1, 0),
+
+    is_drug = if_else(substr(statute,1,3) == "893" | 
                      substr(statute,1,7) %in% c("817.563","817.546"),1,0),
     is_dui = if_else(substr(statute,1,7) %in% c("316.193","322.056") |
                      substr(statute,1,6) %in% c("322.62","322.63","322.64"),1,0),
-    is_domestic_viol = if_else(substr(statute,1,6) %in% c("741.29", "741.28","741.30", "741.32"),1,0) ,
+    is_domestic_viol = if_else(substr(statute,1,6) %in% c("741.29", "741.28","741.30", "741.32"),1,0),
   #keywords of stalking, harassment, 
-    is_stalking = if_else(substr(statute,1,7) %in% c("784.048", "784.049"),1,0) ,
-    is_voyeurism = if_else(substr(statute,1,6) %in% c("810.14"),1,0) ,
+    is_stalking = if_else(substr(statute,1,7) %in% c("784.048", "784.049"),1,0),
+    is_voyeurism = if_else(charge == "Voyeurism" | substr(statute,1,6) %in% c("810.14") | substr(statute,1,7) %in% c("827.071")
+                           | substr(statute,1,3) %in% c("847"),1,0),
     is_fraud = if_else(substr(statute,1,3) %in% c("817"),1,0) ,
     #includes theft robbery and burglary
     is_stealing = if_else(substr(statute,1,3) %in% c("812")|substr(statute,1,6) %in% c("810.06","810.02") ,1,0) ,
-    #burglary trespass and voyeurism
+    #burglary trespass and voyeurism #Bhrij: I will switch the voyeurism to itself
     is_trespass = if_else(substr(statute,1,3) %in% c("810"),1,0) 
   )%>%
   select(-dob)
-
+charge_df %>% select(-id, -filing_date, -offense_date, -charge_number, -charge_degree, -date_charge_filed, -filing_type, -filing_agency, -name, -days_since_compas, -person_id)
 jailhistory_df = jailhistory_df %>%
   mutate(sentence_days = floor(as.numeric(as.period(interval(in_custody,out_custody)), "days")))
 
@@ -454,52 +462,77 @@ data_after = key_events %>%
   left_join(dyn_jail_after, by=c("person_id","screening_date")) %>%
   left_join(dyn_prison_after, by=c("person_id","screening_date")) %>%
   left_join(dyn_prob_after, by=c("person_id","screening_date"))
+
+nrow(data_after)
 ```
 
 ```{r output_outcomes}
 outcomes = pmap_dfr(data_after, .f=compute_outcomes)
 options(tibble.print_max = 20, tibble.print_min = 100)
 options(tibble.width = Inf)
-#outcomes
+nrow(outcomes)
+outcomes
+bad_values <- outcomes %>%
+  filter(is.na(years))
+#bad_values
+new <- outcomes %>% 
+  na.exclude()
+new %>% select(recid, recidnot, years)
+overall_amt = sum(new$recid, na.rm = TRUE)
+outcomes$recid[1:10]
+nrow(new)
+not_overall_amt = sum(new$recidnot, na.rm = TRUE)
 
-overall_amt = sum(outcomes$recid)
-not_overall_amt = sum(outcomes$recidnot)
-drug_amt = sum(outcomes$recid_drug, na.rm = TRUE)
 
-property_amt = sum(outcomes$recid_property)
-stalking_amt = sum(outcomes$recid_stalking)
-dom_amt = sum(outcomes$recid_domestic)
-trespass_amt = sum(outcomes$recid_trespass)
-traffic_amt = sum(outcomes$recid_traffic)
-voy_amt = sum(outcomes$recid_voyeurism)
-fraud_amt = sum(outcomes$recid_fraud)
-steal_amt = sum(outcomes$recid_stealing)
-dui_amt = sum(outcomes$recid_dui)
+outcomes$recidnot[1:10]
 
-voverall_amt = sum(outcomes$recid_violent)
-vproperty_amt = sum(outcomes$recid_property_violent)
-vstalking_amt = sum(outcomes$recid_stalking_violent)
-vdom_amt = sum(outcomes$recid_domestic_violent)
-vtrespass_amt = sum(outcomes$recid_trespass_violent)
-vtraffic_amt = sum(outcomes$recid_traffic_violent)
-vvoy_amt = sum(outcomes$recid_voyeurism_violent)
-vfraud_amt = sum(outcomes$recid_fraud_violent)
-vsteal_amt = sum(outcomes$recid_stealing_violent)
-vdui_amt = sum(outcomes$recid_dui_violent)
+
+print("Screening dates\n")
+outcomes$screening_date[1:10]
+
+#outcomes$date[1:10]
+
+print("Years inbetween")
+outcomes$years[1:10]
+
+
+drug_amt = sum(new$recid_drug, na.rm = TRUE)
+property_amt = sum(new$recid_property, na.rm = TRUE)
+stalking_amt = sum(new$recid_stalking, na.rm = TRUE)
+dom_amt = sum(new$recid_domestic, na.rm = TRUE)
+trespass_amt = sum(new$recid_trespass, na.rm = TRUE)
+traffic_amt = sum(new$recid_traffic, na.rm = TRUE)
+voy_amt = sum(new$recid_voyeurism, na.rm = TRUE)
+fraud_amt = sum(new$recid_fraud, na.rm = TRUE)
+steal_amt = sum(new$recid_stealing, na.rm = TRUE)
+dui_amt = sum(new$recid_dui, na.rm = TRUE)
+murder_amt = sum(new$recid_murder, na.rm = TRUE)
+
+voverall_amt = sum(outcomes$recid_violent, na.rm = TRUE)
+vproperty_amt = sum(outcomes$recid_property_violent, na.rm = TRUE)
+vstalking_amt = sum(outcomes$recid_stalking_violent, na.rm = TRUE)
+vdom_amt = sum(outcomes$recid_domestic_violent, na.rm = TRUE)
+vtrespass_amt = sum(outcomes$recid_trespass_violent, na.rm = TRUE)
+vtraffic_amt = sum(outcomes$recid_traffic_violent, na.rm = TRUE)
+vvoy_amt = sum(outcomes$recid_voyeurism_violent, na.rm = TRUE)
+vfraud_amt = sum(outcomes$recid_fraud_violent, na.rm = TRUE)
+vsteal_amt = sum(outcomes$recid_stealing_violent, na.rm = TRUE)
+vdui_amt = sum(outcomes$recid_dui_violent, na.rm = TRUE)
 vdrug_amt = sum(outcomes$recid_drug_violent, na.rm = TRUE)
+vmurder_amt = sum(outcomes$recid_murder_violent, na.rm = TRUE)
 
-
-crimes <- c("Not","Overall", "Drug", "Property", "Stalking", "Domestic Violence", "Trespass", "Traffic", "Voyeurism", "Fraud", "Stealing", "DUI")
-amt <- c(not_overall_amt, overall_amt, drug_amt, property_amt, stalking_amt, dom_amt, trespass_amt, traffic_amt, voy_amt, fraud_amt, steal_amt, dui_amt)
-vamt <- c(not_overall_amt, voverall_amt, vdrug_amt, vproperty_amt, vstalking_amt, vdom_amt, vtrespass_amt, vtraffic_amt, vvoy_amt, vfraud_amt, vsteal_amt, vdui_amt)
+crimes <- c("Not","Overall", "Drug", "Property", "Stalking", "Domestic Violence", "Trespass", "Traffic", "Voyeurism", "Fraud", "Stealing", "DUI", "Murder")
+amt <- c(not_overall_amt, overall_amt, drug_amt, property_amt, stalking_amt, dom_amt, trespass_amt, traffic_amt, voy_amt, fraud_amt, steal_amt, dui_amt, murder_amt)
+vamt <- c(not_overall_amt, voverall_amt, vdrug_amt, vproperty_amt, vstalking_amt, vdom_amt, vtrespass_amt, vtraffic_amt, vvoy_amt, vfraud_amt, vsteal_amt, vdui_amt, vmurder_amt)
 out_graph = data.frame(Crime = crimes, Frequency = amt, Frequency_Violent = vamt)
 
 out_graph
 
 
-ggplot(data = out_graph, mapping = aes(x = Crime, y = Frequency, fill = "green")) +
+ggplot(data = out_graph, mapping = aes(x = Crime, y = Frequency)) +
   geom_col() + labs(title = "Crime Recidivised", x = "Crime", y = "Frequency") + coord_flip()
-
+ggplot(data = out_graph, mapping = aes(x = Crime, y = Frequency_Violent)) +
+  geom_col() + labs(title = "Crime Recidivised", x = "Crime", y = "Frequency") + coord_flip()
 #out_graph = pmap_dfr(data_after, .f=compute_outcomes_graph)
 #out_graph
 #ggplot(data = out_graph, mapping = aes(x = crime)) +

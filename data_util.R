@@ -161,6 +161,7 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
   out$screening_date = screening_date
   
   if(is.null(charge)) {
+    #out$nullcharge = 1
     out$recid = 0
     out$recidnot = 0
     out$recid_drug = 0
@@ -173,7 +174,7 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
     out$recid_stealing = 0
     out$recid_dui = 0
     out$recid_domestic = 0
-    
+    out$recid_murder = 0
     
     
     out$recid_violent = 0
@@ -187,17 +188,35 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
     out$recid_fraud_violent = 0
     out$recid_stealing_violent = 0
     out$recid_dui_violent = 0
+    out$recid_murder_violent = 0  
     
   } else {
-    
+    out$nullcharge = 0
     # Sort charges in ascending order
     charge = charge %>% dplyr::arrange(offense_date)
-    
     # General recidivism
     date_next_offense = charge$offense_date[1]
+    #print(charge$offense_date[1])
+    
     years_next_offense = as.numeric(as.period(interval(screening_date,date_next_offense)), "years")
-    out$recid = if_else(years_next_offense<= 2, 1, 0)
-    out$recidnot = if_else(out$recid == 0, 1, 0)
+    out$years = years_next_offense
+    if(is.na(out$years)){
+      out$years = 0
+      years_next_offense = 0
+    }
+    out$recid = if_else(years_next_offense <= 2, 1, 0) 
+    if(is.na(out$recid)){
+      out$recid = 0
+    }
+
+    #out$recidnot = if_else(years_next_offense > 2, 1, 0) #as.numeric(!out$recid) #if_else(out$recid == 1, 0, 1)
+    out$recidnot = as.numeric(!out$recid)
+    if(is.na(out$recidnot)){
+      out$recidnot = 0
+    }
+    #out$recidnot = if_else(years_next_offense > 2, 1, 0)
+    
+    
     out$recid_drug = if_else(years_next_offense <= 2 && charge$is_drug, 1, 0)
     out$recid_property = if_else(years_next_offense <= 2 && charge$is_property, 1, 0)
     out$recid_stalking = if_else(years_next_offense <= 2 && charge$is_stalking, 1, 0)
@@ -208,7 +227,7 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
     out$recid_stealing = if_else(years_next_offense <= 2 && charge$is_stealing, 1, 0)
     out$recid_dui = if_else(years_next_offense <= 2 && charge$is_dui, 1, 0)   
     out$recid_domestic = if_else(years_next_offense <= 2 && charge$is_domestic_viol, 1, 0)
-    
+    out$recid_murder = if_else(years_next_offense <= 2 && charge$is_murder, 1, 0)
     # Violent recidivism
     date_next_offense_violent = filter(charge,is_violent==1)$offense_date[1]
     
@@ -223,7 +242,8 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
       out$recid_voyeurism_violent = 0
       out$recid_fraud_violent = 0
       out$recid_stealing_violent = 0
-      out$recid_dui_violent = 0       
+      out$recid_dui_violent = 0    
+      out$recid_murder_violent = 0  
     } else {
       years_next_offense_violent = as.numeric(as.period(interval(screening_date,date_next_offense_violent)), "years")
       out$recid_violent = if_else(years_next_offense_violent <= 2, 1, 0)
@@ -239,6 +259,7 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
       out$recid_fraud_violent = if_else(years_next_offense_violent <= 2 && charge$is_fraud, 1, 0)
       out$recid_stealing_violent = if_else(years_next_offense_violent <= 2 && charge$is_stealing, 1, 0)
       out$recid_dui_violent = if_else(years_next_offense_violent <= 2 && charge$is_dui, 1, 0)   
+      out$recid_murder_violent = if_else(years_next_offense_violent <= 2 && charge$is_murder, 1, 0)    
     }
   }
   
