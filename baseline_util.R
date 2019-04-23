@@ -1,3 +1,13 @@
+log_performance <- function (out_model, log_path, model_name){
+  out_model$performance$Score = model_name
+  
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std", "heldout_test_auc","heldout_test_acc")
+  out_model$performance = out_model$performance %>% select(Score, eval_varnames)
+  
+  write.csv(out_model$performance, paste0(log_path, "model_eval_metrics/", model_name, "_performance.csv"))
+  #add functionality later for logging rocs
+}
+
 fit_xgb_auc <- function(train, test,param, setup) {
   ###
   # Cross validates each combination of parameters in param and returns best model
@@ -6,16 +16,21 @@ fit_xgb_auc <- function(train, test,param, setup) {
   ###
   
   n_param = nrow(param)
-  
-  ## Allocate space for performance statistics (and set seeds)
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std", "heldout_test_auc","heldout_test_acc")
+  cv_eval_varnames = eval_varnames[1:4]
+  heldout_eval_varnames = eval_varnames[5:6]
+
+  # Allocate space for performance statistics (and set seeds)
   performance = data.frame(
     i_param = 1:n_param,
     seed = sample.int(10000, n_param),
     matrix(NA,nrow(param),
-           ncol=5,
+           ncol=length(eval_varnames) + 1,
            dimnames=list(NULL,
-                         c("iter","train_auc_mean","train_auc_std","test_auc_mean","test_auc_std"))))
-  col_eval_log = 3:7 # Adjust manually. Column index in performance of evaluation_log output from xgb.cv
+                         c("iter",eval_varnames))))
+
+  # cv_eval_inds = 3:7 # Adjust manually. Column index in performance of evaluation_log output from xgb.cv
+  # heldout_eval_inds = 8:10
   
   cat("Training on",n_param,"sets of parameters.\n")
   
@@ -32,8 +47,7 @@ fit_xgb_auc <- function(train, test,param, setup) {
                   metrics = "auc",
                   eval_metric = "auc",
                   maximize=TRUE)
-    
-    performance[i_param,col_eval_log] = mdcv$evaluation_log[which.max(mdcv$evaluation_log$test_auc_mean),]
+    performance[i_param,cv_eval_varnames] = mdcv$evaluation_log[which.max(mdcv$evaluation_log$test_auc_mean),]
   }
   
   ## Train on best parameters using best number of rounds
@@ -50,13 +64,7 @@ fit_xgb_auc <- function(train, test,param, setup) {
   
   labels = test %>% select(recid_use) %>% unlist()%>%as.numeric() -1 #sub 1 b/c casting to numeric gives vecto of 1s and 2s
   preds = predict(mdl_best, newdata = test%>% select(-recid_use)%>%data.matrix() )
-  # roc = roc(labels,preds , percent = F, boot.n = 1000,
-  #           ci.alpha = .9, stratified = F,  
-  #           reuse.auc = T, print.auc = T, ci = T, ci.type = "bars", 
-  #           smooth = F
-  # )
-  
-  
+
   #compute performance measures using ROCR package
   pred_obj = prediction(preds, labels)
   
@@ -67,8 +75,10 @@ fit_xgb_auc <- function(train, test,param, setup) {
   acc = max(perf_acc@y.values[[1]])
   auc = perf_auc@y.values[[1]]
   
+  best_performance = performance[i_param_best,]
+  best_performance[1, heldout_eval_varnames] = c(auc, acc)
   
-  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
+  return(list(mdl_best=mdl_best, performance=best_performance, roc = perf_roc))
 }
 
 
@@ -81,7 +91,9 @@ fit_bart_auc <- function(train, test, param, setup) {
   n_param = nrow(param)
   
   ## Allocate space for performance statistics (and set seeds)
-  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std")
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std", "heldout_test_auc","heldout_test_acc")
+  cv_eval_varnames = eval_varnames[1:4]
+  heldout_eval_varnames = eval_varnames[5:6]
   
   performance = data.frame(
     i_param = 1:n_param,
@@ -128,7 +140,7 @@ fit_bart_auc <- function(train, test, param, setup) {
                 test_auc_mean = mean(auc_test),
                 test_auc_std = sd(auc_train))
     
-    performance[i_param,eval_varnames] = as.numeric(res[1,eval_varnames])
+    performance[i_param,cv_eval_varnames] = as.numeric(res[1,cv_eval_varnames])
   }
   
   ## Train on best parameters using best number of rounds
@@ -162,8 +174,11 @@ fit_bart_auc <- function(train, test, param, setup) {
   acc = max(perf_acc@y.values[[1]])
   auc = perf_auc@y.values[[1]]
   
+  best_performance = performance[i_param_best,]
+  best_performance[i_param_best,heldout_eval_varnames] = c(auc, acc)
   
-  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
+  
+  return(list(mdl_best=mdl_best, performance=best_performance, roc = perf_roc))
 }
 
 fit_glm_auc <- function(train, test,setup) {
@@ -173,7 +188,9 @@ fit_glm_auc <- function(train, test,setup) {
   ###
   
   ## Allocate space for performance statistics
-  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std")
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std", "heldout_test_auc","heldout_test_acc")
+  cv_eval_varnames = eval_varnames[1:4]
+  heldout_eval_varnames = eval_varnames[5:6]
   
   performance = data.frame(
     # seed = sample.int(10000, 1),
@@ -205,7 +222,7 @@ fit_glm_auc <- function(train, test,setup) {
                 test_auc_mean = mean(auc_test),
                 test_auc_std = sd(auc_train))
     
-  performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
+  performance[1,cv_eval_varnames] = as.numeric(res[1,cv_eval_varnames])
   #trains glm on all data
   mdl_best = glm(y ~ ., family=binomial(link='logit'), data=train)
   #create ROC
@@ -223,8 +240,9 @@ fit_glm_auc <- function(train, test,setup) {
   acc = max(perf_acc@y.values[[1]])
   auc = perf_auc@y.values[[1]]
   
+  performance[1,heldout_eval_varnames] = c(auc,acc)
   
-  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
+  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc))
   
   # return(list(mdl_best=mdl_best, performance=performance, roc = roc))
 }
@@ -236,7 +254,9 @@ fit_lasso_auc <- function(train, test, setup) {
   ###
   
   ## Allocate space for performance statistics
-  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std")
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std", "heldout_test_auc", "heldout_test_acc")
+  cv_eval_varnames = eval_varnames[1:4]
+  heldout_eval_varnames = eval_varnames[5:6]
   
   performance = data.frame(
     seed = sample.int(10000, 1),
@@ -282,7 +302,7 @@ fit_lasso_auc <- function(train, test, setup) {
               test_auc_mean = mean(auc_test),
               test_auc_std = sd(auc_train))
   
-  performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
+  performance[1,cv_eval_varnames] = as.numeric(res[1,cv_eval_varnames])
   
   #trains lasso on all data
   X = train%>% select(-y)%>%data.matrix()
@@ -305,6 +325,7 @@ fit_lasso_auc <- function(train, test, setup) {
   acc = max(perf_acc@y.values[[1]])
   auc = perf_auc@y.values[[1]]
   
+  performance[1,heldout_eval_varnames] = c(auc, acc)
   
   return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc, best_lambda = best_lambda))
 }
@@ -316,7 +337,9 @@ fit_rf_auc <- function(train, test, setup) {
   ###
   
   ## Allocate space for performance statistics
-  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std")
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std", "heldout_test_auc", "heldout_test_acc")
+  cv_eval_varnames = eval_varnames[1:4]
+  heldout_eval_varnames = eval_varnames[5:6]
   
   performance = data.frame(
     seed = setup[["seed"]],
@@ -347,7 +370,7 @@ fit_rf_auc <- function(train, test, setup) {
               test_auc_mean = mean(auc_test),
               test_auc_std = sd(auc_train))
   
-  performance[1,eval_varnames] = as.numeric(res[1,eval_varnames])
+  performance[1,cv_eval_varnames] = as.numeric(res[1,cv_eval_varnames])
   
   #trains rf on all data and predicts on all data
   mdl_best = randomForest(formula = y ~ ., data=train)
@@ -372,9 +395,10 @@ fit_rf_auc <- function(train, test, setup) {
   
   acc = max(perf_acc@y.values[[1]])
   auc = perf_auc@y.values[[1]]
+
+  performance[1,heldout_eval_varnames] = c(auc,acc)
   
-  
-  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
+  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc))
 }
 
 fit_cart_auc <- function(train, test, param, setup) {
@@ -386,7 +410,9 @@ fit_cart_auc <- function(train, test, param, setup) {
   
   ## Allocate space for performance statistics
   n_param = nrow(param)
-  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std")
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std", "heldout_test_auc", "heldout_test_acc")
+  cv_eval_varnames = eval_varnames[1:4]
+  heldout_eval_varnames = eval_varnames[5:6]
   
   performance = data.frame(
     i_param = 1:n_param,
@@ -427,7 +453,7 @@ fit_cart_auc <- function(train, test, param, setup) {
                 test_auc_mean = mean(auc_test),
                 test_auc_std = sd(auc_train))
     
-    performance[i_param,eval_varnames] = as.numeric(res[1,eval_varnames])
+    performance[i_param,cv_eval_varnames] = as.numeric(res[1,cv_eval_varnames])
   }
   
   #Train all data using best parameters
@@ -463,8 +489,10 @@ fit_cart_auc <- function(train, test, param, setup) {
   acc = max(perf_acc@y.values[[1]])
   auc = perf_auc@y.values[[1]]
   
+  best_performance = performance[i_param_best,]
+  best_performance[1, heldout_eval_varnames] = c(auc, acc)
   
-  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
+  return(list(mdl_best=mdl_best, performance=best_performance, roc = perf_roc))
 }
 
 fit_svm_auc <- function(train, test, param, setup) {
@@ -476,7 +504,9 @@ fit_svm_auc <- function(train, test, param, setup) {
   
   ## Allocate space for performance statistics
   n_param = nrow(param)
-  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std")
+  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std", "heldout_test_auc", "heldout_test_acc")
+  cv_eval_varnames = eval_varnames[1:4]
+  heldout_eval_varnames = eval_varnames[5:6]
   
   performance = data.frame(
     i_param = 1:n_param,
@@ -526,7 +556,7 @@ fit_svm_auc <- function(train, test, param, setup) {
                 test_auc_mean = mean(auc_test),
                 test_auc_std = sd(auc_train))
     
-    performance[i_param,eval_varnames] = as.numeric(res[1,eval_varnames])
+    performance[i_param,cv_eval_varnames] = as.numeric(res[1,cv_eval_varnames])
   }
   
   #Train all data using best parameters
@@ -567,8 +597,11 @@ fit_svm_auc <- function(train, test, param, setup) {
   
   acc = max(perf_acc@y.values[[1]])
   auc = perf_auc@y.values[[1]]
+
+  best_performance = performance[i_param_best,]
+  best_performance[1, heldout_eval_varnames] = c(auc, acc)
   
   
-  return(list(mdl_best=mdl_best, performance=performance, roc = perf_roc, acc = acc, auc = auc))
+  return(list(mdl_best=mdl_best, performance=best_performance, roc = perf_roc))
 }
 

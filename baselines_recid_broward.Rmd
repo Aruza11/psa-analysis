@@ -5,18 +5,24 @@ date: "11/5/2018"
 output: html_document
 ---
 
+```{r setup}
+knitr::opts_chunk$set(warning=F, message=F,echo = TRUE)
+knitr::opts_knit$set(root.dir = '/tmp')
+```
+
+
 Here, we use out-of-box ML methods to get baselines for the recidivism prediction problem
 ```{r include = FALSE}
 library(tidyverse)
 library(magrittr)
 library(ROCR)
-source('util.R')
+source('baseline_util.R')
+log_path = "C:/Users/Caroline Wang/OneDrive/Duke/Criminal Recidivism/psa-analysis/logs/baselines/"
 ```
 
 ```{r}
 load("expanded_features.Rdata")
 load("compas_psa.Rdata")
-
 ```
 
 ### Prepare data 
@@ -92,7 +98,7 @@ df = features_filt %>%
     p_trespass,
     recid_use) %>%
   na.omit()
-# df = df[1:100,] # Comment for full training set. This is just for testing.
+df = df[1:100,] # Comment for full training set. This is just for testing.
 
 set.seed(283)
 train = sample_frac(df,.8)
@@ -114,29 +120,31 @@ test = select(test, -person_id)
 
 ### COMPAS and ARNOLD PSA AUC 
 ```{r}
-#Only 353 obs remain when we only consider individuals in test set for Arnold PSA, so we instead consider all non-na obs. 
-scores_outcomes_psa = scores_outcomes %>% filter(!is.na(arnold_nca_raw)) 
-scores_outcomes_test = scores_outcomes %>% filter(in_test == T)
+#Only 353 obs remain when we only consider individuals in test set for Arnold PSA, so we also consider all non-na obs. 
+data = "arnold_nona"
+if (data == "heldout_test"){scores_outcomes = scores_outcomes %>% filter(in_test == T)}
+if (data == "arnold_nona"){scores_outcomes = scores_outcomes = scores_outcomes %>% filter(!is.na(arnold_nca_raw))}
 
-pred_arnold_nca_raw = prediction(scores_outcomes_psa$arnold_nca_raw, scores_outcomes_psa$recid)
-pred_arnold_nca = prediction(scores_outcomes_psa$arnold_nca,scores_outcomes_psa$recid)
-pred_RR_raw = prediction(scores_outcomes_test$`Risk of Recidivism_raw_score`,scores_outcomes_test$recid)
-pred_RR_decile = prediction(scores_outcomes_test$`Risk of Recidivism_decile_score`,scores_outcomes_test$recid)
+
+pred_arnold_nca_raw = prediction(scores_outcomes$arnold_nca_raw, scores_outcomes$recid)
+pred_arnold_nca = prediction(scores_outcomes$arnold_nca,scores_outcomes$recid)
+pred_RR_raw = prediction(scores_outcomes$`Risk of Recidivism_raw_score`,scores_outcomes$recid)
+pred_RR_decile = prediction(scores_outcomes$`Risk of Recidivism_decile_score`,scores_outcomes$recid)
 
 riskscore_aucs = data.frame(
-  "Score" = c("Arnold NCA Raw", 
-              "Arnold NCA", 
-              "COMPAS Risk of Recid Raw", 
-              "COMPAS Risk of Recid Decile"),
+  "Score" = c(paste0("Arnold NCA Raw ", data), 
+              paste0("Arnold NCA ", data), 
+              paste0("COMPAS Risk of Recid Raw ",data), 
+              paste0("COMPAS Risk of Recid Decile f",data)),
 
-  "AUC" = c(
+  "heldout_test_auc" = c(
     performance(pred_arnold_nca_raw, "auc")@y.values[[1]],
     performance(pred_arnold_nca, "auc")@y.values[[1]],
     performance(pred_RR_raw, "auc")@y.values[[1]],
     performance(pred_RR_decile, "auc")@y.values[[1]]
   ),
   
-  "Accuracy" = c(
+  "heldout_test_acc" = c(
     max(performance(pred_arnold_nca_raw, "acc")@y.values[[1]]),
     max(performance(pred_arnold_nca, "acc")@y.values[[1]]),
     max(performance(pred_RR_raw, "acc")@y.values[[1]]),
@@ -144,32 +152,36 @@ riskscore_aucs = data.frame(
   ),
   
   "Number of observations" = c(
-    nrow(scores_outcomes_psa),
-    nrow(scores_outcomes_psa),
-    nrow(scores_outcomes_test),
-    nrow(scores_outcomes_test)
+    nrow(scores_outcomes),
+    nrow(scores_outcomes),
+    nrow(scores_outcomes),
+    nrow(scores_outcomes)
   )
   
 )
 
-knitr::kable(riskscore_aucs, format = 'pandoc')
+knitr::kable(riskscore_aucs, format = 'markdown')
+write.csv(riskscore_aucs, paste0(log_path, "model_eval_metrics/riskscore_aucs_", data, ".csv"))
 
+```
+
+```{r}
 riskscore_roc_inputs = list(
-  list(scores_outcomes_psa$recid, 
-       scores_outcomes_psa$arnold_nca_raw, 
+  list(scores_outcomes$recid, 
+       scores_outcomes$arnold_nca_raw, 
        "Arnold NCA Raw"
   ),
-  list(scores_outcomes_psa$recid, 
-       scores_outcomes_psa$`arnold_nca`, 
+  list(scores_outcomes$recid, 
+       scores_outcomes$`arnold_nca`, 
        "Arnold NCA"
   ),
                             
-  list(scores_outcomes_test$recid, 
-       scores_outcomes_test$`Risk of Recidivism_raw_score`, 
+  list(scores_outcomes$recid, 
+       scores_outcomes$`Risk of Recidivism_raw_score`, 
        "Risk of Recidivism Raw Score"
   ),
-  list(scores_outcomes_test$recid, 
-       scores_outcomes_test$`Risk of Recidivism_decile_score`, 
+  list(scores_outcomes$recid, 
+       scores_outcomes$`Risk of Recidivism_decile_score`, 
        "Risk of Recidivism Decile Score "
   )
 )
@@ -210,20 +222,31 @@ library(xgboost)
 ## Format for xgboost
 train_xgb = xgb.DMatrix(
   "data" = train %>% select(-recid_use) %>% data.matrix(),
-  "label" = train %>% select(recid_use) %>% data.matrix()
+  "label" = train %>% select(recid_use) %>% data.matrix() - 1
 )
 
 # Specify each parameter as a single value or a vector of values
 # Each combination will be tested
+# param_xgb <- list(
+#   objective = "binary:logistic",
+#   eta = c(.01,.1),
+#   gamma = c(.01,.1),
+#   max_depth = c(2,6),
+#   min_child_weight = c(.1,5),
+#   subsample = c(0.5,1),
+#   colsample_bytree = c(1),
+#   early_stopping_rounds=50
+# )
+
 param_xgb <- list(
   objective = "binary:logistic",
-  eta = c(.01,.1),
-  gamma = c(.01,.1),
-  max_depth = c(2,6),
-  min_child_weight = c(.1,5),
-  subsample = c(0.5,1),
+  eta = c(.1),
+  gamma = c(.1),
+  max_depth = c(6),
+  min_child_weight = c(5),
+  subsample = c(1),
   colsample_bytree = c(1),
-  early_stopping_rounds=50
+  early_stopping_rounds=10
 )
 
 param_xgb = expand.grid(param_xgb) # Each row is a set of parameters to be cross validated
@@ -242,16 +265,14 @@ out_xgb = fit_xgb_auc(train_xgb, test, param_xgb, setup_xgb)
 
 ```{r}
 out_xgb$performance
-print("Accuracy is: ")
-out_xgb$acc
-print("AUC is: ")
-out_xgb$auc
 
 plot(out_xgb$roc,
      print.auc = T,
      main = paste("XGBoost ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
+
+log_performance(out_xgb, log_path, "xgb_performance")
 
 ```
 
@@ -288,16 +309,15 @@ out_bart = train %>%
 2       2 8371      0.7340461    0.01171209     0.7064116   0.01171209
 ```{r}
 out_bart$performance
-print("Accuracy is: ")
-out_bart$acc
-print("AUC is: ")
-out_bart$auc
 
 plot(out_bart$roc,
      print.auc = T,
      main = paste("BART ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
+
+log_performance(out_bart, log_path, "bart")
+
 
 ```
 
@@ -327,15 +347,14 @@ out_glm = train %>%
 
 ```{r}
 out_glm$performance
-print("Accuracy is: ")
-out_glm$acc
-print("AUC is: ")
-out_glm$auc
 plot(out_glm$roc,
      print.auc = T,
      main = paste("GLM ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
+
+log_performance(out_glm, log_path, "glm")
+
 ```
 
 ### Train LASSO 
@@ -355,20 +374,16 @@ out_lasso = train %>%
           select(-recid_use) %>%
           fit_lasso_auc(test, setup_lasso)
 
+#output res
 out_lasso$performance
-print("Accuracy is: ")
-out_lasso$acc
-print("AUC is: ")
-out_lasso$auc
-
 plot(out_lasso$roc,
      print.auc = T,
      main = paste("LASSO ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
-
+#log res
+log_performance(out_lasso, log_path, "lasso")
 ```
-
 
 ### Train random forest
  seed train_auc_mean train_auc_std test_auc_mean test_auc_std
@@ -392,10 +407,6 @@ out_rf =  train %>%
           fit_rf_auc(test, setup_rf)
 
 out_rf$performance
-print("Accuracy is: ")
-out_rf$acc
-print("AUC is: ")
-out_rf$auc
 
 plot(out_rf$roc,
      print.auc = T,
@@ -403,6 +414,7 @@ plot(out_rf$roc,
      legacy.axes = T,
      grid =T )
 
+log_performance(out_rf, log_path, "rf")
 ```
 
 ### Train CART
@@ -437,16 +449,14 @@ out_cart =  train %>%
           fit_cart_auc(test, param_cart, setup_cart)
 
 out_cart$performance
-print("Accuracy is: ")
-out_cart$acc
-print("AUC is: ")
-out_cart$auc
 
 plot(out_cart$roc,
      print.auc = T,
      main = paste("CART ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
+
+log_performance(out_cart, log_path, "cart")
 
 ```
 
@@ -458,43 +468,32 @@ setup_svm = list(
   nfold=5
 )
 
-# param_svm = expand.grid(list(
-#   type = 'C-classification',
-#   cost = c(0.5,1,2),
-#   epsilon = .1, # This parameter isn't used for classification but need to set anyway or it will break
-#   gamma = c(0.5,1,2)
-# ))
-
-
 param_svm = expand.grid(list(
   type = 'C-classification',
-  cost = c(0.5,2),
+  cost = c(0.5,1,2),
   epsilon = .1, # This parameter isn't used for classification but need to set anyway or it will break
-  gamma = c(.5)
+  gamma = c(0.5,1,2)
 ))
 
 ```
 
 
 ```{r}
-# mdl_svm =fit_svm(recid_use ~ ., train, param_svm)
-
 out_svm = train %>%
           mutate(y = as.factor(recid_use)) %>%
           select(-recid_use) %>%
           fit_svm_auc(test, param_svm, setup_svm)
 
 out_svm$performance
-print("Accuracy is: ")
-out_svm$acc
-print("AUC is: ")
-out_svm$auc
 
 plot(out_svm$roc,
      print.auc = T,
      main = paste("SVM ROC curve using N = ", nrow(test)),
      legacy.axes = T,
      grid =T )
+
+log_performance(out_svm, log_path, "svm")
+
 
 ```
 
@@ -524,8 +523,7 @@ CORELS <- function(p_current_age,sex,priors){
   }
 }
 
-
-test_nona = test %>% select(recid_use, p_current_age, sex, p_charge) %>%na.omit()
+test_nona = test %>% na.omit()%>%select(recid_use, p_current_age, sex, p_charge) 
 cat("Number rows in test set",nrow(test_nona), "\n")
 CORELS_preds = apply(test_nona, 1, function(df) CORELS(df['p_current_age'], 
                                                   df['sex'], 
@@ -536,8 +534,128 @@ test_labels = test_nona %>% select(recid_use) %>% unlist()%>%as.numeric() -1
 cat("Accuracy: ",sum(if_else(test_labels == CORELS_preds, 1, 0)) / length(test_labels), "\n" )
 
 #compute AUC
-auc(test_labels, CORELS_preds)
+pROC::auc(test_labels, CORELS_preds)
 
 ```
 
+RiskSLIM 
+
+PREDICT STRING:  Pr(RECID_USE = +1) = 1/(1 + exp(-1 - score)  TOTAL STRING:  ADD POINTS FROM ROWS 1 to 3  RHO_NAMES:  ['p_current_age18', 'p_current_age1929', 'prior_conviction_M57']
++-----------------------------------------------+------------------+-----------+
+| Pr(RECID_USE = +1) = 1/(1 + exp(-1 - score)   |                  |           |
+| ============================================= | ================ | ========= |
+| p_current_age18                               |         2 points |   + ..... |
+| p_current_age1929                             |         1 points |   + ..... |
+| prior_conviction_M57                          |         1 points |   + ..... |
+| ============================================= | ================ | ========= |
+| ADD POINTS FROM ROWS 1 to 3                   |            SCORE |   = ..... |
+
+
+```{r}
+riskSLIM <- function(p_current_age,prior_conviction_M){
+  score = 0
+  if(p_current_age == 18){
+    score = score + 2
+  }
+  if(p_current_age %in% c(19:29) ) {
+    score = score + 1
+  }
+  
+  #equiv rule list
+  if(prior_conviction_M %in% c(5,6,7)) {
+    score = score + 1
+  }
+
+  return(1/(1+exp(-1-score)))
+         
+}
+
+test_nona_riskSLIM = test %>% select(recid_use, p_current_age, prior_conviction_M) %>%na.omit()
+cat("Number rows in test set",nrow(test_nona_riskSLIM), "\n")
+riskSLIM_preds = apply(test_nona_riskSLIM, 1, function(df) riskSLIM(df['p_current_age'], 
+                                                  df['prior_conviction_M'] 
+                                                  ))
+
+riskSLIM_labels = test_nona_riskSLIM %>% select(recid_use) %>% unlist()%>%as.numeric() -1
+
+#compute performance measures using ROCR package
+riskSLIM_pred_obj = prediction(riskSLIM_preds, riskSLIM_labels)
+
+riskSLIM_perf_roc = performance(riskSLIM_pred_obj, "tpr", "fpr")
+riskSLIM_perf_acc = performance(riskSLIM_pred_obj, "acc")
+riskSLIM_perf_auc = performance(riskSLIM_pred_obj, "auc")
+
+riskSLIM_acc = max(riskSLIM_perf_acc@y.values[[1]])
+riskSLIM_auc= riskSLIM_perf_auc@y.values[[1]]
+
+cat("RiskSLIM accuracy: ", riskSLIM_acc, "\nRiskSLIM AUC: ", riskSLIM_auc)
+plot(riskSLIM_perf_roc,
+     # print.auc = T,
+     main = "riskSLIM ROC Curve",
+     legacy.axes = T,
+     grid =T )
+
+# #compute accuracy
+# cat("Accuracy: ",sum(if_else(test_labels_riskSLIM == riskSLIM_preds, 1, 0)) / length(test_labels_riskSLIM), "\n" )
+# 
+# #compute AUC
+# auc(test_labels_riskSLIM, riskSLIM_preds)
+
+
+```
+
+FRL
+if ('prior_conviction_M01=0', 'p_felprop_violarrest7up=0'), then prob. = 0.531557 (+: 379, -: 334, obj.: 0.267415)
+else if ('p_property13=1', 'p_felprop_violarrest2=0'), then prob. = 0.409357 (+: 70, -: 101, obj.: 0.080866)
+else if ('p_current_age5059=0', 'total_convictions3=0'), then prob. = 0.394737 (+: 120, -: 184, obj.: 0.147319)
+else if ('total_convictions1=0', 'p_felprop_violarrest2=0'), then prob. = 0.375000 (+: 15, -: 25, obj.: 0.020017)
+else prob. = 0.000000 (+: 0, -: 21, obj.: 0.000000)
+
+```{r}
+FRL <- function(p_current_age,prior_conviction_M, p_felprop_violarrest, p_property, total_convictions){
+  if(prior_conviction_M >= 2 & p_felprop_violarrest <=6 ){
+    return(0.531557)
+  }
+  else if(p_property %in% c(1,2,3) & p_felprop_violarrest!=2 ) {
+    return(0.409357)
+  }
+  
+  else if(p_current_age < 50 & total_convictions!=3) {
+    return(0.394737)
+  }
+  
+  else if(total_convictions != 1 & p_felprop_violarrest!=2)
+    return(0.375)
+
+  return(0)
+}
+
+test_nona_FRL = test %>% select(recid_use, p_current_age, prior_conviction_M, p_felprop_violarrest, p_property, total_convictions) %>%na.omit()
+cat("Number rows in test set",nrow(test_nona_FRL), "\n")
+FRL_preds = apply(test_nona_FRL, 1, function(df) FRL(df['p_current_age'], 
+                                                  df['prior_conviction_M'], 
+                                                  df['p_felprop_violarrest'],
+                                                  df['p_property'] ,
+                                                  df['total_convictions'] 
+                                                  ))
+
+FRL_labels = test_nona_FRL %>% select(recid_use) %>% unlist()%>%as.numeric() -1
+
+#compute performance measures using ROCR package
+FRL_pred_obj = prediction(FRL_preds, FRL_labels)
+
+FRL_perf_roc = performance(FRL_pred_obj, "tpr", "fpr")
+FRL_perf_acc = performance(FRL_pred_obj, "acc")
+FRL_perf_auc = performance(FRL_pred_obj, "auc")
+
+FRL_acc = max(FRL_perf_acc@y.values[[1]])
+FRL_auc= FRL_perf_auc@y.values[[1]]
+
+cat("FRL accuracy: ", FRL_acc, "\nFRL AUC: ", FRL_auc)
+plot(FRL_perf_roc,
+     main = "FRL ROC Curve",
+     legacy.axes = T,
+     grid =T )
+
+```
 

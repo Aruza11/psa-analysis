@@ -1,0 +1,205 @@
+---
+title: "data_adaboost"
+author: "Caroline Wang"
+date: "April 18, 2019"
+output: html_document
+purpose: "bin data values for adaboost approach "
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=F, message=F,echo = TRUE)
+library(tidyverse)
+```
+
+```{r}
+data_path = ""
+load(paste0(data_path,"expanded_features.Rdata"))
+load(paste0(data_path,"compas_psa.Rdata"))
+
+```
+
+```{r}
+### Add useful columns to features and apply row filters used for all models
+features_filt = features_before_on %>%
+  inner_join(
+    data_before %>% 
+      select(person_id, screening_date, people) %>%
+      unnest() %>%
+      select(person_id, screening_date, race, sex, name),
+    by = c("person_id","screening_date")
+  ) %>%
+  mutate(sex = ifelse(sex == "Male", 0, 1)) %>% #change sex variable to numeric encoding
+  inner_join(features_on, by = c("person_id","screening_date")) %>%
+
+  inner_join(
+    psa_features%>%
+      select(-c(p_current_age,p_prison)), 
+    by = c("person_id","screening_date"))%>%
+  inner_join(outcomes, by = c("person_id","screening_date")) %>%
+  filter(`Risk of Recidivism_decile_score` != -1, `Risk of Violence_decile_score` != -1) %>% # Filter 1
+  filter(!is.na(current_offense_date)) %>% # Filter 3
+  filter(screening_date <= current_offense_date_limit) %>% # Filter 4
+  mutate(recid_use = recid) # Select recidivism or violent recidivism to use in this script 
+         
+## Select features and round count features
+df = features_filt %>%
+  na.omit()%>%
+  transmute(
+    #COMPAS Risk of Recidivism Features (excluding age)
+    person_id,
+    p_charge1 = if_else(p_charge>=1, 1, 0),
+    p_charge3 = if_else(p_charge>=3, 1, 0),
+    p_charge5 = if_else(p_charge>=5, 1, 0),
+    p_charge7 = if_else(p_charge>=7, 1, 0),
+    p_charge9 = if_else(p_charge>=9, 1, 0),
+  
+    p_jail30_1 = if_else(p_jail30>=1, 1, 0),
+    p_jail30_3 = if_else(p_jail30>=3, 1, 0),
+    p_jail30_5 = if_else(p_jail30>=5, 1, 0),
+    p_jail30_7 = if_else(p_jail30>=7, 1, 0),
+    p_jail30_9 = if_else(p_jail30>=9, 1, 0),
+
+    p_prison1 = if_else(p_prison>=1, 1, 0),
+    p_prison3 = if_else(p_prison>=3, 1, 0),
+    p_prison5 = if_else(p_prison>=5, 1, 0),
+    p_prison7 = if_else(p_prison>=7, 1, 0),
+    p_prison9 = if_else(p_prison>=9, 1, 0),
+    
+    p_probation1 = if_else(p_probation>=1, 1, 0),
+    p_probation3 = if_else(p_probation>=3, 1, 0),
+    p_probation5 = if_else(p_probation>=5, 1, 0),
+    p_probation7 = if_else(p_probation>=7, 1, 0),
+    p_probation9 = if_else(p_probation>=9, 1, 0),
+
+    #COMPAS Risk of violent recidivism features
+    p_juv_fel_count1 = if_else(p_juv_fel_count>=1, 1, 0),
+    p_juv_fel_count3 = if_else(p_juv_fel_count>=3, 1, 0),
+    p_juv_fel_count5 = if_else(p_juv_fel_count>=5, 1, 0),
+    p_juv_fel_count7 = if_else(p_juv_fel_count>=7, 1, 0),
+    p_juv_fel_count9 = if_else(p_juv_fel_count>=9, 1, 0),
+
+    p_felprop_violarrest1 = if_else(p_felprop_violarrest>=1, 1, 0),
+    p_felprop_violarrest3 = if_else(p_felprop_violarrest>=3, 1, 0),
+    p_felprop_violarrest5 = if_else(p_felprop_violarrest>=5, 1, 0),
+    p_felprop_violarrest7 = if_else(p_felprop_violarrest>=7, 1, 0),
+    p_felprop_violarrest9 = if_else(p_felprop_violarrest>=9, 1, 0),
+
+
+    p_murder_arrest1 = if_else(p_murder_arrest>=1, 1, 0),
+    p_murder_arrest3 = if_else(p_murder_arrest>=3, 1, 0),
+    p_murder_arrest5 = if_else(p_murder_arrest>=5, 1, 0),
+    p_murder_arrest7 = if_else(p_murder_arrest>=7, 1, 0),
+    p_murder_arrest9 = if_else(p_murder_arrest>=9, 1, 0),
+    
+
+    p_felassault_arrest1 = if_else(p_felassault_arrest>=1, 1, 0),
+    p_felassault_arrest3 = if_else(p_felassault_arrest>=3, 1, 0),
+    p_felassault_arrest5 = if_else(p_felassault_arrest>=5, 1, 0),
+    p_felassault_arrest7 = if_else(p_felassault_arrest>=7, 1, 0),
+    p_felassault_arrest9 = if_else(p_felassault_arrest>=9, 1, 0),
+    
+    p_misdemassault_arrest1 = if_else(p_misdemassault_arrest>=1, 1, 0),
+    p_misdemassault_arrest3 = if_else(p_misdemassault_arrest>=3, 1, 0),
+    p_misdemassault_arrest5 = if_else(p_misdemassault_arrest>=5, 1, 0),
+    p_misdemassault_arrest7 = if_else(p_misdemassault_arrest>=7, 1, 0),
+    p_misdemassault_arrest9 = if_else(p_misdemassault_arrest>=9, 1, 0),
+    
+    p_famviol_arrest1 = if_else(p_famviol_arrest>=1, 1, 0),
+    p_famviol_arrest3 = if_else(p_famviol_arrest>=3, 1, 0),
+    p_famviol_arrest5 = if_else(p_famviol_arrest>=5, 1, 0),
+    p_famviol_arrest7 = if_else(p_famviol_arrest>=7, 1, 0),
+    p_famviol_arrest9 = if_else(p_famviol_arrest>=9, 1, 0),
+
+    # p_sex_arrest, #never nonzero
+    p_weapons_arrest1 = if_else(p_weapons_arrest>=1, 1, 0),
+    p_weapons_arrest3 = if_else(p_weapons_arrest>=3, 1, 0),
+    p_weapons_arrest5 = if_else(p_weapons_arrest>=5, 1, 0),
+    p_weapons_arrest7 = if_else(p_weapons_arrest>=7, 1, 0),
+    p_weapons_arrest9 = if_else(p_weapons_arrest>=9, 1, 0),
+
+      #PSA Features (which were not named above)
+    # fail_appear_two_yr, 
+    # fail_appear_two_plus, 
+    # current_violent, 
+    # current_violent20, 
+    # pending_charge, 
+    # prior_conviction_F, 
+    # prior_conviction_M = pmin(prior_conviction_M, 5), 
+    # violent_conviction, 
+    # total_convictions = pmin(total_convictions, 5), 
+
+    #Misc Features
+    # p_arrest,
+    # p_property = pmin(p_property, 5),
+    # p_traffic,
+    # p_drug,
+    # p_dui,
+    # p_domestic,
+    # p_stalking,
+    # p_voyeurism,
+    # p_fraud,
+    # p_stealing,
+    # p_trespass,
+    
+    #Binning age features 
+    p_current_age18 = if_else(p_current_age<=18, 1, 0),
+    p_current_age21 = if_else(p_current_age<=21, 1, 0),
+    p_current_age25 = if_else(p_current_age<=25, 1, 0),
+    p_current_age30 = if_else(p_current_age<=30, 1, 0),
+    p_current_age39 = if_else(p_current_age<=39, 1, 0),
+    p_current_age49 = if_else(p_current_age<=49, 1, 0),
+    p_current_age59 = if_else(p_current_age<=59, 1, 0),
+
+    # p_age_first_offense21 = if_else(p_age_first_offense<=21, 1, 0),
+    # p_age_first_offense23 = if_else(p_age_first_offense<=23, 1, 0),
+    # p_age_first_offense25 = if_else(p_age_first_offense<=25, 1, 0),
+    # p_age_first_offense27 = if_else(p_age_first_offense<=27, 1, 0),
+    # p_age_first_offense29 = if_else(p_age_first_offense<=29, 1, 0),
+    # 
+    p_property1 = if_else(p_property >= 1, 1, 0),
+    p_property3 = if_else(p_property >= 3 , 1, 0),
+    p_property5 = if_else(p_property >= 5 , 1, 0),
+    p_property7 = if_else(p_property >= 7 , 1, 0),
+    p_property9 = if_else(p_property >= 9, 1, 0),
+
+    prior_conviction_M1= if_else(prior_conviction_M >= 1 , 1, 0),
+    prior_conviction_M3 = if_else(prior_conviction_M >= 3, 1, 0),
+    prior_conviction_M5 = if_else(prior_conviction_M >= 5 , 1, 0),
+    prior_conviction_M7 = if_else(prior_conviction_M >= 7 , 1, 0),
+    prior_conviction_M9 = if_else(prior_conviction_M >= 9, 1, 0),
+    
+    p_charge1 = if_else(p_charge >=1, 1, 0),
+    p_charge3 = if_else(p_charge >= 3, 1, 0),
+    p_charge5 = if_else(p_charge >= 5, 1, 0),
+    p_charge7 = if_else(p_charge >=7, 1, 0),
+    p_charge9 = if_else(p_charge >=9, 1, 0),
+
+    total_convictions1 = if_else(total_convictions >= 1, 1, 0),
+    total_convictions3 = if_else(total_convictions >= 3, 1, 0),
+    total_convictions5 = if_else(total_convictions >= 5, 1, 0),
+    total_convictions7 = if_else(total_convictions >= 7, 1, 0),
+    total_convictions9 = if_else(total_convictions >=9, 1, 0),
+
+    recid_use = recid_use)
+
+#label must be first column for riskSLIM
+set.seed(283)
+train = df %>% sample_frac(.8)
+test = df %>% anti_join(train, by = 'person_id') #change to account for screening date!
+
+train = select(train, -person_id)
+test = select(test, -person_id)
+
+train=train[,c(ncol(train),2:ncol(train)-1)]
+test=test[,c(ncol(test),2:ncol(test)-1)]
+```
+
+
+```{r}
+write.table(train, file="ada_train.csv",
+            sep=",", row.names = F)
+write.table(test, file="ada_test.csv",
+            sep=",", row.names = F)
+
+```
+
