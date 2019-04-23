@@ -1,5 +1,4 @@
-#See if I can commit
-
+#Bhrij Patel
 compute_features = function(person_id,screening_date,first_offense_date,current_offense_date,
                             arrest,charge,jail,prison,prob,people) {
   ### Computes features (e.g., number of priors) for each person_id/screening_date.
@@ -90,7 +89,7 @@ compute_features = function(person_id,screening_date,first_offense_date,current_
   out$p_prison =  ifelse(is.null(prison), 0, nrow(prison))
   
   # Number of times on probation
-  out$p_probation =  ifelse(is.null(prob), 0, sum(prob$prob_event=="On" & prob$EventDate < current_offense_date, na.rm = TRUE))
+  out$p_probation =  ifelse(is.null(prob), 0, sum(prob$prob_event== "On" & prob$EventDate < current_offense_date, na.rm = TRUE))
   
   ### Additional features
   
@@ -100,7 +99,7 @@ compute_features = function(person_id,screening_date,first_offense_date,current_
   #Traffic  charges
   out$p_traffic =  ifelse(is.null(charge), 0, sum(charge$is_traffic, na.rm = TRUE))
   
-  #Drug charges
+  #Drug charges-have to look into municipalities
   out$p_drug =  ifelse(is.null(charge), 0, sum(charge$is_drug, na.rm = TRUE))
 
   #DUI charges
@@ -162,31 +161,191 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
   out$screening_date = screening_date
   
   if(is.null(charge)) {
+    #out$nullcharge = 1
     out$recid = 0
+    out$recidnot = 0
+    out$recid_drug = 0
+    out$recid_property = 0
+    out$recid_stalking = 0
+    out$recid_trespass = 0
+    out$recid_traffic = 0
+    out$recid_voyeurism = 0
+    out$recid_fraud = 0
+    out$recid_stealing = 0
+    out$recid_dui = 0
+    out$recid_domestic = 0
+    out$recid_murder = 0
+    
+    
     out$recid_violent = 0
+    out$recid_domestic_violent = 0
+    out$recid_drug_violent = 0
+    out$recid_property_violent = 0
+    out$recid_stalking_violent = 0
+    out$recid_trespass_violent = 0
+    out$recid_traffic_violent = 0
+    out$recid_voyeurism_violent = 0
+    out$recid_fraud_violent = 0
+    out$recid_stealing_violent = 0
+    out$recid_dui_violent = 0
+    out$recid_murder_violent = 0  
     
   } else {
-    
+    out$nullcharge = 0
     # Sort charges in ascending order
     charge = charge %>% dplyr::arrange(offense_date)
-    
     # General recidivism
     date_next_offense = charge$offense_date[1]
-    years_next_offense = as.numeric(as.period(interval(screening_date,date_next_offense)), "years")
-    out$recid = if_else(years_next_offense <= 2, 1, 0)
+    #print(charge$offense_date[1])
     
+    years_next_offense = as.numeric(as.period(interval(screening_date,date_next_offense)), "years")
+    out$years = years_next_offense
+    if(is.na(out$years)){
+      out$years = 0
+      years_next_offense = 0
+    }
+    out$recid = if_else(years_next_offense <= 2, 1, 0) 
+    if(is.na(out$recid)){
+      out$recid = 0
+    }
+
+    #out$recidnot = if_else(years_next_offense > 2, 1, 0) #as.numeric(!out$recid) #if_else(out$recid == 1, 0, 1)
+    out$recidnot = as.numeric(!out$recid)
+    if(is.na(out$recidnot)){
+      out$recidnot = 0
+    }
+    #out$recidnot = if_else(years_next_offense > 2, 1, 0)
+    
+    
+    out$recid_drug = if_else(years_next_offense <= 2 && charge$is_drug, 1, 0)
+    out$recid_property = if_else(years_next_offense <= 2 && charge$is_property, 1, 0)
+    out$recid_stalking = if_else(years_next_offense <= 2 && charge$is_stalking, 1, 0)
+    out$recid_trespass = if_else(years_next_offense <= 2 && charge$is_trespass, 1, 0)
+    out$recid_traffic =  if_else(years_next_offense <= 2 && charge$is_traffic, 1, 0)
+    out$recid_voyeurism =  if_else(years_next_offense <= 2 && charge$is_voyeurism, 1, 0)
+    out$recid_fraud = if_else(years_next_offense <= 2 && charge$is_fraud, 1, 0)
+    out$recid_stealing = if_else(years_next_offense <= 2 && charge$is_stealing, 1, 0)
+    out$recid_dui = if_else(years_next_offense <= 2 && charge$is_dui, 1, 0)   
+    out$recid_domestic = if_else(years_next_offense <= 2 && charge$is_domestic_viol, 1, 0)
+    out$recid_murder = if_else(years_next_offense <= 2 && charge$is_murder, 1, 0)
     # Violent recidivism
     date_next_offense_violent = filter(charge,is_violent==1)$offense_date[1]
+    
     if(is.na(date_next_offense_violent)) {
       out$recid_violent = 0
+      out$recid_domestic_violent = 0
+      out$recid_drug_violent = 0
+      out$recid_property_violent = 0
+      out$recid_stalking_violent = 0
+      out$recid_trespass_violent = 0
+      out$recid_traffic_violent = 0
+      out$recid_voyeurism_violent = 0
+      out$recid_fraud_violent = 0
+      out$recid_stealing_violent = 0
+      out$recid_dui_violent = 0    
+      out$recid_murder_violent = 0  
     } else {
       years_next_offense_violent = as.numeric(as.period(interval(screening_date,date_next_offense_violent)), "years")
       out$recid_violent = if_else(years_next_offense_violent <= 2, 1, 0)
+ 
+      out$recid_domestic_violent = if_else(years_next_offense_violent <= 2 && charge$is_domestic_viol, 1, 0)   
+      
+      out$recid_drug_violent = if_else(years_next_offense_violent <= 2 && charge$is_drug, 1, 0)
+      out$recid_property_violent = if_else(years_next_offense_violent <= 2 && charge$is_property, 1, 0)
+      out$recid_stalking_violent = if_else(years_next_offense_violent <= 2 && charge$is_stalking, 1, 0)
+      out$recid_trespass_violent = if_else(years_next_offense_violent <= 2 && charge$is_trespass, 1, 0)
+      out$recid_traffic_violent =  if_else(years_next_offense_violent <= 2 && charge$is_traffic, 1, 0)
+      out$recid_voyeurism_violent =  if_else(years_next_offense_violent <= 2 && charge$is_voyeurism, 1, 0)
+      out$recid_fraud_violent = if_else(years_next_offense_violent <= 2 && charge$is_fraud, 1, 0)
+      out$recid_stealing_violent = if_else(years_next_offense_violent <= 2 && charge$is_stealing, 1, 0)
+      out$recid_dui_violent = if_else(years_next_offense_violent <= 2 && charge$is_dui, 1, 0)   
+      out$recid_murder_violent = if_else(years_next_offense_violent <= 2 && charge$is_murder, 1, 0)    
     }
   }
   
   return(out)
+  
+  
 }
+
+
+#compute_outcomes_graph = function(person_id,screening_date,first_offense_date,current_offense_date,
+#                            arrest,charge,jail,prison,prob,people){
+  
+#  out = list()
+  
+  # pmap coerces dates to numbers so convert back to date.
+#  first_offense_date = as_date(first_offense_date)
+#  screening_date = as_date(screening_date)
+#  current_offense_date = as_date(current_offense_date)
+  
+  ### ID information
+#  out$person_id = person_id
+#  out$screening_date = screening_date
+  
+#  drug_amt = 0
+#  property_amt = 0
+#  stalking_amt = 0
+#  dom_amt = 0
+  
+#  if(is.null(charge)) {
+#    out$recid = 0
+#    out$recid_drug = 0
+#    out$recid_property = 0
+#    out$recid_stalking = 0
+    
+#    out$recid_violent = 0
+#    out$recid_domestic_violent = 0
+    
+#  } else {
+    
+    # Sort charges in ascending order
+#    charge = charge %>% dplyr::arrange(offense_date)
+    
+    # General recidivism
+#    date_next_offense = charge$offense_date[1]
+#    years_next_offense = as.numeric(as.period(interval(screening_date,date_next_offense)), "years")
+#    out$recid = if_else(years_next_offense<= 2, 1, 0)
+    
+#    out$recid_drug = if_else(years_next_offense <= 2 && charge$is_drug, 1, 0)
+    
+#    drug_amt = if_else(years_next_offense <= 2 && charge$is_drug, drug_amt+1, drug_amt)
+    
+#    out$recid_property = if_else(years_next_offense <= 2 && charge$is_property, 1, 0)
+    
+#    property_amt = if_else(years_next_offense <= 2 && charge$is_property, property_amt+1, property_amt)
+    
+#    out$recid_stalking = if_else(years_next_offense<= 2 && charge$is_stalking, 1, 0)
+    
+#    stalking_amt = if_else(years_next_offense <= 2 && charge$is_stalking, stalking_amt+1, stalking_amt)
+    
+    # Violent recidivism
+#    date_next_offense_violent = filter(charge,is_violent==1)$offense_date[1]
+    
+#    if(is.na(date_next_offense_violent)) {
+#      out$recid_violent = 0
+#      out$recid_domestic_violent = 0
+      
+#    } else {
+#      years_next_offense_violent = as.numeric(as.period(interval(screening_date,date_next_offense_violent)), "years")
+#      out$recid_violent = if_else(years_next_offense_violent <= 2, 1, 0)
+      
+#      out$recid_domestic_violent = if_else(years_next_offense_violent <= 2 && charge$is_domestic_viol, 1, 0)     
+      
+#      dom_amt = if_else(years_next_offense <= 2 && charge$is_domestic_viol, dom_amt+1, dom_amt)
+      
+#    }
+#  }
+  
+#  crime <- c("Drug", "Property", "Stalking", "Domestic Violence")
+  
+#  amount <- c(drug_amt, property_amt, stalking_amt, dom_amt) 
+#  graph_df <- data.frame(crime, amount)
+  
+#  return(graph_df)
+  
+  
+#}
 
 count_on_probation = function(charge, prob){
   
