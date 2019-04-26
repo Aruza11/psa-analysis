@@ -1,0 +1,38 @@
+Regular FRL output: 
+
+if ('p_age_first_offense32=1', 'p_age_first_offense75=1'), then prob. = 0.412998 (+: 1792, -: 2547, obj.: 0.444814)
+else if ('p_property=1', 'p_juv_fel_count=0'), then prob. = 0.255814 (+: 44, -: 128, obj.: 0.022355)
+else if ('p_dui=0', 'p_age_first_offense51=1'), then prob. = 0.234772 (+: 185, -: 603, obj.: 0.105310)
+else if ('p_arrest=3', 'p_current_age68=1'), then prob. = 0.158730 (+: 10, -: 53, obj.: 0.009257)
+else if ('p_felprop_violarrest=1', 'p_age_first_offense62=1'), then prob. = 0.142857 (+: 1, -: 6, obj.: 0.001049)
+else if ('p_current_age46=0', 'p_age_first_offense56=1'), then prob. = 0.142045 (+: 25, -: 151, obj.: 0.026372)
+else if ('p_misdemassault_arrest=1', 'p_felassault_arrest=0'), then prob. = 0.138889 (+: 5, -: 31, obj.: 0.005415)
+else prob. = 0.048276 (+: 7, -: 138, obj.: 0.008557)
+objective = 0.623130
+
+Hyperparameters: 
+w = 7
+C = 0.000001
+prob_terminate = 0.01
+T_FRL = 3000
+
+
+_____
+FRL Output - 2/19/19 , binned features. Terminated at FRL 3000
+
+subset = ["recid_use",
+  "p_current_age18", "p_current_age1929", "p_current_age3039", "p_current_age4049", "p_current_age5059", "p_current_age60plus",
+  "p_property0","p_property13", "p_property46", "p_property79", "p_property10up", 
+  "prior_conviction_M01", "prior_conviction_M24", "prior_conviction_M57", "prior_conviction_M810" , "prior_conviction_M11up",
+  "p_charge0", "p_charge13", "p_charge45", "p_charge67", "p_charge810" , "p_charge11up", 
+  "p_felprop_violarrest0", "p_felprop_violarrest1", "p_felprop_violarrest2", "p_felprop_violarrest3", "p_felprop_violarrest46", "p_felprop_violarrest7up",  
+  "total_convictions0", "total_convictions1", "total_convictions2", "total_convictions3", "total_convictions46", "total_convictions7up"]
+
+if ('prior_conviction_M01=0', 'p_felprop_violarrest7up=0'), then prob. = 0.531557 (+: 379, -: 334, obj.: 0.267415)
+else if ('p_property13=1', 'p_felprop_violarrest2=0'), then prob. = 0.409357 (+: 70, -: 101, obj.: 0.080866)
+else if ('p_current_age5059=0', 'total_convictions3=0'), then prob. = 0.394737 (+: 120, -: 184, obj.: 0.147319)
+else if ('total_convictions1=0', 'p_felprop_violarrest2=0'), then prob. = 0.375000 (+: 15, -: 25, obj.: 0.020017)
+else prob. = 0.000000 (+: 0, -: 21, obj.: 0.000000)
+objective = 0.515616
+
+
