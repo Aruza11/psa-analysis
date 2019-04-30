@@ -104,9 +104,9 @@ test=test[,c(ncol(test),2:ncol(test)-1)]
 
 
 ```{r}
-write.table(train, file="ada_train.csv",
+write.table(train, file=paste0(data_path, "ada_train.csv"),
             sep=",", row.names = F)
-write.table(test, file="ada_test.csv",
+write.table(test, file=paste0(data_path, "ada_test.csv"),
             sep=",", row.names = F)
 
 ```
