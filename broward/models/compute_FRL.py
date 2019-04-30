@@ -93,7 +93,7 @@ if __name__ == '__main__':
     test_name = "\\bin_test"                              
    
 
-    data_dir = os.getcwd()                                      # directory where datasets are stored
+    data_dir = "../data/"      #new change unsure if works        # directory where datasets are stored
     train_csv_file = data_dir + train_name + '_data.csv'          # csv file for the dataset
     test_csv_file = data_dir + test_name + '_data.csv'            # held out test set
 

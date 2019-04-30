@@ -12,7 +12,7 @@ library(tidyverse)
 ```
 
 ```{r}
-data_path = ""
+data_path = "../data/"
 load(paste0(data_path,"expanded_features.Rdata"))
 load(paste0(data_path,"compas_psa.Rdata"))
 

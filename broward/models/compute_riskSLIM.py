@@ -161,7 +161,9 @@ if __name__ == '__main__':
     train_name = "\\bin_train"                                      
     test_name = "\\bin_test"                                      # name of the data
 
-    data_dir = os.getcwd()                                      # directory where datasets are stored
+    # data_dir = os.getcwd()                                      # directory where datasets are stored
+    data_dir = "../data/"      #new change unsure if works        # directory where datasets are stored
+
     train_csv = data_dir + train_name + '_data.csv'          # csv file for the train dataset
     test_csv = data_dir + test_name + '_data.csv'          # csv file for the test dataset
 

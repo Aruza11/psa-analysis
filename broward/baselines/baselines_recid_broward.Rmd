@@ -17,12 +17,13 @@ library(tidyverse)
 library(magrittr)
 library(ROCR)
 source('baseline_util.R')
-log_path = "C:/Users/Caroline Wang/OneDrive/Duke/Criminal Recidivism/psa-analysis/logs/baselines/"
+log_path = "C:/Users/Caroline Wang/OneDrive/Duke/Criminal Recidivism/psa-analysis/broward/logs/baselines/"
 ```
 
 ```{r}
-load("expanded_features.Rdata")
-load("compas_psa.Rdata")
+data_path = "../data/"
+load(paste0(data_path, "expanded_features.Rdata"))
+load(paste0(data_path, "compas_psa.Rdata"))
 ```
 
 ### Prepare data 

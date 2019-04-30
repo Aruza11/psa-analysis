@@ -12,7 +12,7 @@ library(tidyverse)
 ```{r}
 # Edit path_data to the directory with the kentucky data
 # path_data = '/Volumes/William H Taft/KY Pretrial + Court Data FY 10-18/Data/'
-path_data = '../KY Pretrial + Court Data FY 10-18/'
+path_data = '../../KY Pretrial + Court Data FY 10-18/'
 ```
 
 Note: all of the data files have a line like "\n (42352 row(s) affected) \n" at the end of the file. I manually removed this part to make it easier to read in. The code should run anyway but there will be a row of NAs in the dataframe if you don't remove this part

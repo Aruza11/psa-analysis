@@ -12,7 +12,7 @@ library(pROC)
 ```
 
 ```{r}
-data_path = ""
+data_path = "../data/"
 load(paste0(data_path,"compas_psa.Rdata"))
 scores_outcomes = compas_psa_wide %>%
                   filter(`Risk of Violence_decile_score`>=0, `Risk of Recidivism_decile_score`>=0, 

@@ -18,7 +18,9 @@ import cplex as cplex
 ##################################
 
 train_name = "\\bin_train"                                      
-data_dir = os.getcwd()                                      # directory where datasets are stored
+# data_dir = os.getcwd()                                      # directory where datasets are stored
+data_dir = "../data/"      #new change unsure if works        # directory where datasets are stored
+
 train_csv = data_dir + train_name + '_data.csv'          # csv file for the train dataset
 
 print(train_csv)

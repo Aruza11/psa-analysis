@@ -18,8 +18,9 @@ source('util.R')
 
 Load in train/test datasets computed/saved in predict_recidivism.Rmd
 ```{r}
-train <- readRDS(file="train.rds")
-test <- readRDS(file="test.rds")
+data_path = "../data/"
+train <- readRDS(file=paste0(data_path, "train.rds"))
+test <- readRDS(file=paste0(data_path, "test.rds"))
 ```
 
 
