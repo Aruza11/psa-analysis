@@ -41,13 +41,18 @@ features_filt = features_before_on %>%
   filter(screening_date <= current_offense_date_limit) %>% # Filter 4
   mutate(recid_use = recid) # Select recidivism or violent recidivism to use in this script 
 
-name_features_filt = names(features_filt)
-not_remove = c("person_id", "recid_use")
-names2rm = setdiff(name_features_filt, not_remove)
          
 ## Select features and round count features
 df = features_filt %>%
   na.omit()%>%
+  #variables to remove entirely from data
+  select(-c(`Risk of Recidivism_decile_score`, `Risk of Recidivism_raw_score`,
+           `Risk of Violence_decile_score`, `Risk of Violence_raw_score`,
+           `Risk of Failure to Appear_decile_score`, `Risk of Failure to Appear_raw_score`,
+           race,name, recid, recid_violent,
+           first_offense_date, current_offense_date, screening_date
+           )
+         )%>%
   #mutate only at variables in vars
   mutate_at(vars(p_current_age, p_age_first_offense), 
             funs(eighteen = if_else(. <=18, 1, 0), 
@@ -71,19 +76,29 @@ df = features_filt %>%
                  fifty6 = if_else(. <=56, 1, 0),
                  sixty = if_else(. <=60, 1, 0),
                  sixty5 = if_else(. <=65, 1, 0)
-            ))%>%
-  
+            ))
+
+#get the names of the age var just created
+name_features_filt = names(features_filt)
+names_df = names(df)
+age_names_new = setdiff(names_df, name_features_filt)
+
+#get the names of the original variables which were not converted to stumps
+static_feat_names = c("person_id", "recid_use") #features which are not converted to stumps
+names2rm = setdiff(setdiff(names_df, static_feat_names), age_names_new)
+
+df <- df %>%  
   #mutate at everything except the variables in vars 
-  mutate_at(vars(-person_id, -recid_use),
+  mutate_at(vars(-person_id, -recid_use, -age_names_new, -p_age_first_offense, -p_current_age),
             funs(one = if_else(. >=1, 1, 0), 
                  two = if_else(. >=2, 1, 0), 
                  three = if_else(.>=3, 1, 0),
-                 four = if_else(.>=3, 1, 0),
-                 five = if_else(.>=3, 1, 0),
-                 six = if_else(.>=3, 1, 0),
-                 seven = if_else(.>=3, 1, 0),
-                 eight = if_else(.>=3, 1, 0),
-                 nine = if_else(.>=3, 1, 0)
+                 four = if_else(.>=4, 1, 0),
+                 five = if_else(.>=5, 1, 0),
+                 six = if_else(.>=6, 1, 0),
+                 seven = if_else(.>=7, 1, 0),
+                 eight = if_else(.>=8, 1, 0),
+                 nine = if_else(.>=9, 1, 0)
            )) %>%
   select(-names2rm)  #remove original, unmutated variables (except for those in the vars func above )
   
@@ -101,6 +116,9 @@ test=test[,c(ncol(test),2:ncol(test)-1)]
 ```
 
 
+```{r}
+names(train)
+```
 
 
 ```{r}
