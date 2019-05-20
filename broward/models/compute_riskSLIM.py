@@ -158,26 +158,42 @@ def fit_riskSLIM(data, params):
 if __name__ == '__main__':
 
     # data
-    train_name = "\\bin_train"                                      
-    test_name = "\\bin_test"                                      # name of the data
+    train_name = "ada_train"                                      
+    test_name = "ada_test"                                      # name of the data
 
     # data_dir = os.getcwd()                                      # directory where datasets are stored
     data_dir = "../data/"      #new change unsure if works        # directory where datasets are stored
 
-    train_csv = data_dir + train_name + '_data.csv'          # csv file for the train dataset
-    test_csv = data_dir + test_name + '_data.csv'          # csv file for the test dataset
+    train_csv = data_dir + train_name + ".csv"     # csv file for the train dataset
+    test_csv = data_dir + test_name  + ".csv"         # csv file for the test dataset
 
     # load data from disk
-    subset = ["recid_use",
-      "p_current_age18", "p_current_age1929", "p_current_age3039", "p_current_age4049", "p_current_age5059", "p_current_age60plus",
-      "p_property0","p_property13", "p_property46", "p_property79", "p_property10up", 
-      "prior_conviction_M01", "prior_conviction_M24", "prior_conviction_M57", "prior_conviction_M810" , "prior_conviction_M11up",
-      "p_charge0", "p_charge13", "p_charge45", "p_charge67", "p_charge810" , "p_charge11up", 
-      "p_felprop_violarrest0", "p_felprop_violarrest1", "p_felprop_violarrest2", "p_felprop_violarrest3", "p_felprop_violarrest46", "p_felprop_violarrest7up",  
-      "total_convictions0", "total_convictions1", "total_convictions2", "total_convictions3", "total_convictions46", "total_convictions7up"]
+    adaboost_features = ["p_current_age_nineteen","p_current_age_twenty2", "p_current_age_twenty4", "p_current_age_twenty8",
+                        "p_age_first_offense_twenty8", "p_age_first_offense_thirty", "p_age_first_offense_sixty",
+                        "fail_appear_two_plus_one", 
+                        "fail_appear_two_yr_one", 
+                        "is_misdem_one", 
+                        "p_arrest_one","p_arrest_three", "p_arrest_four", 
+                        "p_charge_four", "p_charge_five", 
+                        "p_charge_violent_four", "p_charge_violent_five", 
+                        "p_drug_one", 
+                        "p_juv_fel_count_six", "p_juv_fel_count_seven", 
+                        "p_misdem_count_person_two", "p_misdem_count_person_seven", "p_misdem_count_person_eight",
+                        "p_misdemassault_arrest_one", "p_misdemassault_arrest_two", "p_misdemassault_arrest_three",
+                         "p_murder_arrest_one", "p_murder_arrest_two", 
+                         "p_n_on_probation_three", "p_n_on_probation_four",
+                        "p_prison_one", 
+                        "p_prison30_one",
+                         "p_probation_three", "p_probation_four", "p_probation_six", "p_probation_seven", 
+                        "p_property_eight", 
+                        "p_sex_arrest_two", "p_sex_arrest_three", "p_sex_arrest_six", "p_sex_arrest_seven",
+                        "p_stalking_one", 
+                        "p_weapons_arrest_one", "p_weapons_arrest_two", 
+                        "prior_conviction_M_six", "prior_conviction_M_seven",                         
+                        "sex_two", "sex_three", "sex_six", "sex_seven"]
 
-    train_df = load_data_from_csv(dataset_csv_file = train_csv, subset = subset)
-    test_df = load_data_from_csv(dataset_csv_file = test_csv, subset = subset)
+    train_df = load_data_from_csv(dataset_csv_file = train_csv, subset = adaboost_features)
+    test_df = load_data_from_csv(dataset_csv_file = test_csv, subset = adaboost_features)
     # print(train_df)
     # sys.exit(0)
     # problem parameters
