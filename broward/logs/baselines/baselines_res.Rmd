@@ -1,0 +1,44 @@
+---
+title: "model_res"
+author: "Caroline Wang"
+date: "February 26, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+library(magrittr)
+log_path = "C:/Users/Caroline Wang/OneDrive/Duke/Criminal Recidivism/psa-analysis/broward/logs/baselines/"
+
+```
+
+```{r}
+riskscore_aucs_arnold_nona = read.csv(paste0(log_path,"baselines_eval_metrics/", "riskscore_aucs_arnold_nona", ".csv"))
+riskscore_aucs_heldout_test = read.csv(paste0(log_path,"baselines_eval_metrics/", "riskscore_aucs_heldout_test", ".csv"))
+
+bart_performance = read.csv(paste0(log_path,"baselines_eval_metrics/", "bart_performance", ".csv"))
+cart_performance = read.csv(paste0(log_path,"baselines_eval_metrics/", "cart_performance", ".csv"))
+glm_performance = read.csv(paste0(log_path, "baselines_eval_metrics/","glm_performance", ".csv"))
+lasso_performance = read.csv(paste0(log_path, "baselines_eval_metrics/","lasso_performance", ".csv"))
+rf_performance = read.csv(paste0(log_path,"baselines_eval_metrics/", "rf_performance", ".csv"))
+svm_performance = read.csv(paste0(log_path,"baselines_eval_metrics/", "svm_performance", ".csv"))
+
+```
+
+```{r}
+res = bind_rows(riskscore_aucs_arnold_nona,
+                riskscore_aucs_heldout_test,
+                bart_performance, 
+                cart_performance,
+                glm_performance,
+                lasso_performance,
+                svm_performance)
+
+pander::pander(res, split.table = 120, style = 'rmarkdown')
+```
+

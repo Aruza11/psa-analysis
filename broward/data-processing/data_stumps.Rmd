@@ -3,7 +3,7 @@ title: "data_adaboost"
 author: "Caroline Wang"
 date: "April 18, 2019"
 output: html_document
-purpose: "bin data values for adaboost approach "
+purpose: "bin data values for adaboost, riskslim approaches "
 ---
 
 ```{r setup, include=FALSE}
@@ -122,9 +122,9 @@ names(train)
 
 
 ```{r}
-write.table(train, file=paste0(data_path, "ada_train.csv"),
+write.table(train, file=paste0(data_path, "train_stumps.csv"),
             sep=",", row.names = F)
-write.table(test, file=paste0(data_path, "ada_test.csv"),
+write.table(test, file=paste0(data_path, "test_stumps.csv"),
             sep=",", row.names = F)
 
 ```
