@@ -1,0 +1,195 @@
+---
+title: "PRIM"
+author: "Bin Han"
+date: "April 29, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=FALSE, message=FALSE}
+library(dplyr)
+library(tidyverse)
+library(data.table)
+```
+
+
+__Introduction__:
+
+This file combines all the data from CourtNet System and identify potential features.
+
+```{r}
+data_path = "~/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY data/"
+```
+
+### KY1 -- defendants
+```{r, message=FALSE, warning=FALSE}
+Defendants = as.data.frame(fread(paste0(data_path,'01_KY_Recidivism_Defendants.txt'), 
+                                 header = T)) %>% select(PersonID, Gender)
+
+CNet_cases = as.data.frame(fread(paste0(data_path,'03_KY_Recidivism_CNet_Cases.txt'), 
+                                 header = T)) %>% filter(County != "WHITLEY")
+
+CNet_charges = as.data.frame(fread(paste0(data_path,'06_KY_Recidivism_CNet_Charges.txt'),
+                                   header = T)) %>% 
+    rename(PersonID = PersonId) %>% 
+    filter(County != "WHITLEY")
+
+Sentences = as.data.frame(fread(paste0(data_path,'08_KY_Recidivism_Sentences.txt'), 
+                                header = T)) %>% 
+    rename(PersonID = PersonId) %>% 
+    filter(County != "WHITLEY")
+
+```
+
+
+
+## Combine cases and charges with defendants
+```{r, message=FALSE}
+memory.limit(size=56000)
+comb1 = merge(x=Defendants,
+              y=CNet_cases,
+              by = "PersonID")
+comb2 = merge(x = comb1, 
+              y=CNet_charges,
+              by = c("PersonID", "SeqCaseID")) 
+
+comb2 = comb2 %>% 
+  select(-County.y,
+         -CountyCode.y,
+         -Division.y,
+         -CaseNumberType.y) %>% 
+  rename(Case_DispositionDate = DispositionDate.x,
+         Charge_DispositionDate = DispositionDate.y,
+         Charge_DispositionCode = DispositionTypeCode,
+         Charge_DispositionType = DispositionType,
+         CountyCode = CountyCode.x,
+         County = County.x,
+         Division = Division.x,
+         CaseNumberType = CaseNumberType.x)
+```
+
+
+## check SentenceEntityNumber != ChargeEntityNumber
+```{r}
+x = Sentences[Sentences$PersonID == "73430" & Sentences$SeqCaseID == "251470", ]
+y = CNet_charges[CNet_charges$PersonID == "73430" & CNet_charges$SeqCaseID == "251470", ]
+```
+
+## check unique charges
+```{r}
+## check count of personID and SeqCaseID
+CNet_charges %>% 
+    group_by(PersonID, SeqCaseID, ChargeEntityNumber, ChargeNumber) %>% 
+    summarise(count = n()) %>% 
+    arrange(desc(count)) %>% .[1:20, ]
+```
+
+## check unique sentences
+```{r}
+a = Sentences %>% 
+    group_by(PersonID, SeqCaseID, ChargeEntityNumber, ChargeNumber) %>% 
+    summarise(count = n()) %>% 
+    arrange(desc(count))
+b = a %>% filter(count > 1)
+sum(b$count - 1)
+```
+
+__Note__:
+
+767 is exactly we got for the extra records.
+
+
+```{r}
+b = b[b$PersonID == "62628" & b$SeqCaseID == "2775564", ]
+c = Sentences[Sentences$PersonID == "62628" & Sentences$SeqCaseID == "2775564", ]
+```
+
+
+
+
+## combine with Sentence
+```{r, warning=FALSE, message=FALSE}
+memory.limit(size=56000)
+comb3 = merge(x=comb2,
+              y = Sentences,
+              by = c("PersonID", "SeqCaseID", "ChargeEntityNumber", "ChargeNumber"),
+              all.x = TRUE) 
+
+comb3 = comb3 %>% 
+  select(-CaseNumberType.y,
+         -type.y,
+         -`UOR Code.y`,
+         -`UOR Description.y`,
+         -`UorClass.y`,
+         -`UorLevel.y`,
+         -DispositionTypeCode,
+         -DispositionType,
+         -DispositionDate,
+         -CountyCode.y,
+         -County.y,
+         -Division.y,
+         -ChargeDate.y) %>% 
+  rename(County = County.x,
+         CountyCode = CountyCode.x,
+         Division = Division.x,
+         CaseNumberType = CaseNumberType.x,
+         type = type.x,
+         `UOR Code` = `UOR Code.x`,
+         `UOR Description` = `UOR Description.x`,
+         `UOR Class` = UorClass.x,
+         `UOR Level` = UorLevel.x,
+         ChargeDate = ChargeDate.x)
+
+```
+
+
+
+### Get Unique charge data
+```{r}
+comb4 = comb3 %>% select(-ChargeNumber, -ChargeEntityNumber, -SentenceEntityNumber)
+comb5 = unique(comb4)
+```
+
+"comb5" is the dataset that contains unique charges within a case (exclude those different charge numbers)
+
+
+### Sanity check
+```{r}
+a = CNet_charges[CNet_charges$PersonID == "409581" & CNet_charges$SeqCaseID == "1715219", ]
+b = comb3[comb3$PersonID == "409581" & comb3$SeqCaseID == "1715219", ]
+c = comb5[comb5$PersonID == "409581" & comb5$SeqCaseID == "1715219", ]
+```
+
+This person with this case has 7000 charges in CNet_charges data. After removing the charge number, charge entity number, and sentence entity number, there are only two unique charges related with this case.
+
+
+### work with comb5
+### Subset useful features
+```{r}
+CNet_subset = comb5 %>% 
+  select(PersonID, 
+         SeqCaseID,
+         Gender,
+         Age_at_Filing,
+         `UOR Code`,
+         `UOR Description`,
+         `UOR Level`,
+         `UOR Class`,
+         Charge_DispositionType,
+         sentence,
+         ADE)
+```
+
+- 5475 different UOR code: represent different types of charges. It can be used to identify different types of charges.
+
+
+```{r}
+save(comb5, file = "CNet.RData")
+```
+
+
+
+
