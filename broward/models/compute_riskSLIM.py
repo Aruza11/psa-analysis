@@ -155,11 +155,13 @@ def fit_riskSLIM(data, params):
         4) Evaluate on test set using auc. 
 
 ''' 
+
+
 if __name__ == '__main__':
 
     # data
-    train_name = "ada_train"                                      
-    test_name = "ada_test"                                      # name of the data
+    train_name = "train_stumps"                                      
+    test_name = "test_stumps"                                      # name of the data
 
     # data_dir = os.getcwd()                                      # directory where datasets are stored
     data_dir = "../data/"      #new change unsure if works        # directory where datasets are stored
@@ -199,10 +201,10 @@ if __name__ == '__main__':
     # problem parameters
     params = {
         "max_coefficient" : [10],    #UNUSED?
-        "min_coefficient" : [-10],                                         # value of largest/smallest coefficient
-        "max_L0_value" : [6],                                            # maximum model size
+        "min_coefficient" : [0],                                         # value of largest/smallest coefficient
+        "max_L0_value" : [6],                                            # sets the lower bound on the coeffs
         "max_offset" : [50],                                             # maximum value of offset parameter (optional)
-        "c0_value" : [1e-6],                                             # L0-penalty parameter such that c0_value > 0; larger values -> sparser models; we set to a small value (1e-6) so that we get a model with max_L0_value terms
+        "c0_value" : [.005],                                             # L0-penalty parameter such that c0_value > 0; larger values -> sparser models; we set to a small value (1e-6) so that we get a model with max_L0_value terms
         "w_pos" : [1.00]                                                 # relative weight on examples with y = +1; w_neg = 1.00 (optional)
     }
 
