@@ -116,8 +116,13 @@ test=test[,c(ncol(test),2:ncol(test)-1)]
 ```
 
 
+Reorder columns so that recid_use is first. This is required for riskSLIM. 
 ```{r}
-names(train)
+train = train[,c(2,1,3:ncol(train))]
+test = test[,c(2,1,3:ncol(test))]
+
+names(test)
+# df[,c(1,3,2,4,5:50)]
 ```
 
 
