@@ -9,76 +9,76 @@ log_performance <- function (out_model, log_path, model_name){
 }
 
 fit_xgb_auc <- function(train, test,param, setup) {
-  ###
-  # Cross validates each combination of parameters in param and returns best model
-  # param is a list of xgboost parameters as vectors
-  # train is formatted for xgboost input
-  ###
-  
-  n_param = nrow(param)
-  eval_varnames = c("train_auc_mean","train_auc_std","test_auc_mean","test_auc_std", "heldout_test_auc","heldout_test_acc")
-  cv_eval_varnames = eval_varnames[1:4]
-  heldout_eval_varnames = eval_varnames[5:6]
-
-  # Allocate space for performance statistics (and set seeds)
-  performance = data.frame(
-    i_param = 1:n_param,
-    seed = sample.int(10000, n_param),
-    matrix(NA,nrow(param),
-           ncol=length(eval_varnames) + 1,
-           dimnames=list(NULL,
-                         c("iter",eval_varnames))))
-
-  # cv_eval_inds = 3:7 # Adjust manually. Column index in performance of evaluation_log output from xgb.cv
-  # heldout_eval_inds = 8:10
-  
-  cat("Training on",n_param,"sets of parameters.\n")
-  
-  ## Loop through the different parameters sets
-  for (i_param in 1:n_param) {
+    ###
+    # Cross validates each combination of parameters in param and returns best model
+    # param is a list of xgboost parameters as vectors
+    # train is formatted for xgboost input
+    ###
     
-    set.seed(performance$seed[i_param])
+    n_param = nrow(param)
+    eval_varnames = c("iter", "train_auc_mean","train_auc_std","test_auc_mean","test_auc_std", "heldout_test_auc","heldout_test_acc")
+    cv_eval_varnames = eval_varnames[1:5]
+    heldout_eval_varnames = eval_varnames[6:7]
     
-    mdcv = xgb.cv(data=train, 
-                  params = list(param[i_param,])[[1]], 
-                  nrounds = setup$nrounds,
-                  nfold = setup$nfold,
-                  verbose = FALSE, 
-                  metrics = "auc",
-                  eval_metric = "auc",
-                  maximize=TRUE)
-    performance[i_param,cv_eval_varnames] = mdcv$evaluation_log[which.max(mdcv$evaluation_log$test_auc_mean),]
-  }
-  
-  ## Train on best parameters using best number of rounds
-  i_param_best = performance$i_param[which.max(performance$test_auc_mean)]
-  
-  print("Best parameters:")
-  print(t(param[i_param_best,])) #Prints the best parameters
-  
-  set.seed(performance$seed[i_param_best])
-  
-  mdl_best = xgb.train(data=train, 
-                       params=list(param[i_param_best,])[[1]], 
-                       nrounds=performance$iter[i_param_best])
-  
-  labels = test %>% select(recid_use) %>% unlist()%>%as.numeric() -1 #sub 1 b/c casting to numeric gives vecto of 1s and 2s
-  preds = predict(mdl_best, newdata = test%>% select(-recid_use)%>%data.matrix() )
-
-  #compute performance measures using ROCR package
-  pred_obj = prediction(preds, labels)
-  
-  perf_roc = performance(pred_obj, "tpr", "fpr")
-  perf_acc = performance(pred_obj, "acc")
-  perf_auc = performance(pred_obj, "auc")
-  
-  acc = max(perf_acc@y.values[[1]])
-  auc = perf_auc@y.values[[1]]
-  
-  best_performance = performance[i_param_best,]
-  best_performance[1, heldout_eval_varnames] = c(auc, acc)
-  
-  return(list(mdl_best=mdl_best, performance=best_performance, roc = perf_roc))
+    # Allocate space for performance statistics (and set seeds)
+    performance = data.frame(
+        i_param = 1:n_param,
+        seed = sample.int(10000, n_param),
+        matrix(NA,nrow(param),
+               ncol=length(eval_varnames),
+               dimnames=list(NULL, eval_varnames)))
+    
+    # cv_eval_inds = 3:7 # Adjust manually. Column index in performance of evaluation_log output from xgb.cv
+    # heldout_eval_inds = 8:10
+    
+    cat("Training on",n_param,"sets of parameters.\n")
+    
+    ## Loop through the different parameters sets
+    for (i_param in 1:n_param) {
+        
+        set.seed(performance$seed[i_param])
+        
+        mdcv = xgb.cv(data=train, 
+                      params = list(param[i_param,])[[1]], 
+                      nrounds = setup$nrounds,
+                      nfold = setup$nfold,
+                      verbose = FALSE, 
+                      metrics = "auc",
+                      eval_metric = "auc",
+                      maximize=TRUE)
+        performance[i_param, cv_eval_varnames] = mdcv$evaluation_log[which.max(mdcv$evaluation_log$test_auc_mean),]
+    }
+    
+    ## Train on best parameters using best number of rounds
+    i_param_best = performance$i_param[which.max(performance$test_auc_mean)]
+    
+    print("Best parameters:")
+    print(t(param[i_param_best,])) #Prints the best parameters
+    
+    set.seed(performance$seed[i_param_best])
+    
+    mdl_best = xgb.train(data=train, 
+                         params=list(param[i_param_best,])[[1]], 
+                         nrounds=performance$iter[i_param_best])
+    
+    labels = test %>% select(recid_use) %>% unlist()%>%as.numeric() -1 #sub 1 b/c casting to numeric gives vecto of 1s and 2s
+    preds = predict(mdl_best, newdata = test%>% select(-recid_use)%>%data.matrix() )
+    
+    
+    #compute performance measures using ROCR package
+    pred_obj = prediction(preds, labels)
+    
+    perf_roc = performance(pred_obj, "tpr", "fpr")
+    perf_acc = performance(pred_obj, "acc")
+    perf_auc = performance(pred_obj, "auc")
+    
+    acc = max(perf_acc@y.values[[1]])
+    auc = perf_auc@y.values[[1]]
+    
+    best_performance = performance[i_param_best,]
+    best_performance[1, heldout_eval_varnames] = c(auc, acc)
+    
+    return(list(mdl_best=mdl_best, performance=best_performance, roc = perf_roc))
 }
 
 

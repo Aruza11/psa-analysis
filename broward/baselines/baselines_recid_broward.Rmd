@@ -17,7 +17,7 @@ library(tidyverse)
 library(magrittr)
 library(ROCR)
 source('baseline_util.R')
-log_path = "C:/Users/Caroline Wang/OneDrive/Duke/Criminal Recidivism/psa-analysis/broward/logs/baselines/"
+log_path = "C:/Users/binha/Documents/Duke/Cynthia Research"
 ```
 
 ```{r}
