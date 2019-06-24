@@ -1,2 +1,0 @@
-"","Score","train_auc_mean","train_auc_std","test_auc_mean","test_auc_std","heldout_test_auc","heldout_test_acc"
-"1","bart",0.96687030075188,0.00786412616921123,0.621162280701754,0.00786412616921123,0.428571428571429,0.666666666666667
