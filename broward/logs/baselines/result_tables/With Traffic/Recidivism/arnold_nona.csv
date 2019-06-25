@@ -1,0 +1,5 @@
+,Score,heldout_test_auc,heldout_test_acc,Number.of.observations
+1,Arnold NCA Raw arnold_nona,0.484364578,0.905351171,2990
+2,Arnold NCA arnold_nona,0.480870822,0.905351171,2990
+3,COMPAS Risk of Recid Raw arnold_nona,0.463332206,0.905351171,2990
+4,COMPAS Risk of Recid Decile farnold_nona,0.459108763,0.905351171,2990
