@@ -207,13 +207,6 @@ __NOTE__: no information added/lost
 colnames(comb2)
 ```
 
-```{r}
-unique(comb2$Case_NumberType)
-unique(comb2$ChargeType)
-length(unique(comb2$UOR_Description))
-```
-
-
 __Sanity Check__:
 There is no conflict of County, CountyCode, Division, and CaseNumberType between the cases and charges data sets. 
 
@@ -318,24 +311,10 @@ comb3 = comb3 %>%
 Based on what we need, we can subset any features we want.
 
 ```{r}
-CNet_subset = comb5 %>% 
-  select(PersonID, 
-         SeqCaseID,
-         Gender,
-         Age_at_Filing,
-         UOR_Description,
-         UOR_Level,
-         UOR_Class,
-         Charge_DispositionType,
-         sentence,
-         ADE)
+CNet_data = comb3
+save(CNet_data, file = "CNet.RData")
 ```
 
-
-
-```{r}
-save(comb3, file = "CNet.RData")
-```
 
 
 
