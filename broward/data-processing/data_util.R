@@ -293,12 +293,14 @@ compute_past_crimes = function(person_id,screening_date,first_offense_date,curre
     out$screening_date = screening_date
     
     if(is.null(charge)) {
+        out$years_since_last_crime = 0
         out$six_month = 0
         out$one_year = 0
         out$three_year = 0
         out$five_year = 0
     } else {
         year_offenses = as.numeric(as.period(interval(charge$offense_date, screening_date)), "years")
+        out$years_since_last_crime = min(year_offenses)
         
         if (any(year_offenses <= 0.5)) {
             out$six_month = 1

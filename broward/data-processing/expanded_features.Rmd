@@ -570,7 +570,8 @@ save(data_before, data_on, data_after, data_before_on,
      features, features_before_on, features_on, outcomes,  
      compas_df_wide,
      current_offense_date_limit,
-     file = "expanded_features.Rdata")
-write.csv(outcomes, file = "labels.csv", row.names = FALSE)
+     file = "C:/Users/binha/Documents/Duke/Cynthia Research/KY-analysis-mytrials/broward/data/expanded_features.Rdata")
+
+write.csv(outcomes, file = "C:/Users/binha/Documents/Duke/Cynthia Research/KY-analysis-mytrials/broward/data/labels.csv", row.names = FALSE)
 ```
 
