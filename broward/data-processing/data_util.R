@@ -146,6 +146,10 @@ compute_features_on = function(person_id,screening_date,first_offense_date,curre
   return(out)
 }
 
+
+
+
+
 compute_outcomes = function(person_id,screening_date,first_offense_date,current_offense_date,
                             arrest,charge,jail,prison,prob,people){
   
@@ -175,7 +179,8 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
     out$recid_dui = 0
     out$recid_domestic = 0
     out$recid_murder = 0
-    
+    out$recid_M = 0
+    out$recid_F = 0
     
     out$recid_violent = 0
     out$recid_domestic_violent = 0
@@ -228,6 +233,9 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
     out$recid_dui = if_else(years_next_offense <= 2 && charge$is_dui, 1, 0)   
     out$recid_domestic = if_else(years_next_offense <= 2 && charge$is_domestic_viol, 1, 0)
     out$recid_murder = if_else(years_next_offense <= 2 && charge$is_murder, 1, 0)
+    out$recid_M = if_else(years_next_offense <= 2 && charge$is_misdem, 1, 0)
+    out$recid_F = if_else(years_next_offense <= 2 && charge$is_felony, 1, 0)
+   
     # Violent recidivism
     date_next_offense_violent = filter(charge,is_violent==1)$offense_date[1]
     
@@ -267,6 +275,66 @@ compute_outcomes = function(person_id,screening_date,first_offense_date,current_
   
   
 }
+
+
+
+compute_past_crimes = function(person_id,screening_date,first_offense_date,current_offense_date,
+                            arrest,charge,jail,prison,prob,people){
+    
+    out = list()
+    
+    # pmap coerces dates to numbers so convert back to date.
+    first_offense_date = as_date(first_offense_date)
+    screening_date = as_date(screening_date)
+    current_offense_date = as_date(current_offense_date)
+    
+    ### ID information
+    out$person_id = person_id
+    out$screening_date = screening_date
+    
+    if(is.null(charge)) {
+        out$years_since_last_crime = 0
+        out$six_month = 0
+        out$one_year = 0
+        out$three_year = 0
+        out$five_year = 0
+    } else {
+        year_offenses = as.numeric(as.period(interval(charge$offense_date, screening_date)), "years")
+        out$years_since_last_crime = min(year_offenses)
+        
+        if (any(year_offenses <= 0.5)) {
+            out$six_month = 1
+            out$one_year = 1
+            out$three_year = 1
+            out$five_year = 1
+        } else if (any(year_offenses <= 1) & (all(year_offenses > 0.5))) {
+            out$six_month = 0
+            out$one_year = 1
+            out$three_year = 1
+            out$five_year = 1
+        } else if (any(year_offenses <= 3) & (all(year_offenses > 1))) {
+            out$six_month = 0
+            out$one_year = 0
+            out$three_year = 1
+            out$five_year = 1
+        } else if (any(year_offenses <= 5 & all(year_offenses > 3))){
+            out$six_month = 0
+            out$one_year = 0
+            out$three_year = 0
+            out$five_year = 1
+        } else if (all(year_offenses > 5)) {
+            out$six_month = 0
+            out$one_year = 0
+            out$three_year = 0
+            out$five_year = 0
+        }
+    }
+    
+    return(out)
+    
+    
+}
+
 
 
 #compute_outcomes_graph = function(person_id,screening_date,first_offense_date,current_offense_date,

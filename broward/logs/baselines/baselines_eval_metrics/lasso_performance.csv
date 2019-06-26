@@ -1,2 +1,0 @@
-"","Score","train_auc_mean","train_auc_std","test_auc_mean","test_auc_std","heldout_test_auc","heldout_test_acc"
-"1","lasso",0.671033209369181,0.0069802776018156,0.653625334462937,0.0069802776018156,0.701379974326059,0.664879356568365
