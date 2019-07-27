@@ -180,6 +180,7 @@ TO DO:: CONVERT INTO CASE-WHENS FOR EFFICIENCY
 ### Add columns to ProPublica tables. Each entry should depend only on other entries in the same row.
 charge_df = charge_df %>%
   left_join(select(people_df, person_id, dob),by="person_id") %>% # Add date of birth
+  filter(!is.na(statute)) %>% 
   mutate(
     is_violent=if_else(substr(statute,1,3) %in% c("741","777","782","784","794",
                                                   "806","812","825","827"),1,0),
@@ -208,6 +209,7 @@ charge_df = charge_df %>%
     
     is_drug = if_else(substr(statute,1,3) == "893" | 
                      substr(statute,1,7) %in% c("817.563","817.546"),1,0),
+    
     is_dui = if_else(substr(statute,1,7) %in% c("316.193","322.056") |
                      substr(statute,1,6) %in% c("322.62","322.63","322.64"),1,0),
     is_domestic_viol = if_else(substr(statute,1,6) %in% c("741.29", "741.28","741.30", "741.32"),1,0),
@@ -231,6 +233,11 @@ jailhistory_df = jailhistory_df %>%
 
 prisonhistory_df = prisonhistory_df %>%
   mutate(sentence_days = floor(as.numeric(as.period(interval(in_custody,out_custody)), "days")))
+```
+
+
+```{r}
+a = charge_df %>% filter(is.na(is_dui))
 ```
 
 
@@ -487,6 +494,12 @@ nrow(data_after)
 ```
 
 
+```{r}
+charges = data_after$charge
+```
+
+
+
 ```{r output_outcomes}
 outcomes = pmap_dfr(data_after, .f=compute_outcomes)
 options(tibble.print_max = 20, tibble.print_min = 100)
@@ -498,9 +511,9 @@ bad_values <- outcomes %>%
 #bad_values
 new <- outcomes %>% 
   na.exclude()
-new %>% select(recid, recidnot, years)
-overall_amt = sum(new$recid, na.rm = TRUE)
-outcomes$recid[1:10]
+new %>% select(recid_two_year, recidnot, years)
+overall_amt = sum(new$recid_two_year, na.rm = TRUE)
+outcomes$recid_two_year[1:10]
 nrow(new)
 not_overall_amt = sum(new$recidnot, na.rm = TRUE)
 
