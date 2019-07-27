@@ -1,0 +1,4 @@
+,AdaBoost,std,GAM,std
+Two Year Recidivism,0.746,0.003,0.746,0.003
+Six Month Recidivism,0.778,0.004,0.777,0.003
+Violence,0.813,0.003,0.811,0.003
