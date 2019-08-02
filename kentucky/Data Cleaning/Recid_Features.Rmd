@@ -49,7 +49,7 @@ Additionally, since people with "SentMonth" larger than 24 months (2 years) defi
 ```{r}
 CNet = CNet_data %>% select(PersonID, SeqCaseID, Gender, PRIM, 
                             Case_FilingDate, Age_at_Case_Filing,
-                            ChargeEntityNumber, ChargeDate, 
+                            ChargeEntityNumber, ChargeDate, Charge_DispositionCode,
                             UOR_Description, UOR_Level, UOR_Code,
                             sentence, SentMonths, SuspSentMonths, CondDisSentMonths,
                             ADE, Undergo_Treat) %>%  
@@ -66,8 +66,11 @@ CNet = CNet_data %>% select(PersonID, SeqCaseID, Gender, PRIM,
     filter(UOR_Level %in%  c("MISDEMEANOR", "FELONY", "OTHER"),
            Case_FilingDate >= "1996-01-01",
            !is.na(ChargeDate),
+           !(Charge_DispositionCode %in% 
+               c("ACQ", "CAD", "DEC", "DGJ", "DIS","MST", "NG", "NGJ","PRDIS", "WD")),
            SentMonths > 0 | is.na(SentMonths)) %>% 
-    select(-c(PRIM, Case_FilingDate, Age_at_Case_Filing, CondDisSentMonths))
+    select(-c(PRIM, Case_FilingDate, Age_at_Case_Filing, CondDisSentMonths, 
+              Charge_DispositionCode))
 ```
 
 
@@ -190,15 +193,24 @@ summary(CNet_features)
 
 ## drug population
 ```{r}
-drug_people = CNet_features %>% filter(is_drug == 1) %>% 
-  filter(Age_at_CNet_Case_Filing <= 70,
-         Age_at_CNet_Case_Filing >= 18) %>% 
-  group_by(PersonID, SeqCaseID) %>% 
-  summarise(age = max(Age_at_CNet_Case_Filing)) %>% 
-  group_by(age) %>% 
-  summarise(count = n()) 
-ggplot(data = drug_people, aes(x=age,y=count))+geom_bar(stat = "identity")
-
+cols = colnames(CNet_features)
+for (i in 11:29){
+  print(i)
+  column = cols[i]
+  values = CNet_features[,c(1,2,10,i)] %>% 
+    .[.[,4] == 1, ] %>% 
+    filter(Age_at_CNet_Case_Filing <= 70,
+           Age_at_CNet_Case_Filing >= 18) %>% 
+    group_by(PersonID, SeqCaseID) %>% 
+    summarise(age = max(Age_at_CNet_Case_Filing)) %>% 
+    group_by(age) %>% 
+    summarise(count = n())
+  plot = ggplot(data = values, aes(x=age,y=count)) + geom_bar(stat = "identity") +
+    xlab("age") + 
+    ylab("count") + 
+    ggtitle(column)
+  print(plot)
+}
 ```
 
 
