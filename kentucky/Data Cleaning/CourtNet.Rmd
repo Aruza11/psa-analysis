@@ -27,7 +27,7 @@ data_path = "~/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY Data/
 ### KY1 -- defendants
 ```{r, message=FALSE, warning=FALSE}
 Defendants = as.data.frame(fread(paste0(data_path,'01_KY_Recidivism_Defendants.txt'), 
-                                 header = T)) %>% select(PersonID, Gender)
+                                 header = T)) %>% select(PersonID, Gender, Race)
 
 CNet_cases = as.data.frame(fread(paste0(data_path,'03_KY_Recidivism_CNet_Cases.txt'), 
                                  header = T)) %>% filter(County != "WHITLEY")

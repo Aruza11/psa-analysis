@@ -47,7 +47,7 @@ Notice that Daniel mentioned the CNet data could date back before 1/1/1996, and 
 Additionally, since people with "SentMonth" larger than 24 months (2 years) definitely cannot commit crime again within two years (at least publicly, maybe in jail, but out of our scope of consideration). Therefore, for those people who have been sentenced before, we included individuals only with "SentMonth" less than or equal to 12 months (filtering process in later step). We want to make sure that individuals that have been sentenced at the screening date (or current offense date) have at least one year out of two years to be in public. Then we see if they commited crime again within two years after they are released.
 
 ```{r}
-CNet = CNet_data %>% select(PersonID, SeqCaseID, Gender, PRIM, 
+CNet = CNet_data %>% select(PersonID, SeqCaseID, Gender, Race, PRIM, 
                             Case_FilingDate, Age_at_Case_Filing,
                             ChargeEntityNumber, ChargeDate, Charge_DispositionCode,
                             UOR_Description, UOR_Level, UOR_Code,
@@ -104,7 +104,6 @@ ggplot(data = age_count, aes(x=Age_at_CNet_Case_Filing, y=count)) + geom_bar(sta
 - is_property
 - is_murder
 - is_assault
-- is_family_violence (None)
 - is_sex_offense
 - is_weapon
 - is_fel_prop_violence
@@ -176,12 +175,13 @@ CNet_features = CNet %>%
         ## prison / jail sentence information
         jail = ifelse(is.na(sentence), 0, ifelse(sentence == "Jail Time", 1, 0)),
         prison = ifelse(is.na(sentence), 0, ifelse(sentence == "Prison Time", 1, 0)),
+        jail30 = ifelse(jail == 1 & SentMonths >= 1, 1, 0),
         SentMonths = ifelse(jail == 1 | prison == 1, SentMonths, 0),
         SuspSentMonths = ifelse(is.na(SuspSentMonths), 0, SuspSentMonths),
         ADE = ifelse(is.na(ADE), 0, ifelse(ADE == 1, 1, 0)),
         Treatment = ifelse(is.na(Undergo_Treat),0, ifelse(Undergo_Treat == 1, 1, 0))
     ) %>% ## further get rid of redundant variables
-    select(-c(UOR_Description, UOR_Level, UOR_Code, sentence, Undergo_Treat)) %>% 
+    select(-c(UOR_Description, UOR_Level, UOR_Code, sentence, Undergo_Treat, jail)) %>% 
     filter(!is.na(SentMonths)) ## PersonID = 73272, SeqCaseID = 2674931: even "prison" ==
                                ## 1,SentMonth is still 0. Therefore, need to be removed.
 ```
@@ -194,10 +194,10 @@ summary(CNet_features)
 ## drug population
 ```{r}
 cols = colnames(CNet_features)
-for (i in 11:29){
+for (i in 12:30){
   print(i)
   column = cols[i]
-  values = CNet_features[,c(1,2,10,i)] %>% 
+  values = CNet_features[,c(1,2,11,i)] %>% 
     .[.[,4] == 1, ] %>% 
     filter(Age_at_CNet_Case_Filing <= 70,
            Age_at_CNet_Case_Filing >= 18) %>% 
@@ -231,6 +231,7 @@ PRIM_features0 = PRIM_cases %>% select(PersonID, SeqCaseID, CaseID, Interview_Da
                                       OnProbation, SupProbation, Fta, 
                                       fta_risk_score_raw, nca_risk_score_raw, 
                                       pvf_risk_score_raw, 
+                                      
                                       ## risk score factors
                                       RA2_Current_Charge_Violent,
                                       RA2_Violent_and_under_21, 
@@ -410,6 +411,12 @@ PRIM_features = PRIM_features0 %>%
 summary(PRIM_features)
 ```
 
+```{r}
+test_prim = PRIM_features[1:1000, ] %>% select(PersonID, SeqCaseID, CaseID, is_violence_prim)
+test_cnet = CNet %>% filter(PersonID == 100155, SeqCaseID == 45169)
+```
+
+
 
 
 ## check age distribution again
@@ -433,6 +440,12 @@ Merge CourNet features and PRIM features. Get rid of null charge date and change
 
 ```{r}
 all_features0 = merge(x=CNet_features, y=PRIM_features, by=c("PersonID", "SeqCaseID"))
+```
+
+
+## violence check
+```{r}
+a = all_features0 %>% filter(PersonID == 100155, SeqCaseID == 45169)
 ```
 
 
@@ -501,8 +514,14 @@ all_features = all_features0 %>%
               Interview_Date))
 
 ## re-order the columns 
-all_features = all_features[, c(1,2,30,3:5,42,33,6:29,31:32,37:38,34:36,39:41)]
+all_features = all_features[, c(1,2,31,3:6,43,34,7:30,32:33,38:39,35:37,40:42)]
 ```
+
+## violence check
+```{r}
+a = all_features %>% filter(PersonID == 100155, SeqCaseID == 45169)
+```
+
 
 ```{r}
 summary(all_features)
@@ -533,19 +552,6 @@ before_cutoff0 = all_features %>% filter(ChargeDate < cutoff_date)
 after_cutoff0 = all_features %>% filter(ChargeDate > cutoff_date)
 ```
 
-
-```{r}
-## cutoff date
-#max_date = max(all_features$ChargeDate) - years(1)
-#min_cutoff_date = max(all_features$ChargeDate) - years(3)
-
-## subset data
-#before_cutoff0 = all_features %>% filter(ChargeDate < min_cutoff_date)
-#after_cutoff0 = all_features %>% filter(ChargeDate > min_cutoff_date & ChargeDate < max_date)
-```
-
-
-
 - Screening Dates: for each individual, the cloesest charge date to the cutoff date will be used as the "screening date". Before and on the screening date, the information will be used as criminal history. After the screening date, the information will be used to determine recidivism.
 
 
@@ -567,7 +573,7 @@ Since we have charge dates and screening dates, now we can calculate the time in
 The year_case variable is for each PRIM case, since the FTA and probation information is based on PRIM case level. Using the year_case, we can determine the other two features: "fta_two_year" and "fta_two_year_plus".
 
 ```{r}
-before_cutoff = before_cutoff0[, c(1,43,2:42)] %>% 
+before_cutoff = before_cutoff0[, c(1,44,2:43)] %>% 
     mutate(year_charges = as.numeric(as.period(interval(ChargeDate, screening_date)), "years"),
            year_cases = as.numeric(as.period(interval(PRIM_Case_Filing_Date, 
                                                       screening_date)), "years"),
@@ -597,11 +603,11 @@ create_features = function(data){
 ## first layer of group: for fta & probation information, since they are based on CaseID level. 
     
     features = data %>% 
-        group_by(PersonID, screening_date, SeqCaseID, CaseID, Gender) %>% 
+        group_by(PersonID, screening_date, SeqCaseID, CaseID, Gender, Race) %>% 
         summarise(age_at_current_charge = max(age_at_charge),
                   p_SentMonths = max(SentMonths),
                   p_charges = max(ChargeEntityNumber) - min(ChargeEntityNumber)+1,
-                  p_violence = sum(is_violence),
+                  p_violence = max(is_violence), ## CaseID level
                   p_felony = sum(is_felony),
                   p_misdemeanor = sum(is_misdemeanor),
                   p_property = sum(is_property),
@@ -622,9 +628,9 @@ create_features = function(data){
                   p_trespass = sum(is_trespass),
                   ADE = max(ADE),
                   Treatment = max(Treatment),
-                  p_prison = max(prison), ## even though five charges under one case could have 
-                  p_jail = max(jail),     ## three prison/jail sentence, for instance, the person
-                                          ## will only have one jail/prison count for that case.
+                  p_prison = max(prison),     ## even though five charges under one case could have 
+                  p_jail30 = max(jail30),     ## three prison/jail sentence, for instance, the person
+                                              ## will only have one jail/prison count for that case.
                   
                   ## PRIM Case Level Information
                   p_fta_two_year = max(fta_two_year),
@@ -642,12 +648,12 @@ create_features = function(data){
                   nca_calc = mean(nca_calc),
                   pvf_calc = mean(pvf_calc)) %>% 
 ## second layer group: for criminal history information, since they are based on SeqCaseID level.
-        group_by(PersonID, screening_date, SeqCaseID, Gender) %>% 
+        group_by(PersonID, screening_date, SeqCaseID, Gender, Race) %>% 
         summarise(p_arrest = length(CaseID),
                   p_SentMonths = max(p_SentMonths),
                   age_at_current_charge = max(age_at_current_charge),
                   p_charges = max(p_charges),
-                  p_violence = max(p_violence),
+                  p_violence = sum(p_violence),
                   p_felony = max(p_felony),
                   p_misdemeanor = max(p_misdemeanor),
                   p_property = max(p_property),
@@ -669,7 +675,7 @@ create_features = function(data){
                   ADE = max(ADE),
                   Treatment = max(Treatment),
                   p_prison = max(p_prison),
-                  p_jail = max(p_jail),
+                  p_jail30 = max(p_jail30),
                   
                   ## CourtNet Case Level Information
                   p_fta_two_year = sum(p_fta_two_year),
@@ -687,7 +693,7 @@ create_features = function(data){
                   nca_calc = max(nca_calc),
                   pvf_calc = max(pvf_calc)) %>% 
 ## third layer: individual level; sum up all the SeqCaseID information related to one person.
-        group_by(PersonID, Gender, screening_date) %>%   
+        group_by(PersonID, Gender, Race, screening_date) %>%   
         summarise(age_at_current_charge = max(age_at_current_charge),
                   p_SentMonths = sum(p_SentMonths),
                   p_arrest = sum(p_arrest),
@@ -714,7 +720,7 @@ create_features = function(data){
                   ADE = sum(ADE),  
                   Treatment = sum(Treatment),
                   p_prison = sum(p_prison),
-                  p_jail = sum(p_jail),
+                  p_jail30 = sum(p_jail30),
                   p_fta_two_year = sum(p_fta_two_year),
                   p_fta_two_year_plus = sum(p_fta_two_year_plus),
                   p_pending_charge = sum(p_pending_charge),
@@ -739,8 +745,8 @@ create_features = function(data){
 ```{r}
 data_before = before_cutoff %>% filter(ChargeDate < screening_date)
 features_before = create_features(data_before) %>% 
-    select(PersonID, Gender, screening_date, 
-           p_SentMonths, six_month, one_year, three_year, five_year)
+    select(PersonID, Race, Gender, screening_date, six_month, 
+           one_year, three_year, five_year, p_SentMonths)
 ```
 
 
@@ -777,6 +783,7 @@ The last step was to further improve the data quality. The p_SentMonths is the t
 
 ```{r}
 data_before_on = before_cutoff %>% filter(ChargeDate <= screening_date)
+
 features_before_on = create_features(data_before_on) %>% 
     select(-c(six_month, one_year, three_year, five_year, p_SentMonths)) %>% 
     merge(x = ., y = features_before, by = "PersonID", all.x = TRUE) %>% 
@@ -787,13 +794,14 @@ features_before_on = create_features(data_before_on) %>%
            three_year = ifelse(is.na(three_year), 0, three_year),
            five_year = ifelse(is.na(five_year), 0, five_year),
            p_SentMonths = ifelse(is.na(p_SentMonths), 0, p_SentMonths)) %>% 
-    select(-c(Gender.y, screening_date.y)) %>% 
+    select(-c(Gender.y, Race.y, screening_date.y)) %>% 
     rename(Gender = Gender.x,
+           Race = Race.x,
            screening_date = screening_date.x) %>% 
     merge(x=., y=features_on, by = "PersonID", all.x = TRUE) %>% 
     filter(age_at_current_charge >= p_SentMonths/12 + 18)
 
-features_before_on = features_before_on[,c(1:33,40:45,34:39)]
+features_before_on = features_before_on[,c(1:34,41:46,35:40)]
 ```
 
 ```{r}
@@ -843,18 +851,24 @@ after_cutoff = merge(x=after_cutoff0, y=release_dates, by="PersonID", all.y = TR
     select(-current_SentMonth, -current_SuspSentMonth)
 
 ## add year feature
-data_after = after_cutoff[, c(1,43,2:42)] %>% 
+data_after = after_cutoff[, c(1,44,2:43)] %>% 
     mutate(year_offenses = as.numeric(as.period(interval(release_date, ChargeDate)), "years"),
            recid_two_year = ifelse(year_offenses <= 2, 1, 0),
+           recid_drug_two_year = ifelse(recid_two_year == 1 & is_drug == 1, 1, 0),
+           recid_traffic_two_year = ifelse(recid_two_year == 1 & is_traffic == 1, 1, 0),
+           recid_violence_two_year = ifelse(recid_two_year == 1 & is_violence == 1, 1, 0),
+           recid_F_two_year = ifelse(recid_two_year == 1 & is_felony == 1, 1, 0),
+           recid_M_two_year = ifelse(recid_two_year == 1 & is_misdemeanor == 1, 1, 0),
+           recid_property_two_year = ifelse(recid_two_year == 1 & is_property == 1, 1, 0),
+           
            recid_six_month = ifelse(year_offenses <= 0.5, 1, 0),
-           recid_drug = ifelse(recid_two_year == 1 & is_drug == 1, 1, 0),
-           recid_traffic = ifelse(recid_two_year == 1 & is_traffic == 1, 1, 0),
-           recid_violence = ifelse(recid_two_year == 1 & is_violence == 1, 1, 0),
-           recid_F = ifelse(recid_two_year == 1 & is_felony == 1, 1, 0),
-           recid_M = ifelse(recid_two_year == 1 & is_misdemeanor == 1, 1, 0),
-           recid_stealing = ifelse(recid_two_year == 1 & is_stealing == 1, 1, 0),
-           recid_property = ifelse(recid_two_year == 1 & is_property == 1, 1, 0)) %>% 
-    select(PersonID:ChargeDate, ChargeEntityNumber, year_offenses:recid_property)
+           recid_drug_six_month = ifelse(recid_six_month == 1 & is_drug == 1, 1, 0),
+           recid_traffic_six_month = ifelse(recid_six_month == 1 & is_traffic == 1, 1, 0),
+           recid_violence_six_month = ifelse(recid_six_month == 1 & is_violence == 1, 1, 0),
+           recid_F_six_month = ifelse(recid_six_month == 1 & is_felony == 1, 1, 0),
+           recid_M_six_month = ifelse(recid_six_month == 1 & is_misdemeanor == 1, 1, 0),
+           recid_property_six_month = ifelse(recid_six_month == 1 & is_property == 1, 1, 0)) %>% 
+    select(PersonID:ChargeDate, ChargeEntityNumber, year_offenses:recid_property_six_month)
 
 ```
 
@@ -868,15 +882,21 @@ Using max() function because as long as there is one charge that is within two y
 outcomes = data_after %>% 
     group_by(PersonID) %>% 
     summarise(recid_two_year = max(recid_two_year), 
+              recid_drug_two_year = max(recid_drug_two_year),
+              recid_traffic_two_year = max(recid_traffic_two_year),
+              recid_violence_two_year = max(recid_violence_two_year),
+              recid_F_two_year = max(recid_F_two_year),
+              recid_M_two_year = max(recid_M_two_year),
+              recid_property_two_year = max(recid_property_two_year),
+              
               recid_six_month = max(recid_six_month),
-              recid_drug = max(recid_drug),
-              recid_traffic = max(recid_traffic),
-              recid_violence = max(recid_violence),
-              recid_F = max(recid_F),
-              recid_M = max(recid_M),
-              recid_stealing = max(recid_stealing),
-              recid_property = max(recid_property)) 
-
+              recid_drug_six_month = max(recid_drug_six_month),
+              recid_traffic_six_month = max(recid_traffic_six_month),
+              recid_violence_six_month = max(recid_violence_six_month),
+              recid_F_six_month = max(recid_F_six_month),
+              recid_M_six_month = max(recid_M_six_month),
+              recid_property_six_month = max(recid_property_six_month))
+              
 ```
 
 #### Combine criminal history data with labels 
@@ -884,15 +904,33 @@ outcomes = data_after %>%
 ```{r}
 recid_labels = merge(x=features_before_on, y=outcomes, by = "PersonID") %>% 
     mutate(recid_two_year = ifelse(is.na(recid_two_year), 0,  recid_two_year),
+           recid_drug_two_year = ifelse(is.na(recid_drug_two_year), 0,  recid_drug_two_year),
+           recid_traffic_two_year = ifelse(is.na(recid_traffic_two_year), 
+                                           0,  recid_traffic_two_year),
+           recid_violence_two_year = ifelse(is.na(recid_violence_two_year), 
+                                            0,  recid_violence_two_year),
+           recid_F_two_year = ifelse(is.na(recid_F_two_year), 0,  recid_F_two_year),
+           recid_M_two_year = ifelse(is.na(recid_M_two_year), 0,  recid_M_two_year),
+           recid_property_two_year = ifelse(is.na(recid_property_two_year), 
+                                            0,  recid_property_two_year), 
+           
+           
            recid_six_month = ifelse(is.na(recid_six_month), 0,  recid_six_month),
-           recid_drug = ifelse(is.na(recid_drug), 0,  recid_drug),
-           recid_traffic = ifelse(is.na(recid_traffic), 0,  recid_traffic),
-           recid_violence = ifelse(is.na(recid_violence), 0,  recid_violence),
-           recid_F = ifelse(is.na(recid_F), 0,  recid_F),
-           recid_M = ifelse(is.na(recid_M), 0,  recid_M),
-           recid_stealing = ifelse(is.na(recid_stealing), 0,  recid_stealing),
-           recid_property = ifelse(is.na(recid_property), 0,  recid_property))
+           recid_drug_six_month = ifelse(is.na(recid_drug_six_month), 0,  recid_drug_six_month),
+           recid_traffic_six_month = ifelse(is.na(recid_traffic_six_month), 
+                                           0,  recid_traffic_six_month),
+           recid_violence_six_month = ifelse(is.na(recid_violence_six_month), 
+                                            0,  recid_violence_six_month),
+           recid_F_six_month = ifelse(is.na(recid_F_six_month), 0,  recid_F_six_month),
+           recid_M_six_month = ifelse(is.na(recid_M_six_month), 0,  recid_M_six_month),
+           recid_property_six_month = ifelse(is.na(recid_property_six_month), 
+                                            0,  recid_property_six_month))
 ```
+
+```{r}
+recid_labels = recid_labels %>% select(-p_SentMonths)
+```
+
 
 ```{r}
 summary(recid_labels)
@@ -975,7 +1013,6 @@ write.csv(recid_labels, file = "C:/Users/binha/Documents/Duke/Cynthia Research/K
 write.csv(train, file = "C:/Users/binha/Documents/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY data/train.csv", row.names = F)
 write.csv(test, file = "C:/Users/binha/Documents/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY data/test.csv", row.names = F)
 ```
-
 
 
 
