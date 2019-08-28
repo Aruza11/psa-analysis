@@ -86,7 +86,6 @@ eventsdescrp_df<-read_csv(paste0(f_our_data,"eventsdescrp_df1.csv"))%>%
 ```
 
 
-
 ```{r prob-feat}
 ### Probation features
 event_on = c("File Order Of Probation")
@@ -235,10 +234,6 @@ prisonhistory_df = prisonhistory_df %>%
   mutate(sentence_days = floor(as.numeric(as.period(interval(in_custody,out_custody)), "days")))
 ```
 
-
-```{r}
-a = charge_df %>% filter(is.na(is_dui))
-```
 
 
 Now we group each ProPublica table into a nested dataframe. Each row represents a person_id/screening_date combination. The dataframe nested in each row includes all information in the corresponding ProPublica table that is relevant to the compas score of that person_id/screening_date combination. By using a left_join on person_id we duplicate the information in the ProPublica table for each screening_date (since there can be multiple matches). The prefix `dyn` means the information can change over time (e.g., prior offenses), while the prefix `stat` means the information should not change (e.g., date of birth).
