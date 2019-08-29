@@ -5,14 +5,31 @@ from aequitas.bias import Bias
 from aequitas.fairness import Fairness
 from aequitas.plotting import Plot
 
+# some hard-coded attrs
+decoders = {"sex": {0: "male",
+                    1: "female"}
+            }
+
+sensitive_attrs = ['sex', 'race']
+
+ref_groups_dict = {'sex': 'male',
+                   'race': 'Caucasian'}
 
 def compute_fairness(df: pd.DataFrame,
-                     decoders: dict,
-                     sensitive_attrs: list,
-                     ref_groups_dict: dict) -> pd.DataFrame:
+                     preds, 
+                     labels) -> pd.DataFrame:
     """
     decoders: dictionary of dictionary of decoders 
     """
+    df.loc[:, "score"] = preds
+    df.loc[:, "label_value"] = labels
+    df['entity_id'] = df['person_id'].map(str) + " " + df["screening_date"].map(str)
+    df = df[["entity_id", 
+             "sex", 
+             "race", 
+             "score", 
+             "label_value"]]
+
     # decode numeric encodings for cat var
     for decoder_name, decoder_dict in decoders.items():
         df = df.replace({decoder_name: decoder_dict})

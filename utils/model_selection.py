@@ -1,13 +1,14 @@
 from sklearn.model_selection import KFold, GridSearchCV
+import numpy as np 
 
 
 def cross_validate(X, Y, estimator, c_grid, seed):
-	"""Performs cross validation and selects a model given X and Y dataframes, 
-	an estimator, a dictionary of parameters, and a random seed. 
-	"""
-	# settings 
-	n_splits = 5
-	scoring = 'roc_auc'
+    """Performs cross validation and selects a model given X and Y dataframes, 
+    an estimator, a dictionary of parameters, and a random seed. 
+    """
+    # settings 
+    n_splits = 5
+    scoring = 'roc_auc'
 
     cross_validation = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
 
