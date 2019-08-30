@@ -18,7 +18,7 @@ library(data.table)
 
 ### Data path
 ```{r}
-data_path = "~/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY data/"
+data_path = "../data/raw/"
 ```
 
 
@@ -29,14 +29,21 @@ data_path = "~/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY data/
 ```{r}
 ## defendants
 Defendants = as.data.frame(fread(paste0(data_path,'01_KY_Recidivism_Defendants.txt'), 
-                                 header = T)) %>% select(PersonID, Gender)
+                                 header = T)) %>% 
+                select(PersonID, Gender, Race) %>%
+                rename(person_id = PersonID,
+                       sex = Gender,
+                       race= Race)
 ## interviews
 Interviews = as.data.frame(fread(paste0(data_path,'02_KY_Recidivism_Interviews.txt'))) %>% 
-    rename(PersonID = PersonId, InterviewID = InterviewId, Interview_Date_Created = DateCreated)
+    rename(person_id = PersonId, 
+           InterviewID = InterviewId, 
+           Interview_Date_Created = DateCreated)
 
 ## cases
 PRIM_cases = as.data.frame(fread(paste0(data_path,'04_KY_Recidivism_PRIM_Cases.txt'))) %>%
-    rename(SeqCaseID = SeqCaseId, 
+    rename(person_id = PersonID,
+           seq_case_id = SeqCaseId, 
            Case_Date_Booked = date_booked, 
            Age_at_Case_Booked = Age_at_Booking) %>%
     filter(County != "WHITLEY")
@@ -44,28 +51,41 @@ PRIM_cases = as.data.frame(fread(paste0(data_path,'04_KY_Recidivism_PRIM_Cases.t
 
 ## charges
 PRIM_charges = as.data.frame(fread(paste0(data_path,'07_KY_Recidivism_PRIM_Charges.txt'))) %>%
-    rename(InterviewID = interviewID, PersonID = PersonId, CaseID = CaseId, 
+    rename(InterviewID = interviewID, 
+           person_id = PersonId, 
+           seq_case_id = SeqCaseID,
+           CaseID = CaseId, 
            Charge_DispositionDate = DispositionDate) %>% 
     filter(County != "WHITLEY")
 
 
 ## bonds
 Bonds = as.data.frame(fread(paste0(data_path,'09_KY_Recidivism_Bonds.txt'))) %>% 
-    rename(InterviewID = interviewID, PersonID = PersonId, CaseID = CaseId)%>% 
+    rename(InterviewID = interviewID, 
+           person_id = PersonId, 
+           CaseID = CaseId)%>% 
     filter(County != "WHITLEY")
 
 ## events
 Events = as.data.frame(fread(paste0(data_path,'10_KY_Recidivism_Events.txt'))) %>% 
-    rename(InterviewID = InterviewId,PersonID = PersonId, CaseID = Caseid,SeqCaseID = SeqCaseid) %>% 
+    rename(InterviewID = InterviewId,
+           person_id = PersonId, 
+           CaseID = Caseid,
+           seq_case_id = SeqCaseid) %>% 
     filter(EventCounty != "WHITLEY")
 
 ## fta
 FTA = as.data.frame(fread(paste0(data_path,'11_KY_Recidivism_FTA.txt'))) %>% 
-    rename(InterviewID = InterviewId, PersonID = PersonId, CaseID = Caseid, SeqCaseID = SeqCaseid)
+    rename(InterviewID = InterviewId, 
+           person_id = PersonId, 
+           CaseID = Caseid, 
+           seq_case_id = SeqCaseid)
 
 ## supervision
 Supervision = as.data.frame(fread(paste0(data_path,'12_KY_Recidivism_Supervision.txt'))) %>% 
-  rename(InterviewID = InterviewId, PersonID = PersonId, CaseID = Caseid)
+  rename(InterviewID = InterviewId, 
+         person_id = PersonId, 
+         CaseID = Caseid)
 ```
 
 
@@ -86,7 +106,7 @@ summary(Defendants)
 ```
 
 ```{r}
-length(unique(Defendants$PersonID)) == nrow(Defendants)
+length(unique(Defendants$person_id)) == nrow(Defendants)
 ```
 
 __NOTE__:
@@ -119,17 +139,17 @@ summary(Interviews)
 ```
 
 ```{r}
-length(unique(Interviews$PersonID)) == nrow(Interviews)
-Interviews %>% group_by(PersonID) %>% summarise(count = n()) %>% arrange(desc(count))
-Interviews %>% group_by(PersonID, InterviewID) %>% summarise(count = n()) %>% arrange(desc(count))
+length(unique(Interviews$person_id)) == nrow(Interviews)
+Interviews %>% group_by(person_id) %>% summarise(count = n()) %>% arrange(desc(count))
+Interviews %>% group_by(person_id, InterviewID) %>% summarise(count = n()) %>% arrange(desc(count))
 ```
 
 __NOTE__:
 
-Each person (PersonID) could correspond to several interviews. But the combination of PersonID and InterviewID is unique.
+Each person (person_id) could correspond to several interviews. But the combination of person_id and InterviewID is unique.
 
 ```{r}
-Interviews[Interviews$PersonID == "28566", ]
+Interviews[Interviews$person_id == "28566", ]
 ```
 
 
@@ -174,46 +194,46 @@ Remove some unwanted features to reduce dimension.
 
 ```{r}
 length(unique(PRIM_cases$CaseID)) == nrow(PRIM_cases)
-length(unique(PRIM_cases$SeqCaseID)) == nrow(PRIM_cases)
+length(unique(PRIM_cases$seq_case_id)) == nrow(PRIM_cases)
 ```
 
 __NOTE__:
-Each row is an unique case with CaseID. But SeqCaseID has some repeated appearance. It indicates that each SeqCaseID could relate to several CaseID's.
+Each row is an unique case with CaseID. But seq_case_id has some repeated appearance. It indicates that each seq_case_id could relate to several CaseID's.
 
 
 ```{r}
-PRIM_cases %>% group_by(PersonID, InterviewID) %>% summarise(count = n()) %>% arrange(desc(count))
+PRIM_cases %>% group_by(person_id, InterviewID) %>% summarise(count = n()) %>% arrange(desc(count))
 ```
 
 ```{r}
-PRIM_cases[PRIM_cases$PersonID == "110149" & PRIM_cases$InterviewID == "686821", ]
+PRIM_cases[PRIM_cases$person_id == "110149" & PRIM_cases$InterviewID == "686821", ]
 ```
 
 ```{r}
-PRIM_cases %>% group_by(PersonID, InterviewID, CaseID) %>% summarise(count = n()) %>% arrange(desc(count))
+PRIM_cases %>% group_by(person_id, InterviewID, CaseID) %>% summarise(count = n()) %>% arrange(desc(count))
 ```
 
 ```{r}
-PRIM_cases %>% group_by(PersonID, InterviewID, SeqCaseID) %>% summarise(count = n()) %>% arrange(desc(count))
+PRIM_cases %>% group_by(person_id, InterviewID, seq_case_id) %>% summarise(count = n()) %>% arrange(desc(count))
 ```
 
 ```{r}
-PRIM_cases[PRIM_cases$PersonID == "409241" & PRIM_cases$InterviewID == "1375331" & PRIM_cases$SeqCaseID == "1719208", ]
+PRIM_cases[PRIM_cases$person_id == "409241" & PRIM_cases$InterviewID == "1375331" & PRIM_cases$seq_case_id == "1719208", ]
 ```
 
 ```{r}
-PRIM_cases %>% group_by(PersonID, SeqCaseId) %>% summarise(count = n()) %>% arrange(desc(count))
+PRIM_cases %>% group_by(person_id, seq_case_id) %>% summarise(count = n()) %>% arrange(desc(count))
 ```
 
 ```{r}
-e = PRIM_cases[PRIM_cases$PersonID == "152948" & PRIM_cases$SeqCaseId == "913837", ]
+e = PRIM_cases[PRIM_cases$person_id == "152948" & PRIM_cases$seq_case_id == "913837", ]
 ```
 
 
 __Insights__:
-1. Same person, same interview, could correspond to the different SeqCaseID.
-2. Same person, same interview, same SeqCaseID, could have different CaseIDs.
-3. Same person, same SeqCaseID, could correspond to multiple interview.
+1. Same person, same interview, could correspond to the different seq_case_id.
+2. Same person, same interview, same seq_case_id, could have different CaseIDs.
+3. Same person, same seq_case_id, could correspond to multiple interview.
 
 
 
@@ -256,7 +276,7 @@ summary(Bonds)
 
 ### 1. defendants + interviews
 ```{r}
-comb1 = merge(x=Defendants, y=Interviews, by="PersonID")
+comb1 = merge(x=Defendants, y=Interviews, by="person_id")
 nrow(comb1) == nrow(Interviews)
 ```
 
@@ -277,7 +297,7 @@ colnames(comb1)
 ### 2. comb1 + PRIM_cases
 ```{r}
 ## inner join
-comb2 = merge(x=comb1, y=PRIM_cases, by=c("PersonID", "InterviewID"))
+comb2 = merge(x=comb1, y=PRIM_cases, by=c("person_id", "InterviewID"))
 nrow(comb2) == nrow(PRIM_cases)
 ```
 
@@ -302,12 +322,12 @@ __Summary__:
 ```{r}
 comb3 = merge(x=comb2, 
               y=PRIM_charges,
-              by = c("PersonID", "InterviewID", "CaseID", "SeqCaseID"))
+              by = c("person_id", "InterviewID", "CaseID", "seq_case_id"))
 ```
 
 ```{r}
 a = comb3 %>% 
-    group_by(PersonID, SeqCaseID, InterviewID, CaseID) %>% 
+    group_by(person_id, seq_case_id, InterviewID, CaseID) %>% 
     summarise(count = n()) %>% 
     arrange(desc(count))
 b = a[a$count>1, ]
@@ -336,9 +356,9 @@ comb3 = comb3 %>%
 PRIM_cases = comb2
 PRIM_charges = comb3
 PRIM_bond = Bonds
-save(PRIM_cases, file = "PRIM_Cases.RData")
-save(PRIM_charges, file = "PRIM_Charges.RData")
-save(PRIM_bond, file = "PRIM_Bonds.RData")
+save(PRIM_cases, file = "../data/processed/PRIM_Cases.RData")
+save(PRIM_charges, file = "../data/processed/PRIM_Charges.RData")
+save(PRIM_bond, file = "../data/processed/PRIM_Bonds.RData")
 ```
 
 
