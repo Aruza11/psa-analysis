@@ -24,8 +24,8 @@ library(caret)
 
 ```{r}
 data_path = "C:/Users/binha/Documents/Duke/Cynthia Research/KY-analysis-mytrials/broward/data/"
-load(paste0(data_path, "compas_psa.Rdata"))
-load(paste0(data_path, "expanded_features.Rdata"))
+load(paste0(data_path, "../data/compas_psa.Rdata"))
+load(paste0(data_path, "../data/expanded_features.Rdata"))
 labels = read_csv("~/Duke/Cynthia Research/KY-analysis-mytrials/broward/data/labels.csv") %>% 
     mutate(screening_date = as.Date(screening_date, format = "%m/%d/%Y"))
 ```
