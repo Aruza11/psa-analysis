@@ -6,8 +6,12 @@ from aequitas.fairness import Fairness
 from aequitas.plotting import Plot
 
 # some hard-coded attrs
+
 decoders = {"sex": {0: "male",
-                    1: "female"}
+                    1: "female"}, 
+            "race": {"White": "Caucasian",
+                     "Black": "African-American",
+                     "Race Unknown": "Other"} # indian or native american?
             }
 
 sensitive_attrs = ['sex', 'race']
