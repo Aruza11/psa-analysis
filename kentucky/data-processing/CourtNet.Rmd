@@ -21,25 +21,35 @@ __Introduction__:
 This file combines all the data from CourtNet System and identify potential features.
 
 ```{r}
-data_path = "~/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY Data/"
+data_path = "../data/raw/"
 ```
 
 ### KY1 -- defendants
 ```{r, message=FALSE, warning=FALSE}
 Defendants = as.data.frame(fread(paste0(data_path,'01_KY_Recidivism_Defendants.txt'), 
-                                 header = T)) %>% select(PersonID, Gender, Race)
+                                 header = T)) %>% 
+              select(PersonID, Gender, Race) %>%
+              # rename to make consistent with Broward dataset
+              rename(person_id = PersonID, 
+                     sex = Gender, 
+                     race = Race)
+        
 
 CNet_cases = as.data.frame(fread(paste0(data_path,'03_KY_Recidivism_CNet_Cases.txt'), 
-                                 header = T)) %>% filter(County != "WHITLEY")
+                                 header = T)) %>% filter(County != "WHITLEY") %>%
+              rename(person_id = PersonID,
+                     seq_case_id = SeqCaseID)
 
 CNet_charges = as.data.frame(fread(paste0(data_path,'06_KY_Recidivism_CNet_Charges.txt'),
                                    header = T)) %>% 
-    rename(PersonID = PersonId) %>% 
+    rename(person_id = PersonId,
+           seq_case_id = SeqCaseID) %>% 
     filter(County != "WHITLEY")
 
 Sentences = as.data.frame(fread(paste0(data_path,'08_KY_Recidivism_Sentences.txt'), 
                                 header = T)) %>% 
-    rename(PersonID = PersonId) %>% 
+    rename(person_id = PersonId,
+           seq_case_id = SeqCaseID) %>% 
     filter(County != "WHITLEY")
 
 ```
@@ -48,7 +58,7 @@ Sentences = as.data.frame(fread(paste0(data_path,'08_KY_Recidivism_Sentences.txt
 ##### EDA ########################################################################################
 
 ##### 1. Defendants ##############################################################################
-The original data contains variables including PersonID, Gender, Race, Ethnicity, ID Source. Only kept PersonID and Gender. Other features will not be used in prediction.
+The original data contains variables including PersonID, Gender, Race, Ethnicity, ID Source. Only kept person_id, Gender (renamed to sex) and race. Other features will not be used in prediction.
 
 ```{r}
 colnames(Defendants)
@@ -59,11 +69,11 @@ summary(Defendants)
 ```
 
 ```{r}
-length(unique(Defendants$PersonID)) == nrow(Defendants)
+length(unique(Defendants$person_id)) == nrow(Defendants)
 ```
 
 __NOTE__:
-Each row has an unique PersonID.
+Each row has an unique person_id
 
 ###### 2. CNet_Cases ###############################################################################
 
@@ -86,8 +96,8 @@ __NOTE__:
 Not all the cases are in the PRIM system. We might want to only work on cases that appear in the PRIM, which helps reduce the data size.
 
 ```{r}
-length(unique(CNet_cases$PersonID)) == nrow(CNet_cases)
-length(unique(CNet_cases$SeqCaseID)) == nrow(CNet_cases)
+length(unique(CNet_cases$person_id)) == nrow(CNet_cases)
+length(unique(CNet_cases$seq_case_id)) == nrow(CNet_cases)
 ```
 
 __NOTE__:
@@ -97,11 +107,11 @@ __Sanity Check__:
 It is confirmed that some people did have more than one cases. 
 
 ```{r}
-CNet_cases %>% group_by(PersonID) %>% summarize(count = n()) %>% arrange(desc(count))
+CNet_cases %>% group_by(person_id) %>% summarize(count = n()) %>% arrange(desc(count))
 ```
 
 ```{r}
-CNet_cases[CNet_cases$PersonID == "19143", ]
+CNet_cases[CNet_cases$person_id == "19143", ]
 ```
 
 
@@ -122,8 +132,8 @@ __NOTE__:
 The chargeEntityNumber has a 7000; suspeciously high.
 
 ```{r}
-length(unique(CNet_charges$PersonID)) == nrow(CNet_charges)
-length(unique(CNet_charges$SeqCaseID)) == nrow(CNet_charges)
+length(unique(CNet_charges$person_id)) == nrow(CNet_charges)
+length(unique(CNet_charges$seq_case_id)) == nrow(CNet_charges)
 ```
 
 __NOTE__:
@@ -133,13 +143,14 @@ __Sanity Check__:
 It is confirmed that one case could correspond to several charges. There are people who had over thousands of charges under one case....
 
 ```{r}
-CNet_charges %>% group_by(PersonID, SeqCaseID) %>% summarize(count = n()) %>% arrange(desc(count))
+colnames(CNet_charges)
+CNet_charges %>% group_by(person_id, seq_case_id) %>% summarize(count = n()) %>% arrange(desc(count))
 ```
 
 ```{r}
-CNet_charges[CNet_charges$PersonID == "409581" & CNet_charges$SeqCaseID == "1715219", ]
-CNet_charges[CNet_charges$PersonID == "349879" & CNet_charges$SeqCaseID == "1372149", ]
-CNet_charges[CNet_charges$PersonID == "299055" & CNet_charges$SeqCaseID == "1131637", ]
+CNet_charges[CNet_charges$person_id == "409581" & CNet_charges$seq_case_id == "1715219", ]
+CNet_charges[CNet_charges$person_id == "349879" & CNet_charges$seq_case_id == "1372149", ]
+CNet_charges[CNet_charges$person_id == "299055" & CNet_charges$seq_case_id == "1131637", ]
 ```
 
 
@@ -152,14 +163,6 @@ colnames(Sentences)
 summary(Sentences)
 ```
 
-
-
-
-
-
-
-
-
 ##### Combine Tables ###############################################################################
 
 During the whole combination process, we will keep as many features as possible, which aims to keep as much information as possible, through renaming features and conducting sanity checking, which also ensures the correctness of combination.
@@ -170,7 +173,7 @@ During the whole combination process, we will keep as many features as possible,
 memory.limit(size=56000)
 comb1 = merge(x=Defendants,
               y=CNet_cases,
-              by = "PersonID")
+              by = "person_id")
 
 nrow(comb1) == nrow(CNet_cases)
 ```
@@ -196,7 +199,7 @@ comb1 = comb1 %>%
 ```{r}
 comb2 = merge(x = comb1, 
               y=CNet_charges,
-              by = c("PersonID", "SeqCaseID")) 
+              by = c("person_id", "seq_case_id")) 
 
 nrow(comb2) == nrow(CNet_charges)
 ```
@@ -247,7 +250,7 @@ comb2 = comb2 %>%
 memory.limit(size=56000)
 comb3 = merge(x=comb2,
               y = Sentences,
-              by = c("PersonID", "SeqCaseID", "ChargeEntityNumber", "ChargeNumber"),
+              by = c("person_id", "seq_case_id", "ChargeEntityNumber", "ChargeNumber"),
               all.x = TRUE) 
 
 nrow(comb3) == nrow(comb2)
@@ -257,8 +260,8 @@ __NOTE__: extra rows added to comb3
 
 ## check SentenceEntityNumber != ChargeEntityNumber
 ```{r}
-a = Sentences[Sentences$PersonID == "62628" & Sentences$SeqCaseID == "2775564", ]
-b = comb2[comb2$PersonID == "62628" & comb2$SeqCaseID == "2775564", ]
+a = Sentences[Sentences$person_id == "62628" & Sentences$seq_case_id == "2775564", ]
+b = comb2[comb2$person_id == "62628" & comb2$seq_case_id == "2775564", ]
 ```
 
 __NOTE__: ChargeNumber != ChargeEntityNumber; ChargeNumber != SentenceEntityNumber; ChargeEntityNumber != SentenceEntityNumber; For each ChargeEntity number, there could be multiple sentenseEntity number corresponded. 
@@ -266,7 +269,7 @@ __NOTE__: ChargeNumber != ChargeEntityNumber; ChargeNumber != SentenceEntityNumb
 ## check unique sentences
 ```{r}
 a = Sentences %>% 
-    group_by(PersonID, SeqCaseID, ChargeEntityNumber, ChargeNumber) %>% 
+    group_by(person_id, seq_case_id, ChargeEntityNumber, ChargeNumber) %>% 
     summarise(count = n()) %>% 
     arrange(desc(count))
 b = a %>% filter(count > 1)
@@ -312,7 +315,7 @@ Based on what we need, we can subset any features we want.
 
 ```{r}
 CNet_data = comb3
-save(CNet_data, file = "CNet.RData")
+save(CNet_data, file = "../data/raw/CNet.RData")
 ```
 
 

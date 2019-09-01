@@ -6,8 +6,12 @@ from aequitas.fairness import Fairness
 from aequitas.plotting import Plot
 
 # some hard-coded attrs
+
 decoders = {"sex": {0: "male",
-                    1: "female"}
+                    1: "female"}, 
+            "race": {"White": "Caucasian",
+                     "Black": "African-American",
+                     "Race Unknown": "Other"} # indian or native american?
             }
 
 sensitive_attrs = ['sex', 'race']
@@ -52,4 +56,4 @@ def compute_fairness(df: pd.DataFrame,
     parity_determinations = f.list_parities(fdf)
 
     absolute_metrics = g.list_absolute_metrics(xtab)
-    return fdf[['attribute_name', 'attribute_value'] + absolute_metrics + b.list_disparities(fdf) + parity_determinations].style
+    return fdf[['attribute_name', 'attribute_value'] + absolute_metrics + b.list_disparities(fdf) + parity_determinations]
