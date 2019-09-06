@@ -1,8 +1,12 @@
-from sklearn.model_selection import KFold, GridSearchCV
 import numpy as np
+
 from sklearn.metrics import roc_auc_score
-from utils.fairness_functions import compute_fairness
 from sklearn.calibration import CalibratedClassifierCV
+from sklearn.model_selection import KFold, GridSearchCV
+
+
+from utils.fairness_functions import compute_fairness
+
 
 def cross_validate(X, Y, estimator, c_grid, seed):
     """Performs cross validation and selects a model given X and Y dataframes, 
@@ -32,7 +36,6 @@ def cross_validate(X, Y, estimator, c_grid, seed):
 
 
 def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
-    
     ## outer cv
     train_outer = []
     test_outer = []
