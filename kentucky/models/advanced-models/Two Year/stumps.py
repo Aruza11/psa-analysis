@@ -1,85 +1,143 @@
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import KFold, GridSearchCV
+from sklearn.metrics import roc_auc_score
+from utils.fairness_functions import compute_fairness
 
-def stump_features(x, y,columns, alpha, seed):
+
+
+def stump_cv(X, Y, columns, c_grid, seed):
     
-    import numpy as np
-    from sklearn.linear_model import Lasso
-    from sklearn.model_selection import KFold, GridSearchCV
-    from sklearn.metrics import roc_curve, auc, roc_auc_score
+    ## estimator
+    lasso = LogisticRegression(class_weight = 'balanced', solver='liblinear', random_state=seed, penalty='l1')
     
-    ### cross validation -- parameter selection
-    lasso = Lasso(random_state=seed)
-    cross_validation = KFold(n_splits=5,shuffle=True, random_state=seed)
-    c_grid = {"alpha": alpha}
+    ## outer cv
+    train_outer = []
+    test_outer = []
+    outer_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
+
+    ## 5 sets of train & test index
+    for train, test in outer_cv.split(X, Y):
+        train_outer.append(train)
+        test_outer.append(test)   
     
-    clf = GridSearchCV(estimator=lasso, param_grid=c_grid, scoring='roc_auc', cv=cross_validation, return_train_score=True).fit(x, y)
-    train_score = clf.cv_results_['mean_train_score']
-    test_score = clf.cv_results_['mean_test_score']
-    best_param = clf.best_params_
-    auc_diff = train_score[np.where(test_score == clf.best_score_)[0][0]] - clf.best_score_
+    ## storing lists
+    holdout_auc = []
+    best_params = []
+    auc_diffs = []
+    fairness_overviews = []
     
-    ## run model with best parameter
-    lasso = Lasso(random_state=816, alpha=best_param['alpha']).fit(x, y)
+    ## inner cv
+    inner_cv = KFold(n_splits=5, shuffle=True, random_state=seed)
+    
+    for i in range(len(train_outer)):
+
+        ## subset train & test sets in inner loop
+        train_x, test_x = X.iloc[train_outer[i]], X.iloc[test_outer[i]]
+        train_y, test_y = Y[train_outer[i]], Y[test_outer[i]]
+        
+        ## holdout test with "race" for fairness
+        holdout_with_attrs = test_x.copy()
+        
+        ## remove unused feature in modeling
+        train_x = train_x.drop(['person_id', 'screening_date', 'race'], axis=1)
+        test_x = test_x.drop(['person_id', 'screening_date', 'race'], axis=1)
+        
+        ## GridSearch: inner CV
+        clf = GridSearchCV(estimator=lasso, param_grid=c_grid, scoring='roc_auc',
+                           cv=inner_cv, return_train_score=True).fit(train_x, train_y)
+    
+        ## best parameter & scores
+        mean_train_score = clf.cv_results_['mean_train_score']
+        mean_test_score = clf.cv_results_['mean_test_score']        
+        best_param = clf.best_params_
+        auc_diffs.append(mean_train_score[np.where(mean_test_score == clf.best_score_)[0][0]] - clf.best_score_)
+        
+        ## run model with best parameter
+        best_model = LogisticRegression(class_weight = 'balanced', solver='liblinear', 
+                                        random_state=seed, penalty='l1', C=best_param['C']).fit(train_x, train_y)
+        coefs = best_model.coef_[best_model.coef_ != 0]
+        features = columns[best_model.coef_[0] != 0].tolist()
+        intercept = round(best_model.intercept_[0],3)
+        
+        ## dictionary
+        lasso_dict_rounding = {}
+        for i in range(len(features)):
+            lasso_dict_rounding.update({features[i]: round(coefs[i], 3)})
+        
+        ## prediction on test set
+        prob = 0
+        for k in features:
+            test_values = test_x[k]*(lasso_dict_rounding[k])
+            prob += test_values
+        holdout_prob = np.exp(prob)/(1+np.exp(prob))
+        holdout_pred = (holdout_prob > 0.5)
+        
+    
+        ## fairness 
+        holdout_fairness_overview = compute_fairness(df=holdout_with_attrs,
+                                                     preds=holdout_pred,
+                                                     labels=test_y)
+        fairness_overviews.append(holdout_fairness_overview)
+    
+        ## store results
+        holdout_auc.append(roc_auc_score(test_y, holdout_prob))
+        best_params.append(best_param)
+        
+    return {'best_param': best_param,
+            'holdout_test_auc': holdout_auc,
+            'auc_diffs': auc_diffs,
+            'fairness_overview': fairness_overviews}
+
+
+
+
+
+def stump_model(X_train, Y_train, X_test, Y_test, c, columns, seed):
+        
+    ## remove unused feature in modeling
+    X_train = X_train.drop(['person_id', 'screening_date', 'race'], axis=1)
+    X_test = X_test.drop(['person_id', 'screening_date', 'race'], axis=1)
+    
+    ## estimator
+    lasso = LogisticRegression(class_weight = 'balanced', solver='liblinear', 
+                               random_state=seed, penalty='l1', C = c).fit(X_train, Y_train)
     coefs = lasso.coef_[lasso.coef_ != 0]
-    features = columns[lasso.coef_ != 0].tolist()
-    intercept = round(lasso.intercept_,3)
-    
+    features = columns[lasso.coef_[0] != 0].tolist()
+    intercept = round(lasso.intercept_[0],3)
+     
     ## dictionary
     lasso_dict_rounding = {}
     for i in range(len(features)):
-        lasso_dict_rounding.update({features[i]: round(coefs[i], 3)})
-        
-    ### second cross validation
-    cv = KFold(n_splits=5, shuffle=True, random_state=816)
-    train_auc = []
-    test_auc = []
-
-    i = 0
-    for train, test in cv.split(x,y):    
-        train_pred = test_pred = 0  
-        X_train, Y_train = x.iloc[train], y[train]
-        X_test, Y_test = x.iloc[test], y[test]
-        
-        for k in features:
-            train_values = X_train[k]*lasso_dict_rounding[k]
-            test_values = X_test[k]*lasso_dict_rounding[k]
-            train_pred += train_values
-            test_pred += test_values
-            
-        train_pred += intercept
-        test_pred += intercept
-        
-        ## auc
-        train_fpr, train_tpr, train_thresholds = roc_curve(Y_train, train_pred)
-        test_fpr, test_tpr, test_thresholds = roc_curve(Y_test, test_pred)
-        train_auc.append(auc(train_fpr, train_tpr))
-        test_auc.append(auc(test_fpr, test_tpr))
-        i += 1
-        
+        lasso_dict_rounding.update({features[i]: round(round(coefs[i], 3)*100, 1)})
+    
+    ## prediction on test set
+    prob = 0
+    for k in features:
+        test_values = X_test[k]*(lasso_dict_rounding[k]/100)
+        prob += test_values
+    
+    holdout_prob = np.exp(prob)/(1+np.exp(prob))
+    test_auc = roc_auc_score(Y_test, holdout_prob)
+    
     return {'coefs': coefs, 
             'features': features, 
             'intercept': intercept, 
             'dictionary': lasso_dict_rounding, 
-            'param': best_param,
-            'auc_diff': auc_diff,
-            'train_auc': train_auc, 
             'test_auc': test_auc}
-
-
-def stump_table(coefs, features, intercept, dictionary):
     
-    import numpy as np
+    
+def stump_table(coefs, features, intercept, dictionary):
     
     print('+-----------------------------------+----------------+')
     print('|', 'Features', '{n:>{ind}}'.format(n = '|', ind=26), 'Score', '{n:>{ind}}'.format(n = '|', ind=10))
     print('|====================================================|')
     for i in range(len(dictionary)):
-        print('|', features[i], '{n:>{ind}}'.format(n = '|', ind=35 - len('|'+features[i])), dictionary[features[i]], '{n:>{ind}}'.format(n = '|', ind = 15 - len(np.str(dictionary[features[i]]))))
-    print('|', 'Intercept', '{n:>{ind}}'.format(n = '|', ind=25), intercept, '{n:>{ind}}'.format(n = '|', ind = 15 - len(np.str(intercept)))) 
+        print('|', features[i], '{n:>{ind}}'.format(n = '|', ind=35 - len('|'+features[i])),dictionary[features[i]], '{n:>{ind}}'.format(n = '|', ind = 15 - len(np.str(dictionary[features[i]]))))
+    print('|', 'Intercept', '{n:>{ind}}'.format(n = '|', ind=25), round(intercept, 3), '{n:>{ind}}'.format(n = '|', ind = 15 - len(np.str(intercept)))) 
     print('|====================================================|')
-    print('|', 'ADD POINTS FROM ROWS 1 TO', len(dictionary), 
-          '{n:>{ind}}'.format(n = '|', ind = 6), 'Total Score', '{n:>{ind}}'.format(n = '|', ind = 4))
+    print('|', 'ADD POINTS FROM ROWS 1 TO', len(dictionary), '{n:>{ind}}'.format(n = '|', ind = 6), 'Total Score', '{n:>{ind}}'.format(n = '|', ind = 4))
     print('+-----------------------------------+----------------+')
-    
     
     
           

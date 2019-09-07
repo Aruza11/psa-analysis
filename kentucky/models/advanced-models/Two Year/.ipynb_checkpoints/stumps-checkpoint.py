@@ -70,9 +70,7 @@ def stump_cv(X, Y, columns, c_grid, seed):
         for k in features:
             test_values = test_x[k]*(lasso_dict_rounding[k])
             prob += test_values
-        holdout_prob = np.exp(prob)/(1+np.exp(prob))
-        holdout_pred = (holdout_prob > 0.5)
-        
+        holdout_pred = (prob > 0.5)
     
         ## fairness 
         holdout_fairness_overview = compute_fairness(df=holdout_with_attrs,
@@ -81,7 +79,7 @@ def stump_cv(X, Y, columns, c_grid, seed):
         fairness_overviews.append(holdout_fairness_overview)
     
         ## store results
-        holdout_auc.append(roc_auc_score(test_y, holdout_prob))
+        holdout_auc.append(roc_auc_score(test_y, prob))
         best_params.append(best_param)
         
     return {'best_param': best_param,
@@ -116,9 +114,9 @@ def stump_model(X_train, Y_train, X_test, Y_test, c, columns, seed):
     for k in features:
         test_values = X_test[k]*(lasso_dict_rounding[k]/100)
         prob += test_values
-    
-    holdout_prob = np.exp(prob)/(1+np.exp(prob))
-    test_auc = roc_auc_score(Y_test, holdout_prob)
+        
+    holdout_pred = (prob > 0.5)
+    test_auc = roc_auc_score(Y_test, prob)
     
     return {'coefs': coefs, 
             'features': features, 
