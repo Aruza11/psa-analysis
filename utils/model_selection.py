@@ -62,8 +62,8 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
         holdout_with_attrs = test_x.copy()
         
         ## remove unused feature in modeling
-        train_x = train_x.drop(['person_id', 'screening_date', 'race'], axis=1)
-        test_x = test_x.drop(['person_id', 'screening_date', 'race'], axis=1)
+        train_x = train_x.drop(['person_id', 'screening_date', 'race'], axis=1).values
+        test_x = test_x.drop(['person_id', 'screening_date', 'race'], axis=1).values
         
         ## GridSearch: inner CV
         clf = GridSearchCV(estimator=estimator, param_grid=c_grid, scoring='roc_auc',

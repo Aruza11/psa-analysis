@@ -84,7 +84,7 @@ def stump_cv(X, Y, columns, c_grid, seed):
         holdout_auc.append(roc_auc_score(test_y, holdout_prob))
         best_params.append(best_param)
         
-    return {'best_param': best_param,
+    return {'best_params': best_params,
             'holdout_test_auc': holdout_auc,
             'auc_diffs': auc_diffs,
             'fairness_overview': fairness_overviews}
