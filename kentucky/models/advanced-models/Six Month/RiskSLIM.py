@@ -1,14 +1,21 @@
+import numpy as np
+import pandas as pd
+
+from utils.fairness_functions import compute_fairness
+from sklearn.model_selection import KFold
+from sklearn.metrics import roc_auc_score
+from sklearn.utils import shuffle
+
+from pprint import pprint
+from riskslim.helper_functions import load_data_from_csv, print_model
+from riskslim.setup_functions import get_conservative_offset
+from riskslim.coefficient_set import CoefficientSet
+from riskslim.lattice_cpa import run_lattice_cpa
+from riskslim.lattice_cpa import setup_lattice_cpa, finish_lattice_cpa
+
+
+
 def risk_slim(data, max_coefficient, max_L0_value, c0_value, max_runtime = 120, w_pos = 1, max_offset=50):
-    
-    import os
-    import numpy as np
-    import pandas as pd
-    from pprint import pprint
-    from riskslim.helper_functions import load_data_from_csv, print_model
-    from riskslim.setup_functions import get_conservative_offset
-    from riskslim.coefficient_set import CoefficientSet
-    from riskslim.lattice_cpa import run_lattice_cpa
-    from riskslim.lattice_cpa import setup_lattice_cpa, finish_lattice_cpa
     
     """
     @parameters:
@@ -75,9 +82,6 @@ def risk_slim(data, max_coefficient, max_L0_value, c0_value, max_runtime = 120, 
 
 def riskslim_prediction(X, feature_name, model_info):
     
-    import numpy as np
-    import pandas as pd
-    
     """
     @parameters
     
@@ -127,3 +131,87 @@ def riskslim_accuracy(X, Y, feature_name, model_info, threshold=0.5):
     pred = np.mean((prob > threshold) == Y)
     
     return pred
+
+
+
+def risk_cv(X, 
+            Y,
+            indicator,
+            y_label, 
+            max_coef,
+            max_coef_number,
+            max_runtime,
+            c,
+            seed):
+
+    ## set up data
+    Y = Y.reshape(-1,1)
+    sample_weights = np.repeat(1, len(Y))
+
+    ## set up cross validation
+    cv = KFold(n_splits=5, random_state=seed, shuffle=True)
+    train_auc, test_auc, fairness = [], [], []
+    
+    for train, test in cv.split(X, Y):
+    
+        ## subset train data & store test data
+        train_x, train_y = X.iloc[train], Y[train]
+        test_x, test_y = X.iloc[test], Y[test]
+        sample_weights_train, sample_weights_test = sample_weights[train], sample_weights[test]
+        
+        ## holdout test with "race" for fairness
+        holdout_with_attrs = test_x.copy().drop(['(Intercept)'], axis=1)
+        
+        ## remove unused feature in modeling
+        if indicator == 1:
+            train_x = train_x.drop(['person_id', 'screening_date', 'race'], axis=1)
+            test_x = test_x.drop(['person_id', 'screening_date', 'race'], axis=1).values
+        else:
+            train_x = train_x.drop(['person_id', 'screening_date', 'race', 'sex'], axis=1)
+            test_x = test_x.drop(['person_id', 'screening_date', 'race', 'sex'], axis=1).values
+
+        cols = train_x.columns.tolist()
+        train_x = train_x.values
+        
+        ## create new data dictionary
+        new_train_data = {
+            'X': train_x,
+            'Y': train_y,
+            'variable_names': cols,
+            'outcome_name': y_label,
+            'sample_weights': sample_weights_train
+        }
+            
+        ## fit the model
+        model_info, mip_info, lcpa_info = risk_slim(new_train_data, 
+                                                    max_coefficient=max_coef, 
+                                                    max_L0_value=max_coef_number, 
+                                                    c0_value=c, 
+                                                    max_runtime=max_runtime)
+        print_model(model_info['solution'], new_train_data)
+        
+        ## change data format
+        train_x, test_x = train_x[:,1:], test_x[:,1:] ## remove the first column, which is "intercept"
+        train_y[train_y == -1] = 0 ## change -1 to 0
+        test_y[test_y == -1] = 0 ## change -1 to 0
+        
+        ## probability & accuracy
+        train_prob = riskslim_prediction(train_x, np.array(cols), model_info).reshape(-1,1)
+        test_prob = riskslim_prediction(test_x, np.array(cols), model_info).reshape(-1,1)
+        test_pred = (test_prob > 0.5)
+        
+        ## AUC
+        train_auc.append(roc_auc_score(train_y, train_prob))
+        test_auc.append(roc_auc_score(test_y, test_prob))
+        
+        ## fairness
+        holdout_fairness_overview = compute_fairness(df=holdout_with_attrs,
+                                                     preds=test_pred,
+                                                     labels=test_y)
+        fairness.append(holdout_fairness_overview)
+        
+    return {'train_auc': train_auc, 
+            'test_auc': test_auc, 
+            'holdout_fairness': fairness}
+
+    
