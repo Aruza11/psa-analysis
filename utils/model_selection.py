@@ -1,7 +1,7 @@
 from sklearn.model_selection import KFold, GridSearchCV
 import numpy as np
 from sklearn.metrics import roc_auc_score
-from utils.fairness_functions import compute_fairness
+from utils.fairness_functions import compute_fairness, compute_confusion_matrix_stats
 from sklearn.calibration import CalibratedClassifierCV
 
 def cross_validate(X, Y, estimator, c_grid, seed):
@@ -48,6 +48,7 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
     best_params = []
     auc_diffs = []
     fairness_overviews = []
+    confusion_matrix_rets = []
 
     ## inner cv
     inner_cv = KFold(n_splits=5, shuffle=True, random_state=seed)
@@ -91,9 +92,15 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
                                                      preds=holdout_pred,
                                                      labels=test_y)
         fairness_overviews.append(holdout_fairness_overview)
+        
+        ## confusion matrix stats
+        confusion_matrix_fairness = compute_confusion_matrix_stats(df=holdout_with_attrs,
+                                                     preds=holdout_pred,
+                                                     labels=test_y, protected_variables=["sex"])
+        confusion_matrix_rets.append(confusion_matrix_fairness)
 
         ## store results
         holdout_auc.append(roc_auc_score(test_y, prob))
         best_params.append(best_param)
 
-    return holdout_auc, best_params, auc_diffs, fairness_overviews
+    return holdout_auc, best_params, auc_diffs, fairness_overviews, confusion_matrix_rets

@@ -137,8 +137,17 @@ def stump_table(coefs, features, intercept, dictionary):
     print('|', 'Intercept', '{n:>{ind}}'.format(n = '|', ind=25), round(intercept, 3), '{n:>{ind}}'.format(n = '|', ind = 15 - len(np.str(intercept)))) 
     print('|====================================================|')
     print('|', 'ADD POINTS FROM ROWS 1 TO', len(dictionary), '{n:>{ind}}'.format(n = '|', ind = 6), 'Total Score', '{n:>{ind}}'.format(n = '|', ind = 4))
-    print('+-----------------------------------+----------------+')
+    print('+-----------------------------------+----------------+')    
     
+    
+def latex_stump_table(coefs, features, intercept, dictionary):
+    print('\\begin{tabular}{|l|r|r|} \\hline')
+    for i in range(len(dictionary)):
+        sign = '+' if dictionary[features[i]] >= 0 else '-'
+        print('{index}.'.format(index = i+1), features[i].replace('_', '\_'), '&',np.abs(dictionary[features[i]]), '&', sign+'...', '\\\\ \\hline')
+    print('{}.'.format(len(dictionary)+1), 'Intercept', '&', round(intercept, 3), '&', sign+'...', '\\\\ \\hline')
+    print('\\textbf{{ADD POINTS FROM ROWS 1 TO {length}}}  &  \\textbf{{SCORE}} & = ..... \\\\ \\hline'.format(length=len(dictionary)+1))
+    print('\\multicolumn{3}{l}{Pr(Y = 1) = exp(score/100) / (1 + exp(score/100))} \\\\ \\hline')
     
           
 def stump_plots(features, coefs):
