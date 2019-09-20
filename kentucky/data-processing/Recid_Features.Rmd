@@ -21,10 +21,11 @@ library(ggplot2)
 ```
 
 ```{r}
-load("../data/processed/CNet.RData")
-load("../data/processed/PRIM_Cases.RData")
-load("../data/processed/PRIM_Bonds.RData")
+load("CNet.RData")
+load("PRIM_Cases.RData")
+load("PRIM_Bonds.RData")
 ```
+
 
 ###### CourNet Data ##############################################################################
 
@@ -46,7 +47,7 @@ Notice that Daniel mentioned the CNet data could date back before 1/1/1996, and 
 Additionally, since people with "SentMonth" larger than 24 months (2 years) definitely cannot commit crime again within two years (at least publicly, maybe in jail, but out of our scope of consideration). Therefore, for those people who have been sentenced before, we included individuals only with "SentMonth" less than or equal to 12 months (filtering process in later step). We want to make sure that individuals that have been sentenced at the screening date (or current offense date) have at least one year out of two years to be in public. Then we see if they commited crime again within two years after they are released.
 
 ```{r}
-CNet = CNet_data %>% select(person_id, seq_case_id, sex, race, PRIM, 
+CNet = CNet_data %>% select(PersonID, SeqCaseID, Gender, Race, PRIM, 
                             Case_FilingDate, Age_at_Case_Filing,
                             ChargeEntityNumber, ChargeDate, Charge_DispositionCode,
                             UOR_Description, UOR_Level, UOR_Code,
@@ -181,7 +182,7 @@ CNet_features = CNet %>%
         Treatment = ifelse(is.na(Undergo_Treat),0, ifelse(Undergo_Treat == 1, 1, 0))
     ) %>% ## further get rid of redundant variables
     select(-c(UOR_Description, UOR_Level, UOR_Code, sentence, Undergo_Treat, jail)) %>% 
-    filter(!is.na(SentMonths)) ## person_id = 73272, seq_case_id = 2674931: even "prison" ==
+    filter(!is.na(SentMonths)) ## PersonID = 73272, SeqCaseID = 2674931: even "prison" ==
                                ## 1,SentMonth is still 0. Therefore, need to be removed.
 ```
 
@@ -200,7 +201,7 @@ for (i in 12:30){
     .[.[,4] == 1, ] %>% 
     filter(Age_at_CNet_Case_Filing <= 70,
            Age_at_CNet_Case_Filing >= 18) %>% 
-    group_by(person_id, seq_case_id) %>% 
+    group_by(PersonID, SeqCaseID) %>% 
     summarise(age = max(Age_at_CNet_Case_Filing)) %>% 
     group_by(age) %>% 
     summarise(count = n())
@@ -225,7 +226,7 @@ Get ride of some redundant variables that are not necessary for prediction (add 
 The interview date starts from 01/01/2009 in the PRIM system. However, the risk scores are only effective after 07/01/2013. Therefore, to calculate the PSA scores test PSA, we need to restrict the interview date to be on and after 07/01/2013.
 
 ```{r}
-PRIM_features0 = PRIM_cases %>% select(person_id, seq_case_id, CaseID, Interview_Date_Created,
+PRIM_features0 = PRIM_cases %>% select(PersonID, SeqCaseID, CaseID, Interview_Date_Created,
                                       Case_Date_Booked, Age_at_Case_Booked,
                                       OnProbation, SupProbation, Fta, 
                                       fta_risk_score_raw, nca_risk_score_raw, 
@@ -261,20 +262,20 @@ summary(PRIM_features0)
 
 
 ```{r}
-PRIM_features0 %>% group_by(person_id, seq_case_id) %>% summarise(count = n ()) %>% arrange(desc(count))
+PRIM_features0 %>% group_by(PersonID, SeqCaseID) %>% summarise(count = n ()) %>% arrange(desc(count))
 ```
 
 __NOTE__:
-One case in CourtNet should be matched exactlt to one case in PRIM, using seq_case_id. The case booked date in PRIM system should be slightly later than the case booked date in the CourtNet system. However, there are multiple reasons why there are many caseIDs corresponding to one seq_case_id in the PRIM system:
+One case in CourtNet should be matched exactlt to one case in PRIM, using SeqCaseID. The case booked date in PRIM system should be slightly later than the case booked date in the CourtNet system. However, there are multiple reasons why there are many caseIDs corresponding to one SeqCaseID in the PRIM system:
 
-1. for the original case, the defandent may fail to appear. Then the defendant will be arrested again and a new interview and a new case will be created. The new CaseID in the PRIM system is still under the same seq_case_id from the original case. 
-   - person_id == 5; seq_case_id == 3046161
+1. for the original case, the defandent may fail to appear. Then the defendant will be arrested again and a new interview and a new case will be created. The new CaseID in the PRIM system is still under the same SeqCaseID from the original case. 
+   - PersonID == 5; SeqCaseID == 3046161
 
-2. There are cases when multiple CaseID's are related to one seq_case_id, which means that there should be more than one pretrial interview related to that one seq_case_id based on the explanation. However, the interviewID is the same for all CaseID's. Anything wrong here? Is that because there are multiple charges? For rearrest?
-   - person_id == 409241; seq_case_id == 1719208
-   - person_id == 152948; seq_case_id == 913837
+2. There are cases when multiple CaseID's are related to one SeqCaseID, which means that there should be more than one pretrial interview related to that one SeqCaseID based on the explanation. However, the interviewID is the same for all CaseID's. Anything wrong here? Is that because there are multiple charges? For rearrest?
+   - PersonID == 409241; SeqCaseID == 1719208
+   - PersonID == 152948; SeqCaseID == 913837
 
-The reason why we saw different risk scores for the child CaseID's of the same seq_case_id is that if the FTA appears in the previous case, which is one the factors to calculate risk score, the risk score will definitely change. 
+The reason why we saw different risk scores for the child CaseID's of the same SeqCaseID is that if the FTA appears in the previous case, which is one the factors to calculate risk score, the risk score will definitely change. 
 
 3. PRIM_Cases data set has the same age issue, that is the age at PRIM case filing ranges from 0 to 237, which is impossible. Need to compare the two data sets to see which one is relatively more accurate
 
@@ -383,7 +384,7 @@ In this step, risk scores that are NA are removed. In order to test Arnold PSA, 
 
 ```{r}
 PRIM_features = PRIM_features0 %>% 
-  select(person_id, seq_case_id, CaseID, 
+  select(PersonID, SeqCaseID, CaseID, 
          Interview_Date,
          FTA, probation, 
          RA2_New_Charge_While_Case_Pending,
@@ -411,8 +412,8 @@ summary(PRIM_features)
 ```
 
 ```{r}
-test_prim = PRIM_features[1:1000, ] %>% select(person_id, seq_case_id, CaseID, is_violence_prim)
-test_cnet = CNet %>% filter(person_id == 100155, seq_case_id == 45169)
+test_prim = PRIM_features[1:1000, ] %>% select(PersonID, SeqCaseID, CaseID, is_violence_prim)
+test_cnet = CNet %>% filter(PersonID == 100155, SeqCaseID == 45169)
 ```
 
 
@@ -438,20 +439,20 @@ Previously, in order to be consistent with the population tested on ML models an
 Merge CourNet features and PRIM features. Get rid of null charge date and change the formate to date format.
 
 ```{r}
-all_features0 = merge(x=CNet_features, y=PRIM_features, by=c("person_id", "seq_case_id"))
+all_features0 = merge(x=CNet_features, y=PRIM_features, by=c("PersonID", "SeqCaseID"))
 ```
 
 
 ## violence check
 ```{r}
-a = all_features0 %>% filter(person_id == 100155, seq_case_id == 45169)
+a = all_features0 %>% filter(PersonID == 100155, SeqCaseID == 45169)
 ```
 
 
 ## check violence feature
 ```{r}
 violence_check = all_features0 %>% 
-  select(person_id, seq_case_id, ChargeEntityNumber, ChargeDate,is_violence, is_violence_prim)
+  select(PersonID, SeqCaseID, ChargeEntityNumber, ChargeDate,is_violence, is_violence_prim)
 
 mean(violence_check$is_violence)
 mean(violence_check$is_violence_prim)
@@ -470,22 +471,22 @@ all_features0 = all_features0 %>% select(-is_violence) %>% rename(is_violence = 
 
 ## sanity check
 ```{r}
-a = all_features0[all_features0$person_id == "5" & all_features0$seq_case_id == "3046161", ]
-b = PRIM_features[PRIM_features$person_id == "5"& PRIM_features$seq_case_id == "3046161",]
-c = CNet[CNet$person_id == "5" & CNet$seq_case_id == "3046161", ]
+a = all_features0[all_features0$PersonID == "5" & all_features0$SeqCaseID == "3046161", ]
+b = PRIM_features[PRIM_features$PersonID == "5"& PRIM_features$SeqCaseID == "3046161",]
+c = CNet[CNet$PersonID == "5" & CNet$SeqCaseID == "3046161", ]
 ```
 
 
 __NOTE__:
-There are extra records added to the data set. It is because one seq_case_id could relate to multiple CaseID's in the PRIM system. Additionally, one seq_case_id could have multiple charges. Therefore, each one of the CaseIDs will have the same number of charges information added.
+There are extra records added to the data set. It is because one SeqCaseID could relate to multiple CaseID's in the PRIM system. Additionally, one SeqCaseID could have multiple charges. Therefore, each one of the CaseIDs will have the same number of charges information added.
 
-Take the example above for instance, the individual with person_id == 5 & seq_case_id == 3046161 had 5 charges under this CourtNet case. This CourtNet case (seq_case_id) had 2 CaseIDs corresponded in PRIM system. Therefore, after inner joining them, there are 10 records in total, since each CaseID will have 5 charges right now. The 5 charges are exactly the same in both CaseIDs. `This is very important since it will change the way we calcualted features later on.`
+Take the example above for instance, the individual with PersonID == 5 & SeqCaseID == 3046161 had 5 charges under this CourtNet case. This CourtNet case (SeqCaseID) had 2 CaseIDs corresponded in PRIM system. Therefore, after inner joining them, there are 10 records in total, since each CaseID will have 5 charges right now. The 5 charges are exactly the same in both CaseIDs. `This is very important since it will change the way we calcualted features later on.`
 
 
 
 ##### age issue 
 ```{r}
-age_issue = all_features0 %>% select(person_id, seq_case_id, CaseID, 
+age_issue = all_features0 %>% select(PersonID, SeqCaseID, CaseID, 
                             CNet_Case_Filing_Date, Age_at_CNet_Case_Filing, 
                             PRIM_Case_Filing_Date,Age_at_PRIM_Case_Filing, ChargeDate) 
 sum(age_issue$Age_at_CNet_Case_Filing < 18 | age_issue$Age_at_CNet_Case_Filing > 70)
@@ -498,7 +499,7 @@ Checked the two sides of both "age_at_CNet_case_filing" and "age_at_PRIM_case_fi
 
 Therefore, to get each individual's DOB and age at each charge date I will still proceed with CNet_Case_Filing_Date and Age_at_CNet_Case_Filing Date. Temporarily, I will keep the age_at_current_charge between 18 and 70. If we filter base on PRIM_Case_Filing_Age and then calculate the age_at_charge, there are values ranging from -8000 to 10820, due to the reason that some charges dates could date back to a long time ago.
 
-Additionally, since different PRIM_case_filing_date could have the same filing_age, there might be different DOBs for one person. (person_id = 8, seq_case_id = 2523727)
+Additionally, since different PRIM_case_filing_date could have the same filing_age, there might be different DOBs for one person. (PersonID = 8, SeqCaseID = 2523727)
 
 
 ```{r}
@@ -518,7 +519,7 @@ all_features = all_features[, c(1,2,31,3:6,43,34,7:30,32:33,38:39,35:37,40:42)]
 
 ## violence check
 ```{r}
-a = all_features %>% filter(person_id == 100155, seq_case_id == 45169)
+a = all_features %>% filter(PersonID == 100155, SeqCaseID == 45169)
 ```
 
 
@@ -534,17 +535,19 @@ ggplot(data = age_count, aes(x=age_at_charge, y=count)) + geom_bar(stat = "ident
 
 
 
-
-
-
-
 ###### Find cutoff date and screening date
 
 - Cutoff Date: two years eariler than the latest charge date in our data set
 
+
+__NOTICE__:
+
+The reason we use 3 years here is that for those people who are sentenced to jail/prison for 1year or less, we'll use the date when they are released and see if they recidivated or not. We want to make sure that everyone does have the same two-year period to be checked.
+
+
 ```{r}
 ## cutoff date
-cutoff_date = max(all_features$ChargeDate) - years(2)
+cutoff_date = max(all_features$ChargeDate) - years(3)
 
 ## subset data
 before_cutoff0 = all_features %>% filter(ChargeDate < cutoff_date)
@@ -557,12 +560,12 @@ after_cutoff0 = all_features %>% filter(ChargeDate > cutoff_date)
 ```{r}
 ## screening dates
 screening_dates = before_cutoff0 %>% 
-    group_by(person_id) %>% 
+    group_by(PersonID) %>% 
     summarise(screening_date = max(ChargeDate))
 
 ## merge screening dates with before_cutoff data set
-before_cutoff0 = merge(x=before_cutoff0, y=screening_dates, by="person_id", all.x = T) %>% 
-    mutate(sex = ifelse(sex == "Male", 1, 0))
+before_cutoff0 = merge(x=before_cutoff0, y=screening_dates, by="PersonID", all.x = T) %>% 
+    mutate(Gender = ifelse(Gender == "Male", 1, 0))
 ```
 
 #### Add year indicator features
@@ -602,7 +605,7 @@ create_features = function(data){
 ## first layer of group: for fta & probation information, since they are based on CaseID level. 
     
     features = data %>% 
-        group_by(person_id, screening_date, seq_case_id, CaseID, sex, race) %>% 
+        group_by(PersonID, screening_date, SeqCaseID, CaseID, Gender, Race) %>% 
         summarise(age_at_current_charge = max(age_at_charge),
                   p_SentMonths = max(SentMonths),
                   p_charges = max(ChargeEntityNumber) - min(ChargeEntityNumber)+1,
@@ -646,8 +649,8 @@ create_features = function(data){
                   fta_calc = mean(fta_calc),
                   nca_calc = mean(nca_calc),
                   pvf_calc = mean(pvf_calc)) %>% 
-## second layer group: for criminal history information, since they are based on seq_case_id level.
-        group_by(person_id, screening_date, seq_case_id, sex, race) %>% 
+## second layer group: for criminal history information, since they are based on SeqCaseID level.
+        group_by(PersonID, screening_date, SeqCaseID, Gender, Race) %>% 
         summarise(p_arrest = length(CaseID),
                   p_SentMonths = max(p_SentMonths),
                   age_at_current_charge = max(age_at_current_charge),
@@ -691,8 +694,8 @@ create_features = function(data){
                   fta_calc = max(fta_calc),
                   nca_calc = max(nca_calc),
                   pvf_calc = max(pvf_calc)) %>% 
-## third layer: individual level; sum up all the seq_case_id information related to one person.
-        group_by(person_id, sex, race, screening_date) %>%   
+## third layer: individual level; sum up all the SeqCaseID information related to one person.
+        group_by(PersonID, Gender, Race, screening_date) %>%   
         summarise(age_at_current_charge = max(age_at_current_charge),
                   p_SentMonths = sum(p_SentMonths),
                   p_arrest = sum(p_arrest),
@@ -744,14 +747,14 @@ create_features = function(data){
 ```{r}
 data_before = before_cutoff %>% filter(ChargeDate < screening_date)
 features_before = create_features(data_before) %>% 
-    select(person_id, race, sex, screening_date, six_month, 
+    select(PersonID, Race, Gender, screening_date, six_month, 
            one_year, three_year, five_year, p_SentMonths)
 ```
 
 
 ##### On Screening Date ####################################################################
 
-The screening_date can be treated as the "current offense" date and the data before this date will be treated as criminal history information. Notice that since one seq_case_id can have multiple CaseID's, therefore all these CaseIDs share the same charge information for that one single seq_case_id. If we sum up the features based on CaseID level, the results are way larger than the actual number. Therefore, we sum up the features based on CaseID level, and divided the number of CaseIDs. 
+The screening_date can be treated as the "current offense" date and the data before this date will be treated as criminal history information. Notice that since one SeqCaseID can have multiple CaseID's, therefore all these CaseIDs share the same charge information for that one single SeqCaseID. If we sum up the features based on CaseID level, the results are way larger than the actual number. Therefore, we sum up the features based on CaseID level, and divided the number of CaseIDs. 
 
 Three layer group reason: 
 
@@ -759,9 +762,9 @@ Three layer group reason:
 - probation: CaseID level
 - Other features: charge level
 
-For sentence months, even though it is at charge level, we do not use the sum of sentence month for each charge under each seq_case_id. Instead, we use the max sentence month. Because sentence is not a cummulative activity (like you stay in jail for 48 years for the first charge and then stay for the second one for 24 years). Using the max sentence makes more sense. For other features, such as is_traffic, is_drug etc., they are also based on charge level. But summing those binary values makes sense since each charge under the same case could be different. 
+For sentence months, even though it is at charge level, we do not use the sum of sentence month for each charge under each SeqCaseID. Instead, we use the max sentence month. Because sentence is not a cummulative activity (like you stay in jail for 48 years for the first charge and then stay for the second one for 24 years). Using the max sentence makes more sense. For other features, such as is_traffic, is_drug etc., they are also based on charge level. But summing those binary values makes sense since each charge under the same case could be different. 
 
--- tested with: person_id == 79, seq_case_id == 425760; CaseID == 1255640
+-- tested with: PersonID == 79, SeqCaseID == 425760; CaseID == 1255640
 
 -- For charges on screening date, which means they are current charges, we would like to know if the current charge involves "violence". 
 
@@ -769,7 +772,7 @@ For sentence months, even though it is at charge level, we do not use the sum of
 ```{r}
 data_on = before_cutoff %>% filter(ChargeDate == screening_date)
 features_on = data_on %>% 
-    group_by(person_id) %>% 
+    group_by(PersonID) %>% 
     summarise(current_violence = max(is_violence))
 ```
 
@@ -785,7 +788,7 @@ data_before_on = before_cutoff %>% filter(ChargeDate <= screening_date)
 
 features_before_on = create_features(data_before_on) %>% 
     select(-c(six_month, one_year, three_year, five_year, p_SentMonths)) %>% 
-    merge(x = ., y = features_before, by = "person_id", all.x = TRUE) %>% 
+    merge(x = ., y = features_before, by = "PersonID", all.x = TRUE) %>% 
     ## if all the following variables are NA, it means that those individuals do not have any
     ## criminal history besides the current charges.
     mutate(six_month = ifelse(is.na(six_month), 0, six_month),
@@ -793,11 +796,11 @@ features_before_on = create_features(data_before_on) %>%
            three_year = ifelse(is.na(three_year), 0, three_year),
            five_year = ifelse(is.na(five_year), 0, five_year),
            p_SentMonths = ifelse(is.na(p_SentMonths), 0, p_SentMonths)) %>% 
-    select(-c(sex.y, race.y, screening_date.y)) %>% 
-    rename(sex = sex.x,
-           race = race.x,
+    select(-c(Gender.y, Race.y, screening_date.y)) %>% 
+    rename(Gender = Gender.x,
+           Race = Race.x,
            screening_date = screening_date.x) %>% 
-    merge(x=., y=features_on, by = "person_id", all.x = TRUE) %>% 
+    merge(x=., y=features_on, by = "PersonID", all.x = TRUE) %>% 
     filter(age_at_current_charge >= p_SentMonths/12 + 18)
 
 features_before_on = features_before_on[,c(1:34,41:46,35:40)]
@@ -830,22 +833,22 @@ Since the screening dates are the latest dates of charges for each individual be
 
 ```{r}
 ## inner join two data sets
-## if there is no person_id from screening dates that have match in the after_cutoff data set, then those person_id's did not commit any crime after the cutoff_date, or the screening date.
+## if there is no PersonID from screening dates that have match in the after_cutoff data set, then those PersonID's did not commit any crime after the cutoff_date, or the screening date.
 
 
 ## sentence month information on the screening date (current offense date). We need this information to determine the date that the person was released and then see if any crime has been commited two years after this date.
 
 release_dates = data_on %>% 
-    group_by(person_id, screening_date) %>% 
+    group_by(PersonID, screening_date) %>% 
     summarise(current_SentMonth = max(SentMonths),
               current_SuspSentMonth = max(SuspSentMonths)) %>% 
     mutate(SentDays = ifelse(current_SentMonth>0 & current_SuspSentMonth==0,
                              round(current_SentMonth*30.8333), 0),
            release_date = screening_date+SentDays) %>% 
-    select(person_id, release_date, current_SentMonth, current_SuspSentMonth)
+    select(PersonID, release_date, current_SentMonth, current_SuspSentMonth)
 
 ## merge
-after_cutoff = merge(x=after_cutoff0, y=release_dates, by="person_id", all.y = TRUE) %>% 
+after_cutoff = merge(x=after_cutoff0, y=release_dates, by="PersonID", all.y = TRUE) %>% 
     filter(current_SentMonth <= 12 | (current_SentMonth > 12 & current_SuspSentMonth > 0)) %>% 
     select(-current_SentMonth, -current_SuspSentMonth)
 
@@ -867,7 +870,7 @@ data_after = after_cutoff[, c(1,44,2:43)] %>%
            recid_F_six_month = ifelse(recid_six_month == 1 & is_felony == 1, 1, 0),
            recid_M_six_month = ifelse(recid_six_month == 1 & is_misdemeanor == 1, 1, 0),
            recid_property_six_month = ifelse(recid_six_month == 1 & is_property == 1, 1, 0)) %>% 
-    select(person_id:ChargeDate, ChargeEntityNumber, year_offenses:recid_property_six_month)
+    select(PersonID:ChargeDate, ChargeEntityNumber, year_offenses:recid_property_six_month)
 
 ```
 
@@ -879,7 +882,7 @@ Using max() function because as long as there is one charge that is within two y
 
 ```{r}
 outcomes = data_after %>% 
-    group_by(person_id) %>% 
+    group_by(PersonID) %>% 
     summarise(recid_two_year = max(recid_two_year), 
               recid_drug_two_year = max(recid_drug_two_year),
               recid_traffic_two_year = max(recid_traffic_two_year),
@@ -901,7 +904,7 @@ outcomes = data_after %>%
 #### Combine criminal history data with labels 
 
 ```{r}
-recid_labels = merge(x=features_before_on, y=outcomes, by = "person_id") %>% 
+recid_labels = merge(x=features_before_on, y=outcomes, by = "PersonID") %>% 
     mutate(recid_two_year = ifelse(is.na(recid_two_year), 0,  recid_two_year),
            recid_drug_two_year = ifelse(is.na(recid_drug_two_year), 0,  recid_drug_two_year),
            recid_traffic_two_year = ifelse(is.na(recid_traffic_two_year), 
@@ -927,7 +930,11 @@ recid_labels = merge(x=features_before_on, y=outcomes, by = "person_id") %>%
 ```
 
 ```{r}
-recid_labels = recid_labels %>% select(-p_SentMonths)
+recid_labels = recid_labels %>% 
+  select(-p_SentMonths) %>% 
+  rename(sex = Gender, 
+         person_id = PersonID,
+         race = Race)
 ```
 
 
@@ -1008,11 +1015,12 @@ train_index = sample(1:nrow(recid_labels), 0.9*nrow(recid_labels), replace = F)
 train = recid_labels[train_index,]
 test = recid_labels[-train_index,]
 
-write.csv(recid_labels, file = "../data/processed/kentucky_data.csv", row.names = F)
-write.csv(train, file = "../data/processed/train.csv", row.names = F)
-write.csv(test, file = "../data/processed/test.csv", row.names = F)
-```
+write.csv(recid_labels, file = "C:/Users/binha/Documents/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY data/kentucky_data.csv", row.names = F)
 
+write.csv(train, file = "C:/Users/binha/Documents/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY data/kentucky_train.csv", row.names = F)
+
+write.csv(test, file = "C:/Users/binha/Documents/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY data/kentucky_test.csv", row.names = F)
+```
 
 
 
