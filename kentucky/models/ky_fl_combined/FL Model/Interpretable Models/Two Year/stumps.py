@@ -1,83 +1,66 @@
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import KFold, GridSearchCV
+from sklearn.metrics import roc_auc_score
 
-def stump_features(x,y, columns, alpha, seed):
+
+def stump_cv(KY_x, KY_y,FL_x, FL_y, columns, c_grid, seed):
     
-    import numpy as np
-    from sklearn.linear_model import Lasso
-    from sklearn.model_selection import KFold, GridSearchCV
-    from sklearn.metrics import roc_curve, auc
+    ## estimator
+    lasso = LogisticRegression(class_weight = 'balanced', solver='liblinear', random_state=seed, penalty='l1')
+    cross_validation = KFold(n_splits=5, random_state=seed, shuffle=True)
+    clf = GridSearchCV(estimator=lasso, 
+                       param_grid=c_grid, 
+                       scoring='roc_auc',
+                       cv=cross_validation,
+                       return_train_score=True).fit(FL_x, FL_y)
+
+    train_score = clf.cv_results_['mean_train_score']
+    test_score = clf.cv_results_['mean_test_score']
     
-    
-    ### cross validation -- parameter selection
-    lasso = Lasso(random_state=seed)
-    cross_validation = KFold(n_splits=5,shuffle=True, random_state=seed)
-    c_grid = {"alpha": alpha}
-    clf = GridSearchCV(estimator=lasso, param_grid=c_grid, scoring='roc_auc',cv=cross_validation, return_train_score=True).fit(x,y)
+    ### scores
+    best_auc = clf.best_score_
     best_param = clf.best_params_
+    auc_diff = train_score[np.where(test_score == clf.best_score_)[0][0]] - clf.best_score_
     
-    
-    ## run model with best parameter
-    lasso = Lasso(random_state=816, alpha=best_param['alpha']).fit(x,y)
-    coefs = lasso.coef_[lasso.coef_ != 0]
-    features = columns[lasso.coef_ != 0].tolist()
-    intercept = round(lasso.intercept_,3)
-    
+    ### best model
+    best_model = LogisticRegression(class_weight = 'balanced', 
+                                    solver='liblinear', 
+                                    random_state=seed, 
+                                    penalty='l1', 
+                                    C=best_param['C']).fit(FL_x, FL_y)
+    coefs = best_model.coef_[best_model.coef_ != 0]
+    features = columns[best_model.coef_[0] != 0].tolist()
+    intercept = round(best_model.intercept_[0],3)
+       
     ## dictionary
     lasso_dict_rounding = {}
     for i in range(len(features)):
         lasso_dict_rounding.update({features[i]: round(coefs[i], 3)})
         
-    ### second cross validation
-    cv = KFold(n_splits=5, shuffle=True, random_state=816)
-    train_auc = []
-    test_auc = []
-
-    i = 0
-    for train, test in cv.split(x,y):    
-        train_pred = test_pred = 0  
-        X_train, Y_train = x.iloc[train], y[train]
-        X_test, Y_test = x.iloc[test], y[test]
+    ## prediction on test set
+    prob = 0
+    for k in features:
+        test_values = KY_x[k]*(lasso_dict_rounding[k])
+        prob += test_values
+    holdout_prob = np.exp(prob)/(1+np.exp(prob))
+    KY_score = roc_auc_score(KY_y, holdout_prob)
         
-        for k in features:
-            train_values = X_train[k]*lasso_dict_rounding[k]
-            test_values = X_test[k]*lasso_dict_rounding[k]
-            train_pred += train_values
-            test_pred += test_values
-            
-        train_pred += intercept
-        test_pred += intercept
-        
-        ## auc
-        train_fpr, train_tpr, train_thresholds = roc_curve(Y_train, train_pred)
-        test_fpr, test_tpr, test_thresholds = roc_curve(Y_test, test_pred)
-        train_auc.append(auc(train_fpr, train_tpr))
-        test_auc.append(auc(test_fpr, test_tpr))
-        i += 1
-        
-    return {'coefs': coefs, 
-            'features': features, 
-            'intercept': intercept, 
-            'dictionary': lasso_dict_rounding, 
-            'param': best_param,
-            'train_auc': train_auc, 
-            'test_auc': test_auc}
+    return {'best_auc': best_auc,
+            'best_params': best_param,
+            'auc_diffs': auc_diff,
+            'KY_score': KY_score}
 
 
-def stump_table(coefs, features, intercept, dictionary):
-    
-    import numpy as np
-    
-    print('+-----------------------------------+----------------+')
-    print('|', 'Features', '{n:>{ind}}'.format(n = '|', ind=26), 'Score', '{n:>{ind}}'.format(n = '|', ind=10))
-    print('|====================================================|')
+def latex_stump_table(coefs, features, intercept, dictionary):
+    print('\begin{tabular}{|l|r|r|} \hline')
     for i in range(len(dictionary)):
-        print('|', features[i], '{n:>{ind}}'.format(n = '|', ind=35 - len('|'+features[i])), dictionary[features[i]], '{n:>{ind}}'.format(n = '|', ind = 15 - len(np.str(dictionary[features[i]]))))
-    print('|', 'Intercept', '{n:>{ind}}'.format(n = '|', ind=25), intercept, '{n:>{ind}}'.format(n = '|', ind = 15 - len(np.str(intercept)))) 
-    print('|====================================================|')
-    print('|', 'ADD POINTS FROM ROWS 1 TO', len(dictionary), 
-          '{n:>{ind}}'.format(n = '|', ind = 6), 'Total Score', '{n:>{ind}}'.format(n = '|', ind = 4))
-    print('+-----------------------------------+----------------+')
-    
-    
+        sign = '+' if dictionary[features[i]] >= 0 else '-'
+        print('{index}.'.format(index = i+1), features[i], '&',np.abs(dictionary[features[i]]), '&', sign+'...', '\\ \hline')
+    print('{}.'.format(len(dictionary)+1), 'Intercept', '&', round(intercept, 3), '&', sign+'...', '\\ \hline')
+    print('\textbf{ADD POINTS FROM ROWS 1 TO {length}}  &  \textbf{SCORE} & = ..... \\ \hline'
+              .format(length=len(dictionary)+1))
+    print('\multicolumn{3}{l}{Pr(Y = 1) = exp(score/100) / (1 + exp(score/100))} \\ \hline')
     
           
 def stump_plots(features, coefs):
@@ -109,19 +92,22 @@ def stump_plots(features, coefs):
                 plt.scatter(cutoff_prep, cutoff_values_prep, s=0.05)
                 #plt.vlines(x=cutoffs[0]+0.5, ymin=0, ymax=cutoff_values[0], colors='C0', linestyles='dashed')
                 plt.title(label)
+                plt.ylabel('probability')
                 plt.show()
             else:
                 for j in sub_features:
                     cutoff_values.append(coefs[np.where(np.array(features) == j)[0][0]])
                     cutoffs.append(int(j[j.find('=')+1:])) 
                 
+                cutoffs.insert(0,18)
+                cutoffs.append(70)
+                cutoff_values.append(0)
+                
                 ## prepare cutoff values for plots
                 for n in range(len(cutoffs)-1):
-                    cutoff_prep.append(np.linspace(cutoffs[n]-0.5, cutoffs[n+1]-0.5, 1000))
+                    cutoff_prep.append(np.linspace(cutoffs[n]+0.5, cutoffs[n+1]+0.5, 1000))
                     cutoff_values_prep.append(np.repeat(np.sum(cutoff_values[n:]), 1000)) 
-                cutoff_prep.append(np.linspace(cutoffs[-1]-0.5, 70, 1000))
-                cutoff_values_prep.append(np.repeat(np.sum(cutoff_values[-1]), 1000)) 
-                
+                    
                 ## visulization
                 unique = np.unique(cutoff_values_prep)[::-1]
                 unique_len = len(unique)
@@ -130,6 +116,7 @@ def stump_plots(features, coefs):
                 #for m in range(1,unique_len):
                 #    plt.vlines(x=cutoffs[m]-0.5, ymin=unique[m], ymax=unique[m-1], colors = "C0", linestyles='dashed')
                 plt.title(label)
+                plt.ylabel('probability')
                 plt.show()
         else:
             ## sanity check
@@ -147,6 +134,7 @@ def stump_plots(features, coefs):
                 plt.scatter(cutoff_prep, cutoff_values_prep, s=0.05)
                 #plt.vlines(x=cutoffs[0]-0.5, ymin=0, ymax=cutoff_values[0], colors='C0', linestyles='dashed')
                 plt.title(label)
+                plt.ylabel('probability')
                 plt.show()     
             else:
                 for j in sub_features:
@@ -171,6 +159,7 @@ def stump_plots(features, coefs):
                 #for m in range(1, unique_len):
                 #    plt.vlines(x=cutoffs[m]-0.5, ymin=unique[m], ymax=unique[m-1], colors = "C0", linestyles='dashed')
                 plt.title(label)
+                plt.ylabel('probability')
                 plt.show()  
                 
     
