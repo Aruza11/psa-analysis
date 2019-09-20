@@ -16,16 +16,14 @@ library(tidyverse)
 library(magrittr)
 library(ROCR)
 library(caret)
+library(ggplot2)
 ```
 
 
-
-## without traffic
-
 ```{r}
 data_path = "C:/Users/binha/Documents/Duke/Cynthia Research/KY-analysis-mytrials/broward/data/"
-load(paste0(data_path, "../data/compas_psa.Rdata"))
-load(paste0(data_path, "../data/expanded_features.Rdata"))
+load(paste0(data_path, "compas_psa.Rdata"))
+load(paste0(data_path, "expanded_features.Rdata"))
 labels = read_csv("~/Duke/Cynthia Research/KY-analysis-mytrials/broward/data/labels.csv") %>% 
     mutate(screening_date = as.Date(screening_date, format = "%m/%d/%Y"))
 ```
@@ -40,7 +38,7 @@ features_filt = features_before_on %>%
       select(person_id, screening_date, race, sex, name),
     by = c("person_id","screening_date")
   ) %>%
-  mutate(sex = ifelse(sex == "Male", 0, 1)) %>% #change sex variable to numeric encoding
+  mutate(sex = ifelse(sex == "Male", 1, 0)) %>% #change sex variable to numeric encoding
   inner_join(features_on, by = c("person_id","screening_date")) %>%
     inner_join(
         psa_features%>%
@@ -54,16 +52,14 @@ features_filt = features_before_on %>%
     filter(`Risk of Recidivism_decile_score` != -1, `Risk of Violence_decile_score` != -1) %>% # Filter 1
     filter(!is.na(current_offense_date)) %>% # Filter 3
   filter(screening_date <= current_offense_date_limit) %>% # Filter 4
-  mutate(#recid_two_year = as.factor(recid_two_year), 
-         # Select recidivism or violent recidivism to use in this script,
-         #recid_six_month = as.factor(recid_six_month),
-         decile_use = `Risk of Recidivism_decile_score`) # Select recidivism or violent recidivism decile score to use in this script
+  mutate(decile_use = `Risk of Recidivism_decile_score`) # Select recidivism or violent recidivism decile score to use in this script
 
 ## Select features
 df = features_filt %>%
   transmute(
     person_id,
     sex,
+    race,
     screening_date,
     
     #COMPAS Risk of Recidivism Features\
@@ -117,67 +113,110 @@ df = features_filt %>%
 set.seed(283)
 train = sample_frac(df,.8)
 test = anti_join(df, train, by = 'person_id')
+
+
+## compass & arnold
+scores_outcomes = compas_psa_wide %>%
+  filter(`Risk of Violence_decile_score`>=0, 
+         `Risk of Recidivism_decile_score`>=0, 
+         `Risk of Failure to Appear_decile_score`>=0)%>%
+  left_join(outcomes, by=c("person_id","screening_date")) %>%
+  merge(x=., y=df %>% select(person_id, screening_date, sex, race), 
+        by = c("person_id", "screening_date"))
 ```
+
 
 
 
 ## combine data sets
 
 ```{r}
-## train set
-train = merge(x=train, y=labels, by=c('person_id', 'screening_date'))%>% 
-    select(person_id:recid_six_month, 
-           recid_drug, 
-           recid_property,
-           recid_M,
-           recid_F,
-           recid_violent)%>% 
-    mutate(recid_two_year = as.factor(recid_two_year),
-           recid_six_month = as.factor(recid_six_month),
-           recid_drug = as.factor(recid_drug),
-           recid_property = as.factor(recid_property),
-           recid_F = as.factor(recid_F),
-           recid_M = as.factor(recid_M),
-           recid_violent = as.factor(recid_violent))
-
-## test set
-test = merge(x=test, y=labels, by=c('person_id', 'screening_date')) %>% 
-    select(person_id:recid_six_month, 
-           recid_drug, 
-           recid_property,
-           recid_M,
-           recid_F,
-           recid_violent)%>% 
-    mutate(recid_two_year = as.factor(recid_two_year),
-           recid_six_month = as.factor(recid_six_month),
-           recid_drug = as.factor(recid_drug),
-           recid_property = as.factor(recid_property),
-           recid_F = as.factor(recid_F),
-           recid_M = as.factor(recid_M),
-           recid_violent = as.factor(recid_violent))
-
-df = merge(x=df, y =labels, by=c('person_id', 'screening_date'))%>% 
-    select(person_id:recid_six_month, 
-           recid_drug, 
-           recid_property,
-           recid_M,
-           recid_F,
-           recid_violent)%>% 
-    mutate(recid_two_year = as.factor(recid_two_year),
-           recid_six_month = as.factor(recid_six_month),
-           recid_drug = as.factor(recid_drug),
-           recid_property = as.factor(recid_property),
-           recid_F = as.factor(recid_F),
-           recid_M = as.factor(recid_M),
-           recid_violent = as.factor(recid_violent)) 
-
-write.csv(df, file = "broward_data.csv", row.names = F)
-write.csv(train, file = "broward_train.csv", row.names = F)
-write.csv(test, file = "broward_test.csv", row.names = F)
+colnames(labels)
 ```
 
 
 ```{r}
-summary(df)
+## train set
+train = merge(x=train, y=labels, by=c('person_id', 'screening_date'))%>% 
+    select(person_id:recid_six_month, 
+           recid_drug2, 
+           recid_property2,
+           recid_M2,
+           recid_F2,
+           recid_violent2,           
+           recid_drug6, 
+           recid_property6,
+           recid_M6,
+           recid_F6,
+           recid_violent6)%>% 
+    mutate(recid_two_year = as.factor(recid_two_year),
+           recid_drug2 = as.factor(recid_drug2),
+           recid_property2 = as.factor(recid_property2),
+           recid_F2 = as.factor(recid_F2),
+           recid_M2 = as.factor(recid_M2),
+           recid_violent2 = as.factor(recid_violent2),
+           recid_six_month = as.factor(recid_six_month),
+           recid_drug6 = as.factor(recid_drug6),
+           recid_property6 = as.factor(recid_property6),
+           recid_F6 = as.factor(recid_F6),
+           recid_M6 = as.factor(recid_M6),
+           recid_violent6 = as.factor(recid_violent6))
+
+## test set
+test = merge(x=test, y=labels, by=c('person_id', 'screening_date')) %>% 
+    select(person_id:recid_six_month, 
+           recid_drug2, 
+           recid_property2,
+           recid_M2,
+           recid_F2,
+           recid_violent2,           
+           recid_drug6, 
+           recid_property6,
+           recid_M6,
+           recid_F6,
+           recid_violent6)%>% 
+    mutate(recid_two_year = as.factor(recid_two_year),
+           recid_drug2 = as.factor(recid_drug2),
+           recid_property2 = as.factor(recid_property2),
+           recid_F2 = as.factor(recid_F2),
+           recid_M2 = as.factor(recid_M2),
+           recid_violent2 = as.factor(recid_violent2),
+           recid_six_month = as.factor(recid_six_month),
+           recid_drug6 = as.factor(recid_drug6),
+           recid_property6 = as.factor(recid_property6),
+           recid_F6 = as.factor(recid_F6),
+           recid_M6 = as.factor(recid_M6),
+           recid_violent6 = as.factor(recid_violent6))
+
+
+df = merge(x=df, y =labels, by=c('person_id', 'screening_date'))%>% 
+    select(person_id:recid_six_month, 
+           recid_drug2, 
+           recid_property2,
+           recid_M2,
+           recid_F2,
+           recid_violent2,           
+           recid_drug6, 
+           recid_property6,
+           recid_M6,
+           recid_F6,
+           recid_violent6)%>% 
+    mutate(recid_two_year = as.factor(recid_two_year),
+           recid_drug2 = as.factor(recid_drug2),
+           recid_property2 = as.factor(recid_property2),
+           recid_F2 = as.factor(recid_F2),
+           recid_M2 = as.factor(recid_M2),
+           recid_violent2 = as.factor(recid_violent2),
+           recid_six_month = as.factor(recid_six_month),
+           recid_drug6 = as.factor(recid_drug6),
+           recid_property6 = as.factor(recid_property6),
+           recid_F6 = as.factor(recid_F6),
+           recid_M6 = as.factor(recid_M6),
+           recid_violent6 = as.factor(recid_violent6))
+
+write.csv(df, file = "broward_data.csv", row.names = F)
+write.csv(train, file = "broward_train.csv", row.names = F)
+write.csv(test, file = "broward_test.csv", row.names = F)
+write.csv(scores_outcomes, file = "broward_arnold.csv", row.names = F)
 ```
 
