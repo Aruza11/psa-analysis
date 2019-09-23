@@ -78,7 +78,7 @@ def compute_confusion_matrix_stats(df, preds, labels, protected_variables):
         for value in df[var].unique():
             predictions = df["score"][df[var]==value]
             labels = df["label_value"][df[var]==value]
-            tn, fp, fn, tp = confusion_matrix(labels, predictions).ravel()
+            tn, fp, fn, tp = confusion_matrix(labels, predictions, labels=[0,1]).ravel()
             # predictive parity
             ppv = tp / (tp + fp)
             # false positive error rate balance

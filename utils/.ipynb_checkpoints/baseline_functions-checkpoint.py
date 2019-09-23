@@ -22,7 +22,7 @@ def EBM(X,Y, learning_rate=None, depth=None,estimators=None, holdout_split=None,
     
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
     
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X,
+    holdout_auc, best_param, auc_diffs, fairness_overview, confusion_matrix_rets = nested_cross_validate(X=X,
                                                                                   Y=Y,
                                                                                   estimator=ebm,
                                                                                   c_grid=c_grid,
@@ -30,7 +30,8 @@ def EBM(X,Y, learning_rate=None, depth=None,estimators=None, holdout_split=None,
     return {'best_param': best_param,
             'holdout_test_auc': holdout_auc,
             'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+            'fairness_overview': fairness_overview,
+           'confusion_matrix_stats': confusion_matrix_rets}
     
 
 def XGB(X,Y,
@@ -91,7 +92,7 @@ def CART(X, Y,
               "min_impurity_decrease": impurity}
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
 
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X,
+    holdout_auc, best_param, auc_diffs, fairness_overview, confusion_matrix_rets = nested_cross_validate(X=X,
                                                                                   Y=Y,
                                                                                   estimator=cart,
                                                                                   c_grid=c_grid,
@@ -100,7 +101,8 @@ def CART(X, Y,
     return {'best_param': best_param,
             'holdout_test_auc': holdout_auc,
             'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+            'fairness_overview': fairness_overview,
+           'confusion_matrix_stats': confusion_matrix_rets}
 
 
 def LinearSVM(X, Y,

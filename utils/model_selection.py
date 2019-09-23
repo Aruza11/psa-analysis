@@ -96,7 +96,7 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
         ## confusion matrix stats
         confusion_matrix_fairness = compute_confusion_matrix_stats(df=holdout_with_attrs,
                                                      preds=holdout_pred,
-                                                     labels=test_y, protected_variables=["sex"])
+                                                     labels=test_y, protected_variables=["sex", "race"])
         confusion_matrix_rets.append(confusion_matrix_fairness)
 
         ## store results
