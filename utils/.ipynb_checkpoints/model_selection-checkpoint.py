@@ -1,5 +1,6 @@
 from sklearn.model_selection import KFold, GridSearchCV
 import numpy as np
+import pandas as pd
 from sklearn.metrics import roc_auc_score
 from utils.fairness_functions import compute_fairness, compute_confusion_matrix_stats
 from sklearn.calibration import CalibratedClassifierCV
@@ -103,4 +104,6 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
         holdout_auc.append(roc_auc_score(test_y, prob))
         best_params.append(best_param)
 
-    return holdout_auc, best_params, auc_diffs, fairness_overviews, confusion_matrix_rets
+    df = pd.concat(confusion_matrix_rets, ignore_index=True)
+    df.sort_values(["Attribute", "Attribute Value"], inplace=True)
+    return holdout_auc, best_params, auc_diffs, fairness_overviews, df.reset_index(drop=True)

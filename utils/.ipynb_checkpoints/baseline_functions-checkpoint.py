@@ -48,7 +48,7 @@ def XGB(X,Y,
               "subsample": subsample}
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
 
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X,
+    holdout_auc, best_param, auc_diffs, fairness_overview, confusion_matrix_rets = nested_cross_validate(X=X,
                                                                                   Y=Y,
                                                                                   estimator=xgboost,
                                                                                   c_grid=c_grid,
@@ -56,7 +56,8 @@ def XGB(X,Y,
     return {'best_param': best_param,
             'holdout_test_auc': holdout_auc,
             'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+            'fairness_overview': fairness_overview,
+            'confusion_matrix_stats': confusion_matrix_rets}
 
 
 def RF(X, Y,
@@ -70,7 +71,7 @@ def RF(X, Y,
               "min_impurity_decrease": impurity}
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
 
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X,
+    holdout_auc, best_param, auc_diffs, fairness_overview, confusion_matrix_rets = nested_cross_validate(X=X,
                                                                                   Y=Y,
                                                                                   estimator=rf,
                                                                                   c_grid=c_grid, 
@@ -78,7 +79,8 @@ def RF(X, Y,
     return {'best_param': best_param,
             'holdout_test_auc': holdout_auc,
             'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+            'fairness_overview': fairness_overview,
+            'confusion_matrix_stats': confusion_matrix_rets}
 
 
 def CART(X, Y,
@@ -115,7 +117,7 @@ def LinearSVM(X, Y,
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
     index = 'svm'
     
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X,
+    holdout_auc, best_param, auc_diffs, fairness_overview, confusion_matrix_rets = nested_cross_validate(X=X,
                                                                                   Y=Y,
                                                                                   estimator=svm,
                                                                                   c_grid=c_grid,
@@ -124,7 +126,8 @@ def LinearSVM(X, Y,
     return {'best_param': best_param,
             'holdout_test_auc': holdout_auc,
             'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+            'fairness_overview': fairness_overview,
+           'confusion_matrix_stats': confusion_matrix_rets}
 
 def Lasso(X, Y,
           C,
@@ -138,7 +141,7 @@ def Lasso(X, Y,
     c_grid = {"C": C}
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
 
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X, 
+    holdout_auc, best_param, auc_diffs, fairness_overview, confusion_matrix_rets = nested_cross_validate(X=X, 
                                                                                   Y=Y,
                                                                                   estimator=lasso,
                                                                                   c_grid=c_grid,                                 
@@ -146,7 +149,8 @@ def Lasso(X, Y,
     return {'best_param': best_param,
             'holdout_test_auc': holdout_auc,
             'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+            'fairness_overview': fairness_overview,
+           'confusion_matrix_stats': confusion_matrix_rets}
 
 
 def Logistic(X, Y,

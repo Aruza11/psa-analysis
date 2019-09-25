@@ -26,6 +26,7 @@ def stump_cv(X, Y, columns, c_grid, seed):
     best_params = []
     auc_diffs = []
     fairness_overviews = []
+    confusion_matrix_rets = []
     
     ## inner cv
     inner_cv = KFold(n_splits=5, shuffle=True, random_state=seed)
@@ -79,15 +80,24 @@ def stump_cv(X, Y, columns, c_grid, seed):
                                                      preds=holdout_pred,
                                                      labels=test_y)
         fairness_overviews.append(holdout_fairness_overview)
+        ## confusion matrix stats
+        confusion_matrix_fairness = compute_confusion_matrix_stats(df=holdout_with_attrs,
+                                                     preds=holdout_pred,
+                                                     labels=test_y, protected_variables=["sex", "race"])
+        confusion_matrix_rets.append(confusion_matrix_fairness)
     
         ## store results
         holdout_auc.append(roc_auc_score(test_y, holdout_prob))
         best_params.append(best_param)
         
+    df = pd.concat(confusion_matrix_rets, ignore_index=True)
+    df.sort_values(["Attribute", "Attribute Value"], inplace=True)
     return {'best_params': best_params,
             'holdout_test_auc': holdout_auc,
             'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overviews}
+            'fairness_overview': fairness_overviews,
+            'confusion_matrix_stats': df
+           }
 
 
 

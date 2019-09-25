@@ -72,7 +72,7 @@ def compute_confusion_matrix_stats(df, preds, labels, protected_variables):
     for decoder_name, decoder_dict in decoders.items():
         df = df.replace({decoder_name: decoder_dict})
     
-    confusion_matrix_fairness = {}
+    rows = []
     for var in protected_variables:
         variable_summary = {}
         for value in df[var].unique():
@@ -95,14 +95,16 @@ def compute_confusion_matrix_stats(df, preds, labels, protected_variables):
             # treatment equality
             ratio = fn / fp
             
-            output_summary = {
+
+            rows.append({
+                "Attribute": var,
+                "Attribute Value": value,
                 "PPV": ppv,
                 "FPR": fpr,
                 "FNR": fnr,
                 "Accuracy": acc,
-                "Treatment Equality": ratio
-            }
-            variable_summary[value] = output_summary
-        confusion_matrix_fairness[var] = variable_summary
-    return confusion_matrix_fairness
+                "Treatment Equality": ratio,
+                "Individuals Evaluated On": len(labels)        
+            })
+    return pd.DataFrame(rows)
     
