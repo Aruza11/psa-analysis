@@ -98,7 +98,8 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
         confusion_matrix_fairness = compute_confusion_matrix_stats(df=holdout_with_attrs,
                                                      preds=holdout_pred,
                                                      labels=test_y, protected_variables=["sex", "race"])
-        confusion_matrix_rets.append(confusion_matrix_fairness)
+        cf_final = confusion_matrix_fairness.assign(fold_num = [i]*confusion_matrix_fairness['Attribute'].count())
+        confusion_matrix_rets.append(cf_final)
 
         ## store results
         holdout_auc.append(roc_auc_score(test_y, prob))

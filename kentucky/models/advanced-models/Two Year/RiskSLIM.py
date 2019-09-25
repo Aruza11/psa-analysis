@@ -151,6 +151,7 @@ def risk_cv(X,
     ## set up cross validation
     cv = KFold(n_splits=5, random_state=seed, shuffle=True)
     train_auc, test_auc, fairness = [], [], []
+    confusion_matrix_rets = []
     
     for train, test in cv.split(X, Y):
     
@@ -210,8 +211,19 @@ def risk_cv(X,
                                                      labels=test_y)
         fairness.append(holdout_fairness_overview)
         
+        ## confusion matrix stats
+        confusion_matrix_fairness = compute_confusion_matrix_stats(df=holdout_with_attrs,
+                                                     preds=holdout_pred,
+                                                     labels=test_y, protected_variables=["sex", "race"])
+        cf_final = confusion_matrix_fairness.assign(fold_num = [i]*confusion_matrix_fairness['Attribute'].count())
+        confusion_matrix_rets.append(cf_final)
+        
+    df = pd.concat(confusion_matrix_rets, ignore_index=True)
+    df.sort_values(["Attribute", "Attribute Value"], inplace=True)    
     return {'train_auc': train_auc, 
             'test_auc': test_auc, 
-            'holdout_fairness': fairness}
+            'holdout_fairness': fairness,
+            'confusion_matrix_stats': df.reset_index(drop=True)
+           }
 
     
