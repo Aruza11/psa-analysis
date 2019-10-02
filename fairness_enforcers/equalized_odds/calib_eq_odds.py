@@ -4,6 +4,7 @@ Based on the repo at https://github.com/gpleiss/equalized_odds_and_calibration
 import pandas as pd
 import numpy as np
 from collections import namedtuple
+from sklearn.metrics import roc_auc_score
 
 
 class Model(namedtuple('Model', 'pred label')):
@@ -22,6 +23,9 @@ class Model(namedtuple('Model', 'pred label')):
 
     def accuracy(self):
         return self.accuracies().mean()
+
+    def auc(self):
+        return roc_auc_score(self.label, self.pred)
 
     def precision(self):
         return (self.label[self.pred.round() == 1]).mean()
@@ -72,7 +76,7 @@ class Model(namedtuple('Model', 'pred label')):
         if fn_rate == 0:
             self_cost = self.fp_cost()
             other_cost = other.fp_cost()
-            print(self_cost, other_cost)
+            # print(self_cost, other_cost)
             self_trivial_cost = self.trivial().fp_cost()
             other_trivial_cost = other.trivial().fp_cost()
         elif fp_rate == 0:
@@ -128,16 +132,22 @@ class Model(namedtuple('Model', 'pred label')):
             fn_rate / norm_const * self.fn_cost() * self.base_rate()
         return res
 
-    def __repr__(self):
-        return '\n'.join([
-            'Accuracy:\t%.3f' % self.accuracy(),
-            'F.P. cost:\t%.3f' % self.fp_cost(),
-            'F.N. cost:\t%.3f' % self.fn_cost(),
-            'Base rate:\t%.3f' % self.base_rate(),
-            'Avg. score:\t%.3f' % self.pred.mean(),
-        ])
+    def summarize(self):
+        self.summary= {'Accuracy': self.accuracy(),
+                        'AUC': self.auc(),  
+                        'FPR': self.fpr(),          
+                        'FNR': self.fnr(),          
+                        'FP cost': self.fp_cost(),
+                        'FN cost': self.fn_cost(),
+                        'Base rate': self.base_rate(),
+                        'Avg. score': self.pred.mean()
+                        }
+        return self.summary
 
-def run_calib_eq_odds(test_and_val_data, cost_constraint='fpr'):
+    def __repr__(self):
+        return '\n'.join([f"{k}: {v:.3f}" for k, v in self.summary.items()])
+
+def run_calib_eq_odds(test_and_val_data, cost_constraint='fpr', print_summary=True):
     """
     `<cost_constraint>` defines the cost constraint to match for the groups. It can be:
     - `fnr` - match false negatives across groups
@@ -189,91 +199,17 @@ def run_calib_eq_odds(test_and_val_data, cost_constraint='fpr'):
                                                                                              fp_rate, fn_rate,
                                                                                              mix_rates)
 
+    # Summarize results 
+    group_0_test_model_summary = group_0_test_model.summarize()
+    group_1_test_model_summary = group_1_test_model.summarize()
+    calib_eq_odds_group_0_test_model_summary = calib_eq_odds_group_0_test_model.summarize()
+    calib_eq_odds_group_1_test_model_summary = calib_eq_odds_group_1_test_model.summarize()
+
     # Print results on test model
-    print('Original group 0 model:\n%s\n' % repr(group_0_test_model))
-    print('Original group 1 model:\n%s\n' % repr(group_1_test_model))
-    print('Equalized odds group 0 model:\n%s\n' % repr(calib_eq_odds_group_0_test_model))
-    print('Equalized odds group 1 model:\n%s\n' % repr(calib_eq_odds_group_1_test_model))
-    return
-
-
-"""
-Demo
-"""
-# if __name__ == '__main__':
-    """
-    To run the demo:
-    ```
-    python calib_eq_odds.py <path_to_model_predictions.csv> <cost_constraint>
-    ```
-    `<cost_constraint>` defines the cost constraint to match for the groups. It can be:
-    - `fnr` - match false negatives across groups
-    - `fpr` - match false positives across groups
-    - `weighted` - match a weighted combination of false positives and false negatives
-    `<path_to_model_predictions.csv>` should contain the following columns for the VALIDATION set:
-    - `prediction` (a score between 0 and 1)
-    - `label` (ground truth - either 0 or 1)
-    - `group` (group assignment - either 0 or 1)
-    Try the following experiments, which were performed in the paper:
-    ```
-    python calib_eq_odds.py data/income.csv fnr
-    python calib_eq_odds.py data/health.csv weighted
-    python calib_eq_odds.py data/criminal_recidivism.csv fpr
-    ```
-    """
-    # import sys
-
-    # if not len(sys.argv) == 3:
-    #     raise RuntimeError('Invalid number of arguments')
-
-    # # Cost constraint
-    # cost_constraint = sys.argv[2]
-    # if cost_constraint not in ['fnr', 'fpr', 'weighted']:
-    #     raise RuntimeError('cost_constraint (arg #2) should be one of fnr, fpr, weighted')
-
-    # if cost_constraint == 'fnr':
-    #     fn_rate = 1
-    #     fp_rate = 0
-    # elif cost_constraint == 'fpr':
-    #     fn_rate = 0
-    #     fp_rate = 1
-    # elif cost_constraint == 'weighted':
-    #     fn_rate = 1
-    #     fp_rate = 1
-
-    # # Load the validation set scores from csvs
-    # data_filename = sys.argv[1]
-    # test_and_val_data = pd.read_csv(sys.argv[1])
-
-    # # Randomly split the data into two sets - one for computing the fairness constants
-    # order = np.random.permutation(len(test_and_val_data))
-    # val_indices = order[0::2]
-    # test_indices = order[1::2]
-    # val_data = test_and_val_data.iloc[val_indices]
-    # test_data = test_and_val_data.iloc[test_indices]
-
-    # # Create model objects - one for each group, validation and test
-    # group_0_val_data = val_data[val_data['group'] == 0]
-    # group_1_val_data = val_data[val_data['group'] == 1]
-    # group_0_test_data = test_data[test_data['group'] == 0]
-    # group_1_test_data = test_data[test_data['group'] == 1]
-
-    # group_0_val_model = Model(group_0_val_data['prediction'].as_matrix(), group_0_val_data['label'].as_matrix())
-    # group_1_val_model = Model(group_1_val_data['prediction'].as_matrix(), group_1_val_data['label'].as_matrix())
-    # group_0_test_model = Model(group_0_test_data['prediction'].as_matrix(), group_0_test_data['label'].as_matrix())
-    # group_1_test_model = Model(group_1_test_data['prediction'].as_matrix(), group_1_test_data['label'].as_matrix())
-
-    # # Find mixing rates for equalized odds models
-    # _, _, mix_rates = Model.calib_eq_odds(group_0_val_model, group_1_val_model, fp_rate, fn_rate)
-
-    # # Apply the mixing rates to the test models
-    # calib_eq_odds_group_0_test_model, calib_eq_odds_group_1_test_model = Model.calib_eq_odds(group_0_test_model,
-    #                                                                                          group_1_test_model,
-    #                                                                                          fp_rate, fn_rate,
-    #                                                                                          mix_rates)
-
-    # # Print results on test model
-    # print('Original group 0 model:\n%s\n' % repr(group_0_test_model))
-    # print('Original group 1 model:\n%s\n' % repr(group_1_test_model))
-    # print('Equalized odds group 0 model:\n%s\n' % repr(calib_eq_odds_group_0_test_model))
-    # print('Equalized odds group 1 model:\n%s\n' % repr(calib_eq_odds_group_1_test_model))
+    if print_summary:
+        print(f'Cost constraint is {cost_constraint}')
+        print('Original group 0 model:\n%s\n' % repr(group_0_test_model))
+        print('Original group 1 model:\n%s\n' % repr(group_1_test_model))
+        print('Equalized odds group 0 model:\n%s\n' % repr(calib_eq_odds_group_0_test_model))
+        print('Equalized odds group 1 model:\n%s\n' % repr(calib_eq_odds_group_1_test_model))
+    return group_0_test_model_summary, group_1_test_model_summary, calib_eq_odds_group_0_test_model_summary, calib_eq_odds_group_1_test_model_summary
