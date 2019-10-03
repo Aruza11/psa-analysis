@@ -95,8 +95,10 @@ class Model(namedtuple('Model', 'pred label')):
         other_mix_rate = 0 if other_costs_more else (self_cost - other_cost) / (other_trivial_cost - other_cost)
 
         # New classifiers
+        # randomly select self_mix_rate percent of predictions to alter
         self_indices = np.random.permutation(len(self.pred))[:int(self_mix_rate * len(self.pred))]
         self_new_pred = self.pred.copy()
+        # set the selected indices equal to the base rates predictions
         self_new_pred[self_indices] = self.base_rate()
         calib_eq_odds_self = Model(self_new_pred, self.label)
 
