@@ -1,0 +1,73 @@
+Problem,Performance,Model,Time
+General,0.712,CART,Two Year
+General,0.719,EBM,Two Year
+General,0.712,L1 Stumps,Two Year
+General,0.674,RiskSLIM,Two Year
+General,0.624,Corel,Two Year
+General,0.693,Arnold PSA,Two Year
+Violent,0.799,CART,Two Year
+Violent,0.811,EBM,Two Year
+Violent,0.804,L1 Stumps,Two Year
+Violent,0.783,RiskSLIM,Two Year
+Violent,0.601,Corel,Two Year
+Violent,0.793,Arnold PSA,Two Year
+Drug,0.674,CART,Two Year
+Drug,0.685,EBM,Two Year
+Drug,0.677,L1 Stumps,Two Year
+Drug,0.645,RiskSLIM,Two Year
+Drug,0.5,Corel,Two Year
+Drug,0.642,Arnold PSA,Two Year
+Property,0.75,CART,Two Year
+Property,0.77,EBM,Two Year
+Property,0.772,L1 Stumps,Two Year
+Property,0.746,RiskSLIM,Two Year
+Property,0.5,Corel,Two Year
+Property,0.71,Arnold PSA,Two Year
+Felony,0.714,CART,Two Year
+Felony,0.724,EBM,Two Year
+Felony,0.718,L1 Stumps,Two Year
+Felony,0.694,RiskSLIM,Two Year
+Felony,0.531,Corel,Two Year
+Felony,0.695,Arnold PSA,Two Year
+Misdemeanor,0.683,CART,Two Year
+Misdemeanor,0.694,EBM,Two Year
+Misdemeanor,0.683,L1 Stumps,Two Year
+Misdemeanor,0.651,RiskSLIM,Two Year
+Misdemeanor,0.545,Corel,Two Year
+Misdemeanor,0.683,Arnold PSA,Two Year
+General,0.736,CART,Six Month
+General,0.742,EBM,Six Month
+General,0.737,L1 Stumps,Six Month
+General,0.702,RiskSLIM,Six Month
+General,0.517,Corel,Six Month
+General,0.691,Arnold PSA,Six Month
+Violent,0.861,CART,Six Month
+Violent,0.869,EBM,Six Month
+Violent,0.871,L1 Stumps,Six Month
+Violent,0.852,RiskSLIM,Six Month
+Violent,0.5,Corel,Six Month
+Violent,0.85,Arnold PSA,Six Month
+Drug,0.75,CART,Six Month
+Drug,0.757,EBM,Six Month
+Drug,0.761,L1 Stumps,Six Month
+Drug,0.729,RiskSLIM,Six Month
+Drug,0.5,Corel,Six Month
+Drug,0.652,Arnold PSA,Six Month
+Property,0.818,CART,Six Month
+Property,0.817,EBM,Six Month
+Property,0.851,L1 Stumps,Six Month
+Property,0.832,RiskSLIM,Six Month
+Property,0.5,Corel,Six Month
+Property,0.73,Arnold PSA,Six Month
+Felony,0.767,CART,Six Month
+Felony,0.774,EBM,Six Month
+Felony,0.769,L1 Stumps,Six Month
+Felony,0.733,RiskSLIM,Six Month
+Felony,0.5,Corel,Six Month
+Felony,0.7,Arnold PSA,Six Month
+Misdemeanor,0.722,CART,Six Month
+Misdemeanor,0.73,EBM,Six Month
+Misdemeanor,0.725,L1 Stumps,Six Month
+Misdemeanor,0.673,RiskSLIM,Six Month
+Misdemeanor,0.5,Corel,Six Month
+Misdemeanor,0.692,Arnold PSA,Six Month

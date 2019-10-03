@@ -1,37 +1,12 @@
 import numpy as np
 import xgboost as xgb
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from utils.fairness_functions import compute_fairness
 from utils.model_selection import nested_cross_validate
-from interpret.glassbox import ExplainableBoostingClassifier
 
-
-
-
-def EBM(X,Y, learning_rate=None, depth=None,estimators=None, holdout_split=None, seed=None):
-    ### model & parameters
-    ebm = ExplainableBoostingClassifier(random_state=seed)
-    c_grid = {"n_estimators": estimators, 
-              "max_tree_splits": depth, 
-              "learning_rate": learning_rate, 
-              "holdout_split": holdout_split}
-    
-    c_grid = {k: v for k, v in c_grid.items() if v is not None}
-    
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X,
-                                                                                  Y=Y,
-                                                                                  estimator=ebm,
-                                                                                  c_grid=c_grid,
-                                                                                  seed=seed)
-    return {'best_param': best_param,
-            'holdout_test_auc': holdout_auc,
-            'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
-    
 
 def XGB(X,Y,
         learning_rate=None, depth=None, estimators=None, gamma=None, child_weight=None, subsample=None,
@@ -47,15 +22,8 @@ def XGB(X,Y,
               "subsample": subsample}
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
 
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X,
-                                                                                  Y=Y,
-                                                                                  estimator=xgboost,
-                                                                                  c_grid=c_grid,
-                                                                                  seed=seed)
-    return {'best_param': best_param,
-            'holdout_test_auc': holdout_auc,
-            'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+    summary = nested_cross_validate(X=X,Y=Y,estimator=xgboost,c_grid=c_grid,seed=seed)
+    return summary
 
 
 def RF(X, Y,
@@ -69,15 +37,8 @@ def RF(X, Y,
               "min_impurity_decrease": impurity}
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
 
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X,
-                                                                                  Y=Y,
-                                                                                  estimator=rf,
-                                                                                  c_grid=c_grid, 
-                                                                                  seed=seed)
-    return {'best_param': best_param,
-            'holdout_test_auc': holdout_auc,
-            'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+    summary = nested_cross_validate(X=X,Y=Y,estimator=rf,c_grid=c_grid, seed=seed)
+    return summary
 
 
 def CART(X, Y,
@@ -91,16 +52,8 @@ def CART(X, Y,
               "min_impurity_decrease": impurity}
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
 
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X,
-                                                                                  Y=Y,
-                                                                                  estimator=cart,
-                                                                                  c_grid=c_grid,
-                                                                                  seed=seed)
-
-    return {'best_param': best_param,
-            'holdout_test_auc': holdout_auc,
-            'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+    summary = nested_cross_validate(X=X,Y=Y,estimator=cart,c_grid=c_grid,seed=seed)
+    return summary
 
 
 def LinearSVM(X, Y,
@@ -113,16 +66,8 @@ def LinearSVM(X, Y,
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
     index = 'svm'
     
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X,
-                                                                                  Y=Y,
-                                                                                  estimator=svm,
-                                                                                  c_grid=c_grid,
-                                                                                  seed=seed, 
-                                                                                  index = index)
-    return {'best_param': best_param,
-            'holdout_test_auc': holdout_auc,
-            'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+    summary = nested_cross_validate(X=X,Y=Y,estimator=svm,c_grid=c_grid,seed=seed, index = index)
+    return summary
 
 def Lasso(X, Y,
           C,
@@ -136,15 +81,8 @@ def Lasso(X, Y,
     c_grid = {"C": C}
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
 
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X, 
-                                                                                  Y=Y,
-                                                                                  estimator=lasso,
-                                                                                  c_grid=c_grid,                                 
-                                                                                  seed=seed)
-    return {'best_param': best_param,
-            'holdout_test_auc': holdout_auc,
-            'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+    summary = nested_cross_validate(X=X,Y=Y,estimator=lasso,c_grid=c_grid, seed=seed)
+    return summary
 
 
 def Logistic(X, Y,
@@ -159,12 +97,5 @@ def Logistic(X, Y,
     c_grid = {"C": C}
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
 
-    holdout_auc, best_param, auc_diffs, fairness_overview = nested_cross_validate(X=X, 
-                                                                                  Y=Y,
-                                                                                  estimator=lr,
-                                                                                  c_grid=c_grid,                                 
-                                                                                  seed=seed)
-    return {'best_param': best_param,
-            'holdout_test_auc': holdout_auc,
-            'auc_diffs': auc_diffs,
-            'fairness_overview': fairness_overview}
+    summary = nested_cross_validate(X=X, Y=Y,estimator=lr,c_grid=c_grid,seed=seed)
+    return summary

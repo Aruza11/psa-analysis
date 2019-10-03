@@ -3,6 +3,7 @@ from sklearn.metrics import roc_auc_score
 import pandas as pd 
 import numpy as np
 import corels
+from utils.fairness_functions import compute_confusion_matrix_stats, compute_calibration_fairness
 
 def extract_rules(model):
     
@@ -85,8 +86,8 @@ def corel_prediction(dataset, rule_features_sub, rule_signs):
     prediction_table = pd.merge(dataset, prediction, on='index')
             
     ## prediction and probability
-    proba = (prediction_table['probability'] > 0.5).values
-    pred = prediction_table['probability'].values
+    proba = prediction_table['probability'].values
+    pred = (prediction_table['probability'] > 0.5).values
     auc = roc_auc_score(prediction_table['y'], proba)
     
     return proba, pred, auc
@@ -95,10 +96,18 @@ def corel_prediction(dataset, rule_features_sub, rule_signs):
 
 def corel_cv(X, Y, max_card, c, seed):
     
-    train_AUC, test_AUC = [], []
+    train_AUC = []
+    test_AUC = []
+    holdout_with_attrs_test = []
+    holdout_prediction = []
+    holdout_probability = []
+    holdout_y = []
+    confusion_matrix_rets = []
+    calibrations = []
     
     cv = KFold(n_splits=5, random_state=seed, shuffle=True)
     
+    i = 0
     for train, test in cv.split(X, Y):
         
         ## subset train & test sets in inner loop
@@ -107,6 +116,7 @@ def corel_cv(X, Y, max_card, c, seed):
         
         ## holdout test with "race" for fairness
         holdout_with_attrs = test_x.copy()
+        holdout_with_attrs = holdout_with_attrs.rename(columns = {'sex>=1':'sex'})
         
         ## remove unused feature in modeling
         train_x = train_x.drop(['person_id', 'screening_date', 'race'], axis=1)
@@ -123,12 +133,13 @@ def corel_cv(X, Y, max_card, c, seed):
         test_data['index'] = test_data.index.tolist()
         
         ## build model
-        COREL = corels.CorelsClassifier(n_iter=10000, verbosity=[], 
-                                        max_card=max_card, c=c).fit(train_x, train_y, features=cols)
+        COREL = corels.CorelsClassifier(n_iter=10000, 
+                                        verbosity=[], 
+                                        max_card=max_card, 
+                                        c=c).fit(train_x, train_y, features=cols)
         
         ## extract features and signs
         Rule_features_sub, Rule_signs = extract_rules(model=COREL)
-        
         train_prob, train_pred, train_auc = corel_prediction(dataset=train_data, 
                                                              rule_features_sub=Rule_features_sub,
                                                              rule_signs=Rule_signs)
@@ -136,9 +147,44 @@ def corel_cv(X, Y, max_card, c, seed):
                                                           rule_features_sub=Rule_features_sub,
                                                           rule_signs=Rule_signs)
         
+        ## fairness matrix
+        confusion_matrix_fairness = compute_confusion_matrix_stats(df=holdout_with_attrs,
+                                                                   preds=test_pred,
+                                                                   labels=test_y, 
+                                                                   protected_variables=["sex", "race"])
+        cf_final = confusion_matrix_fairness.assign(fold_num = [i]*confusion_matrix_fairness['Attribute'].count())
+        confusion_matrix_rets.append(cf_final)
+        
+        ## calibration
+        calibration = compute_calibration_fairness(df=holdout_with_attrs, 
+                                                   probs=test_prob, labels=test_y, protected_variables=["sex", "race"])
+        calibration_final = calibration.assign(fold_num = [i]*calibration['Attribute'].count())
+        calibrations.append(calibration_final)
+        
+        ## store results
+        
         train_AUC.append(train_auc)
         test_AUC.append(test_auc)
+        holdout_with_attr_test.append(holdout_with_attrs)
+        holdout_probability.append(test_prob)
+        holdout_prediction.append(test_pred)
+        holdout_y.append(test_y)
+        i += 1
         
+    df = pd.concat(confusion_matrix_rets, ignore_index=True)
+    df.sort_values(["Attribute", "Attribute Value"], inplace=True)   
+    df = df.reset_index(drop=True)
+    
+    calibration_df = pd.concat(calibrations, ignore_index=True)
+    calibration_df.sort_values(["Attribute", "Lower Limit Score", "Upper Limit Score"], inplace=True)
+    calibration_df = calibration_df.reset_index(drop=True)
+    
     return {'train_auc':train_AUC, 
-            'test_auc':test_AUC}
+            'test_auc':test_AUC,
+            'holdout_with_attrs_test': holdout_with_attr_test,
+            'holdout_proba': holdout_probability,
+            'holdout_pred': holdout_prediction,
+            'holdout_y': holdout_y,
+            'confusion_matrix_stats': df, 
+            'calibration_stats': calibration_df}
     

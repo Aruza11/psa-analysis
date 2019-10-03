@@ -1,0 +1,38 @@
+Attribute,Attribute Value,PPV,FPR,FNR,Accuracy,Treatment Equality,Individuals Evaluated On,fold_num
+race,African-American,,0.0,1.0,0.875,inf,224,0
+race,African-American,,0.0,1.0,0.8961038961038961,inf,231,1
+race,African-American,,0.0,1.0,0.8858447488584474,inf,219,2
+race,African-American,,0.0,1.0,0.8913043478260869,inf,230,3
+race,African-American,,0.0,1.0,0.8954545454545455,inf,220,4
+race,Asian,,0.0,,1.0,,1,0
+race,Asian,,0.0,,1.0,,2,1
+race,Asian,,0.0,,1.0,,1,3
+race,Asian,,0.0,,1.0,,1,4
+race,Caucasian,,0.0,1.0,0.925,inf,120,0
+race,Caucasian,,0.0,1.0,0.9469026548672567,inf,113,1
+race,Caucasian,,0.0,1.0,0.9508196721311475,inf,122,2
+race,Caucasian,,0.0,1.0,0.9159663865546218,inf,119,3
+race,Caucasian,,0.0,1.0,0.8976377952755905,inf,127,4
+race,Hispanic,,0.0,1.0,0.9393939393939394,inf,33,0
+race,Hispanic,,0.0,,1.0,,27,1
+race,Hispanic,,0.0,1.0,0.9615384615384616,inf,26,2
+race,Hispanic,,0.0,1.0,0.8888888888888888,inf,18,3
+race,Hispanic,,0.0,1.0,0.9565217391304348,inf,23,4
+race,Native American,,0.0,,1.0,,1,0
+race,Native American,,0.0,,1.0,,2,1
+race,Native American,,0.0,,1.0,,1,4
+race,Other,,0.0,1.0,0.9166666666666666,inf,12,0
+race,Other,,0.0,,1.0,,16,1
+race,Other,,0.0,1.0,0.875,inf,24,2
+race,Other,,0.0,1.0,0.9565217391304348,inf,23,3
+race,Other,,0.0,1.0,0.8888888888888888,inf,18,4
+sex,female,,0.0,1.0,0.8997050147492626,inf,339,0
+sex,female,,0.0,1.0,0.9203539823008849,inf,339,1
+sex,female,,0.0,1.0,0.9029411764705882,inf,340,2
+sex,female,,0.0,1.0,0.9057142857142857,inf,350,3
+sex,female,,0.0,1.0,0.8895522388059701,inf,335,4
+sex,male,,0.0,1.0,0.8846153846153846,inf,52,0
+sex,male,,0.0,1.0,0.9423076923076923,inf,52,1
+sex,male,,0.0,1.0,0.9607843137254902,inf,51,2
+sex,male,,0.0,1.0,0.8780487804878049,inf,41,3
+sex,male,,0.0,1.0,0.9636363636363636,inf,55,4
