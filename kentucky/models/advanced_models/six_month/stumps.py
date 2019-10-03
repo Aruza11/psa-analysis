@@ -126,19 +126,6 @@ def stump_model(X_train, Y_train, X_test, Y_test, c, columns, seed):
             'dictionary': lasso_dict_rounding, 
             'test_auc': test_auc}
     
-    
-def stump_table(coefs, features, intercept, dictionary):
-    
-    print('+-----------------------------------+----------------+')
-    print('|', 'Features', '{n:>{ind}}'.format(n = '|', ind=26), 'Score', '{n:>{ind}}'.format(n = '|', ind=10))
-    print('|====================================================|')
-    for i in range(len(dictionary)):
-        print('|', features[i], '{n:>{ind}}'.format(n = '|', ind=35 - len('|'+features[i])),dictionary[features[i]], '{n:>{ind}}'.format(n = '|', ind = 15 - len(np.str(dictionary[features[i]]))))
-    print('|', 'Intercept', '{n:>{ind}}'.format(n = '|', ind=25), round(intercept, 3), '{n:>{ind}}'.format(n = '|', ind = 15 - len(np.str(intercept)))) 
-    print('|====================================================|')
-    print('|', 'ADD POINTS FROM ROWS 1 TO', len(dictionary), '{n:>{ind}}'.format(n = '|', ind = 6), 'Total Score', '{n:>{ind}}'.format(n = '|', ind = 4))
-    print('+-----------------------------------+----------------+')
-    
 def latex_stump_table(coefs, features, intercept, dictionary):
     print('\begin{tabular}{|l|r|r|} \hline')
     for i in range(len(dictionary)):
@@ -148,7 +135,8 @@ def latex_stump_table(coefs, features, intercept, dictionary):
     print('\textbf{ADD POINTS FROM ROWS 1 TO {length}}  &  \textbf{SCORE} & = ..... \\ \hline'
               .format(length=len(dictionary)+1))
     print('\multicolumn{3}{l}{Pr(Y = 1) = exp(score/100) / (1 + exp(score/100))} \\ \hline')    
-          
+        
+        
 def stump_plots(features, coefs):
     
     import numpy as np
