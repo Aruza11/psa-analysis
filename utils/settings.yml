@@ -5,6 +5,6 @@ decoders:
     0: "female" 
   race: 
     White: "Caucasian"
-    Black": "African-American"
+    Black: "African-American"
     Race Unknown": "Other" # indian or native american?
       
