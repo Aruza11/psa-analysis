@@ -5,6 +5,16 @@ decoders:
     0: "female" 
   race: 
     White: "Caucasian"
-    Black": "African-American"
-    Race Unknown": "Other" # indian or native american?
+    Black: "African-American"
+    Race Unknown: "Other" # indian or native american?
       
+broward_labels: ['recid_two_year', 'recid_six_month', 'recid_drug2',
+                 'recid_property2', 'recid_M2', 'recid_F2', 'recid_violent2',
+                 'recid_drug6', 'recid_property6', 'recid_M6', 'recid_F6',
+                 'recid_violent6']
+
+kentucky_labels: ['recid_two_year', 'recid_drug_two_year', 'recid_traffic_two_year',
+                  'recid_violence_two_year', 'recid_F_two_year', 'recid_M_two_year',
+                  'recid_property_two_year', 'recid_six_month', 'recid_drug_six_month',
+                  'recid_traffic_six_month', 'recid_violence_six_month',
+                  'recid_F_six_month', 'recid_M_six_month', 'recid_property_six_month']
