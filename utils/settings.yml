@@ -6,5 +6,5 @@ decoders:
   race: 
     White: "Caucasian"
     Black: "African-American"
-    Race Unknown": "Other" # indian or native american?
+    Race Unknown: "Other" # indian or native american?
       
