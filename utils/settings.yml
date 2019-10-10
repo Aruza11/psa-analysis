@@ -1,0 +1,10 @@
+# make Broward/Kentucky consistent, store numerical encodings of categorical labels
+decoders: 
+  sex: 
+    1: "male"
+    0: "female" 
+  race: 
+    White: "Caucasian"
+    Black": "African-American"
+    Race Unknown": "Other" # indian or native american?
+      

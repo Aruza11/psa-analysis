@@ -1,23 +1,21 @@
 import pandas as pd 
+
 from aequitas.group import Group
 from aequitas.bias import Bias
 from aequitas.fairness import Fairness
 from aequitas.plotting import Plot
 from sklearn.metrics import confusion_matrix
 
-# some hard-coded attrs
+from utils.load_settings import load_settings
 
-decoders = {"sex": {0: "male",
-                    1: "female"}, 
-            "race": {"White": "Caucasian",
-                     "Black": "African-American",
-                     "Race Unknown": "Other"} # indian or native american?
-            }
 
-sensitive_attrs = ['sex', 'race']
+settings = load_settings()
+decoders = settings["decoders"]
 
-ref_groups_dict = {'sex': 'male',
-                   'race': 'Caucasian'}
+# sensitive_attrs = ['sex', 'race']
+
+# ref_groups_dict = {'sex': 'male',
+#                    'race': 'Caucasian'}
 
 def compute_fairness(df: pd.DataFrame,
                      preds, 
