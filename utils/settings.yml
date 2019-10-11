@@ -14,14 +14,41 @@ decoders:
     # broward
     Native American: "Other"
 
-      
-broward_labels: ['recid_two_year', 'recid_six_month', 'recid_drug2',
-                 'recid_property2', 'recid_M2', 'recid_F2', 'recid_violent2',
-                 'recid_drug6', 'recid_property6', 'recid_M6', 'recid_F6',
-                 'recid_violent6']
+  label:
+    # broward and kentucky
+    recid_two_year: "general_two_year"
+    recid_six_month: "general_six_month"
+    #broward only
+    recid_drug2: "drug_two_year"
+    recid_property2: "property_two_year"
+    recid_M2: "misdemeanor_two_year"
+    recid_F2: "felony_two_year"
+    recid_violent2: "violent_two_year"
 
-kentucky_labels: ['recid_two_year', 'recid_drug_two_year', 'recid_traffic_two_year',
-                  'recid_violence_two_year', 'recid_F_two_year', 'recid_M_two_year',
-                  'recid_property_two_year', 'recid_six_month', 'recid_drug_six_month',
-                  'recid_traffic_six_month', 'recid_violence_six_month',
-                  'recid_F_six_month', 'recid_M_six_month', 'recid_property_six_month']
+    recid_drug6: "drug_six_month"
+    recid_property6: "property_six_month"
+    recid_M6: "misdemeanor_six_month"
+    recid_F6: "felony_six_month"
+    recid_violent6: "violent_six_month"
+    #kentucky
+    recid_drug_two_year: "drug_two_year"
+    recid_property_two_year: "property_two_year"
+    recid_M_two_year: "misdemeanor_two_year"
+    recid_F_two_year: "felony_two_year"
+    recid_traffic_two_year: "traffic_two_year"
+
+    recid_drug_six_month: "drug_six_month"
+    recid_property_six_month: "property_six_month"
+    recid_M_six_month: "misdemeanor_six_month"
+    recid_F_six_month: "felony_six_month"
+    recid_traffic_six_month: "traffic_six_month"
+
+
+                     
+broward_labels: ['general_two_year', 'general_six_month', 
+                'drug_two_year','property_two_year', 'misdemeanor_two_year', 'felony_two_year',  'violent_two_year',
+                'drug_six_month', 'property_six_month', 'misdemeanor_six_month', 'felony_six_month', 'violent_six_month']
+
+kentucky_labels: ['general_two_year', 'general_six_month', 
+                 'drug_two_year','property_two_year', 'misdemeanor_two_year', 'felony_two_year',  'traffic_two_year',
+                 'drug_six_month', 'property_six_month', 'misdemeanor_six_month', 'felony_six_month', 'traffic_six_month']
