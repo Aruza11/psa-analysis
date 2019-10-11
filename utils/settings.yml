@@ -4,9 +4,16 @@ decoders:
     1: "male"
     0: "female" 
   race: 
+    # kentucky
     White: "Caucasian"
     Black: "African-American"
     Race Unknown: "Other" # indian or native american?
+    Indian: "Other"
+    # broward & kentucky
+    Asian: "Other"
+    # broward
+    Native American: "Other"
+
       
 broward_labels: ['recid_two_year', 'recid_six_month', 'recid_drug2',
                  'recid_property2', 'recid_M2', 'recid_F2', 'recid_violent2',
