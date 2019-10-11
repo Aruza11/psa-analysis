@@ -44,11 +44,11 @@ decoders:
     recid_traffic_six_month: "traffic_six_month"
 
 
-                     
-broward_labels: ['general_two_year', 'general_six_month', 
+
+broward_labels: ['general_two_year', 'general_six_month',
                 'drug_two_year','property_two_year', 'misdemeanor_two_year', 'felony_two_year',  'violent_two_year',
                 'drug_six_month', 'property_six_month', 'misdemeanor_six_month', 'felony_six_month', 'violent_six_month']
 
-kentucky_labels: ['general_two_year', 'general_six_month', 
+kentucky_labels: ['general_two_year', 'general_six_month',
                  'drug_two_year','property_two_year', 'misdemeanor_two_year', 'felony_two_year',  'traffic_two_year',
                  'drug_six_month', 'property_six_month', 'misdemeanor_six_month', 'felony_six_month', 'traffic_six_month']
