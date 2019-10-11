@@ -8,11 +8,11 @@ decoders:
     White: "Caucasian"
     Black: "African-American"
     Race Unknown: "Other" # indian or native american?
-    Indian: "Other"
+    # Indian: "Other"
     # broward & kentucky
-    Asian: "Other"
+    # Asian: "Other"
     # broward
-    Native American: "Other"
+    # Native American: "Other"
 
   label:
     # broward and kentucky
