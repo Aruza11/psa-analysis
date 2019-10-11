@@ -11,4 +11,4 @@ def safe_save_plt(plt, save_path: str):
     if not os.path.isdir(save_dir):
         os.makedirs(save_dir)
 
-    plt.savefig(save_path)
+    plt.savefig(save_path, bbox_inches = "tight")
