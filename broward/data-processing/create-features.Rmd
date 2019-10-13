@@ -17,6 +17,7 @@ library(magrittr)
 library(ROCR)
 library(caret)
 library(ggplot2)
+require(caret)
 ```
 
 
@@ -31,6 +32,7 @@ labels = read_csv("~/Duke/Cynthia Research/KY-analysis-mytrials/broward/data/lab
 ```{r}
 ### Add useful columns to features and apply row filters used for all models
 features_filt = features_before_on %>%
+  select(-p_incarceration) %>% 
   inner_join(
     data_before %>% 
       select(person_id, screening_date, people) %>%
@@ -42,11 +44,12 @@ features_filt = features_before_on %>%
   inner_join(features_on, by = c("person_id","screening_date")) %>%
     inner_join(
         psa_features%>%
-            select(-c(p_current_age, p_prison)), by = c("person_id","screening_date")) %>%
+            select(-c(p_current_age, p_prison)), 
+        by = c("person_id","screening_date")) %>%
     inner_join(outcomes, by = c("person_id","screening_date")) %>%
     inner_join(
         features %>% 
-            select(person_id, screening_date, years_since_last_crime, six_month, 
+            select(person_id, screening_date, p_incarceration, years_since_last_crime, six_month, 
                    one_year, three_year, five_year), 
         by = c("person_id", "screening_date")) %>% 
     filter(`Risk of Recidivism_decile_score` != -1, `Risk of Violence_decile_score` != -1) %>% # Filter 1
@@ -66,8 +69,9 @@ df = features_filt %>%
     p_current_age,
     p_age_first_offense,
     p_charge,
-    p_jail30 = p_jail30,
-    p_prison = p_prison,
+    #p_jail30 = p_jail30,
+    #p_prison = p_prison,
+    p_incarceration = p_incarceration,
     p_probation = p_probation,
     
     #COMPAS Risk of violent recidivism features
@@ -109,12 +113,10 @@ df = features_filt %>%
     three_year,
     five_year) %>%
   na.omit()
-
-set.seed(283)
-train = sample_frac(df,.8)
-test = anti_join(df, train, by = 'person_id')
+```
 
 
+```{r}
 ## compass & arnold
 scores_outcomes = compas_psa_wide %>%
   filter(`Risk of Violence_decile_score`>=0, 
@@ -126,8 +128,6 @@ scores_outcomes = compas_psa_wide %>%
 ```
 
 
-
-
 ## combine data sets
 
 ```{r}
@@ -136,87 +136,93 @@ colnames(labels)
 
 
 ```{r}
-## train set
-train = merge(x=train, y=labels, by=c('person_id', 'screening_date'))%>% 
-    select(person_id:recid_six_month, 
-           recid_drug2, 
-           recid_property2,
-           recid_M2,
-           recid_F2,
-           recid_violent2,           
-           recid_drug6, 
-           recid_property6,
-           recid_M6,
-           recid_F6,
-           recid_violent6)%>% 
-    mutate(recid_two_year = as.factor(recid_two_year),
-           recid_drug2 = as.factor(recid_drug2),
-           recid_property2 = as.factor(recid_property2),
-           recid_F2 = as.factor(recid_F2),
-           recid_M2 = as.factor(recid_M2),
-           recid_violent2 = as.factor(recid_violent2),
-           recid_six_month = as.factor(recid_six_month),
-           recid_drug6 = as.factor(recid_drug6),
-           recid_property6 = as.factor(recid_property6),
-           recid_F6 = as.factor(recid_F6),
-           recid_M6 = as.factor(recid_M6),
-           recid_violent6 = as.factor(recid_violent6))
-
-## test set
-test = merge(x=test, y=labels, by=c('person_id', 'screening_date')) %>% 
-    select(person_id:recid_six_month, 
-           recid_drug2, 
-           recid_property2,
-           recid_M2,
-           recid_F2,
-           recid_violent2,           
-           recid_drug6, 
-           recid_property6,
-           recid_M6,
-           recid_F6,
-           recid_violent6)%>% 
-    mutate(recid_two_year = as.factor(recid_two_year),
-           recid_drug2 = as.factor(recid_drug2),
-           recid_property2 = as.factor(recid_property2),
-           recid_F2 = as.factor(recid_F2),
-           recid_M2 = as.factor(recid_M2),
-           recid_violent2 = as.factor(recid_violent2),
-           recid_six_month = as.factor(recid_six_month),
-           recid_drug6 = as.factor(recid_drug6),
-           recid_property6 = as.factor(recid_property6),
-           recid_F6 = as.factor(recid_F6),
-           recid_M6 = as.factor(recid_M6),
-           recid_violent6 = as.factor(recid_violent6))
-
-
+## merge df with labels
 df = merge(x=df, y =labels, by=c('person_id', 'screening_date'))%>% 
-    select(person_id:recid_six_month, 
-           recid_drug2, 
-           recid_property2,
-           recid_M2,
-           recid_F2,
-           recid_violent2,           
-           recid_drug6, 
-           recid_property6,
-           recid_M6,
-           recid_F6,
-           recid_violent6)%>% 
-    mutate(recid_two_year = as.factor(recid_two_year),
-           recid_drug2 = as.factor(recid_drug2),
-           recid_property2 = as.factor(recid_property2),
-           recid_F2 = as.factor(recid_F2),
-           recid_M2 = as.factor(recid_M2),
-           recid_violent2 = as.factor(recid_violent2),
-           recid_six_month = as.factor(recid_six_month),
-           recid_drug6 = as.factor(recid_drug6),
-           recid_property6 = as.factor(recid_property6),
-           recid_F6 = as.factor(recid_F6),
-           recid_M6 = as.factor(recid_M6),
-           recid_violent6 = as.factor(recid_violent6))
+    select(person_id:general_six_month, 
+           drug_two_year, 
+           property_two_year,
+           misdemeanor_two_year,
+           felony_two_year,
+           violent_two_year,           
+           drug_six_month, 
+           property_six_month,
+           misdemeanor_six_month,
+           felony_six_month,
+           violent_six_month)%>% 
+    mutate(general_two_year = as.factor(general_two_year),
+           drug_two_year = as.factor(drug_two_year),
+           property_two_year = as.factor(property_two_year),
+           felony_two_year = as.factor(felony_two_year),
+           misdemeanor_two_year = as.factor(misdemeanor_two_year),
+           violent_two_year = as.factor(violent_two_year),
+           general_six_month = as.factor(general_six_month),
+           drug_six_month = as.factor(drug_six_month),
+           property_six_month = as.factor(property_six_month),
+           felony_six_month = as.factor(felony_six_month),
+           misdemeanor_six_month = as.factor(misdemeanor_six_month),
+           violent_six_month = as.factor(violent_six_month))
+```
 
+
+```{r}
+### split train and test for those models with 5-general-CV
+set.seed(816)
+test_sample = sample(1:nrow(df), 0.2*nrow(df), replace = FALSE)
+test = df[test_sample,]
+train = df[-test_sample, ]
+test_index = 1:nrow(df)
+test_index = ifelse(test_index %in% test_sample, 1, 0)
+```
+
+## save data
+```{r}
 write.csv(df, file = "broward_data.csv", row.names = F)
 write.csv(train, file = "broward_train.csv", row.names = F)
 write.csv(test, file = "broward_test.csv", row.names = F)
 write.csv(scores_outcomes, file = "broward_arnold.csv", row.names = F)
+#write.csv(test_index, file = "broward_test_index.csv", row.names = F, col.names = F)
+#write.csv(fold, file = "fold_index.csv", row.names = F, col.names = F)
 ```
+
+
+
+
+
+
+## Appendix
+```{r}
+## 5-CV index
+flds <- createFolds(train$recid_two_year, 
+                    k = 5, 
+                    list = TRUE, 
+                    returnTrain = FALSE)
+fold = 1:nrow(df)
+fold[fold %in% flds$Fold1] = "a"
+fold[fold %in% flds$Fold2] = "b"
+fold[fold %in% flds$Fold3] = "c"
+fold[fold %in% flds$Fold4] = "d"
+fold[fold %in% flds$Fold5] = "e"
+
+fold[fold == "a"] = 1
+fold[fold == "b"] = 2
+fold[fold == "c"] = 3
+fold[fold == "d"] = 4
+fold[fold == "e"] = 5
+fold=as.numeric(fold)
+
+#train = sample_frac(df,.8)
+#test = anti_join(df, train, by = 'person_id')
+```
+
+
+
+
+
+
+
+
+
+
+
+
 

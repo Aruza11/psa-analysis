@@ -220,7 +220,7 @@ charge_df = charge_df %>%
     #includes theft robbery and burglary
     is_stealing = if_else(substr(statute,1,3) %in% c("812")|substr(statute,1,6) %in% c("810.06","810.02") ,1,0) ,
     #burglary trespass and voyeurism #Bhrij: I will switch the voyeurism to itself
-    is_trespass = if_else(substr(statute,1,3) %in% c("810"),1,0) 
+    is_trespass = if_else(substr(statute,1,3) %in% c("810"),1,0)
   )%>%
   select(-dob)
 
@@ -489,10 +489,6 @@ nrow(data_after)
 ```
 
 
-```{r}
-charges = data_after$charge
-```
-
 
 
 ```{r output_outcomes}
@@ -506,9 +502,9 @@ bad_values <- outcomes %>%
 #bad_values
 new <- outcomes %>% 
   na.exclude()
-new %>% select(recid_two_year, recidnot, years)
-overall_amt = sum(new$recid_two_year, na.rm = TRUE)
-outcomes$recid_two_year[1:10]
+new %>% select(general_two_year, recidnot, years)
+overall_amt = sum(new$general_two_year, na.rm = TRUE)
+outcomes$general_two_year[1:10]
 nrow(new)
 not_overall_amt = sum(new$recidnot, na.rm = TRUE)
 
