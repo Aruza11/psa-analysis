@@ -140,3 +140,37 @@ def compute_calibration_fairness(df, probs, labels, protected_variables):
                     "Individuals Evaluated On": len(labels)        
                 })
     return pd.DataFrame(rows)
+
+
+def compute_calibration_discrete_score(long_df:pd.DataFrame, 
+                                        problem_name:str, 
+                                        score_name:str) -> (pd.DataFrame, pd.DataFrame):
+    """Returns dataframes of calibration values for discrete-valued score
+    
+    Keyword arguments: 
+        long_df -- 
+        problem_name -- 
+        score_name -- 
+    Returns:
+        calib -- dataframe with the calibration values over all groups 
+        calib_grps -- dataframe with the calibration values for each sensitive grp
+    """
+    # compute calibration overall
+    calib = (long_df[[score_name, problem_name]]
+                       .groupby(score_name)
+                       .agg(['sum', 'size'])
+                       .reset_index())
+
+    calib.columns = [score_name, 'n_inds_recid', 'total_inds']
+    calib["P(Y = 1 | Score = score)"] =  calib['n_inds_recid'] / calib['total_inds']
+    
+    # compute calibration for sensitive groups
+    calib_grps = (long_df[[score_name, problem_name, 'Attribute Value']]
+                           .groupby([score_name, 'Attribute Value'])
+                           .agg(['sum', 'size'])
+                           .reset_index())
+
+    calib_grps.columns = [score_name, 'Attribute Value', 'n_inds_recid', 'total_inds']
+    calib_grps["P(Y = 1 | Score = score)"] =  calib_grps['n_inds_recid'] / calib_grps['total_inds']
+    
+    return calib, calib_grps
