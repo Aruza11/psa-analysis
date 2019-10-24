@@ -132,7 +132,9 @@ def compute_calibration_discrete_score(long_df:pd.DataFrame,
 def parse_calibration_matrix(calibration_matrix: pd.DataFrame, 
                              problem_name:str, 
                              score_name:str):
-    
+    """Parses calibration results for SCORE THAT ARE PROBABILITIES 
+    (i.e. our interpretable models)
+    """
     calibration_matrix[score_name] = (calibration_matrix["Lower Limit Score"].astype(str) + "-" 
                                      + calibration_matrix["Upper Limit Score"].astype(str))
     calibration_matrix.drop(columns = ['Lower Limit Score', 'Upper Limit Score'], inplace=True)
@@ -175,3 +177,36 @@ def parse_calibration_matrix(calibration_matrix: pd.DataFrame,
                       how='right')
 
     return calib, calib_grps
+
+
+def compute_eq_odds_arnold_nvca(long_df:pd.DataFrame) -> (pd.DataFrame, pd.DataFrame):
+    """Returns dataframes of equalized odds values for the binary Arnold NVCA. 
+    The problem_name is violent_two_year, the score_name is arnold_nvca.
+    
+    Keyword arguments: 
+        long_df -- 
+    Returns:
+        eq_odds -- dataframe with the eq_odds values over all groups 
+        eq_odds_grps -- dataframe with the eq_odds values for each sensitive grp
+    """
+    long_df = long_df.replace({"arnold_nvca": {"No": 0, "Yes": 1}})
+    
+    # compute eq odds overall
+    eq_odds = (long_df[["arnold_nvca", "violent_two_year"]]
+                       .groupby("violent_two_year")
+                       .agg(['sum', 'size'])
+                       .reset_index())
+
+    eq_odds.columns = ["violent_two_year", 'n_inds_recid', 'total_inds']
+    eq_odds["P(Score = Yes | Y = i)"] =  eq_odds['n_inds_recid'] / eq_odds['total_inds']
+    
+    # compute eq odds for sensitive groups
+    eq_odds_grps = (long_df[["arnold_nvca", "violent_two_year", 'Attribute Value']]
+                           .groupby(["violent_two_year", 'Attribute Value'])
+                           .agg(['sum', 'size'])
+                           .reset_index())
+
+    eq_odds_grps.columns = ["violent_two_year", 'Attribute Value', 'n_inds_recid', 'total_inds']
+    eq_odds_grps["P(Score = Yes | Y = i, Attr = attr)"] =  eq_odds_grps['n_inds_recid'] / eq_odds_grps['total_inds']
+    
+    return eq_odds, eq_odds_grps
