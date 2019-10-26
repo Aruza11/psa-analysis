@@ -210,3 +210,64 @@ def compute_eq_odds_arnold_nvca(long_df:pd.DataFrame) -> (pd.DataFrame, pd.DataF
     eq_odds_grps["P(Score = Yes | Y = i, Attr = attr)"] =  eq_odds_grps['n_inds_recid'] / eq_odds_grps['total_inds']
     
     return eq_odds, eq_odds_grps
+
+
+def reshape_general_violent_cond_auc_summaries(general_auc:pd.DataFrame,
+                                               general_model_name:str,
+                                               violent_auc:pd.DataFrame,
+                                               violent_model_name:str
+                                               ):
+    """General and Violent AUC dfs both have the following columns: 
+    "Attribute", "Attribute Value", "AUC", "fold_num"
+    """
+    # general summary dataframe
+    general_summary = (general_auc
+                         .drop(columns=["fold_num"])
+                         .groupby(["Attribute", "Attribute Value"])
+                         .agg('mean')
+                         .reset_index())
+    general_summary['Label'] = 'general\_two\_year'
+
+    # violent summary dataframe
+    violent_summary = (violent_auc
+                        .drop(columns=["fold_num"])
+                        .groupby(["Attribute", "Attribute Value"])
+                        .agg('mean')
+                        .reset_index())
+
+    violent_summary['Label'] = 'violent\_two\_year'
+
+    # combine the two 
+    df = pd.concat([general_summary, violent_summary], axis=0)
+
+    # compute ranges
+    max_min = (df[["Attribute", "Label", "AUC"]]
+               .groupby(["Attribute", "Label"])
+               .agg(['max', 'min']))
+    max_min['range'] = max_min[('AUC', 'max')] - max_min[('AUC', 'min')]
+    
+    range_df = (max_min.range.reset_index()
+                    .pivot(index='Label', 
+                      columns='Attribute',
+                        values='range')
+                    .reset_index()
+                    .rename(columns={"race": "race_range",
+                                     "sex": "sex_range"}))
+    range_df.columns.name = None
+    
+    # long to wide
+    wide_df = (df.pivot(index="Label",
+                        columns='Attribute Value', 
+                        values=['AUC'])
+                 .reset_index())
+
+    # clean up column names
+    wide_df.columns = wide_df.columns.droplevel(0)
+    wide_df.columns.name = None
+    wide_df.rename(columns={"": "Label"}, inplace=True)
+    wide_df["Model"] = [general_model_name, violent_model_name]
+    
+    # merge wide and range
+    wide_df = wide_df.merge(range_df, on="Label", how="inner")
+
+    return wide_df
