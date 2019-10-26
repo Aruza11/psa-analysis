@@ -74,6 +74,7 @@ def plot_calibration_for_score_on_problem(calib: pd.DataFrame,
                                           region: str,
                                           xtick_labels=None,
                                           rotate_xticks=False,
+                                          include_legend=True,
                                           save_path=None):
     """Plots calibration for risk scores which are NONBINARY AND DISCRETE 
     (i.e. Arnold NCA, COMPAS)
@@ -86,7 +87,7 @@ def plot_calibration_for_score_on_problem(calib: pd.DataFrame,
         score_name: 
     """
     
-    plt.figure(figsize=(10, 7))
+    plt.figure(figsize=(8, 5.5))
     plt.style.use('ggplot')
 
     # calibration reference line doesn't make sense here
@@ -115,22 +116,22 @@ def plot_calibration_for_score_on_problem(calib: pd.DataFrame,
     # axes settings
     if xtick_labels is not None:
         plt.xticks(np.arange(len(xtick_labels)), xtick_labels)
-    plt.xlabel(f"\n{score_name} score", fontsize=25)
+    plt.xlabel(f"{score_name} score", fontsize=25)
 
     plt.ylim(0,1)
-    plt.ylabel('P(Y = 1 | Score = score, Attr = attr)\n', fontsize=25)
+    plt.ylabel('P(Y = 1 | Score = score, \nAttr = attr)', fontsize=25)
 
     # Create legend, add title, format & show/save graphic
-    plt.legend(fontsize=20)
-    score_name_formatted = score_name.capitalize()
-    plt.title(f'Calibration of {score_name_formatted} on \n{problem_name} in {region}', fontsize=30)
+    if include_legend:
+        plt.legend(fontsize=20, ncol=2, framealpha=0.3)
+    plt.title(f'Calib. of {score_name} on \n{problem_name} in {region}', fontsize=25)
 
     if rotate_xticks:
-        plt.tick_params(axis="x", labelsize=20, rotation=45)
+        plt.tick_params(axis="x", labelsize=20, rotation=25)
     else:
         plt.tick_params(axis="x", labelsize=20)
 
-    plt.tick_params(axis="y", labelsize=20)
+    plt.tick_params(axis="y", labelsize=25)
 
     if save_path is not None: 
         safe_save_plt(plt, save_path)
