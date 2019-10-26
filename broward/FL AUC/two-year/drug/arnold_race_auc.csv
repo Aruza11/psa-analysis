@@ -1,0 +1,13 @@
+Attribute,Attribute Value,AUC,fold_num
+race,Hispanic,0.543103448275862,1
+race,Other,0.4583333333333333,1
+race,African-American,0.5974900520355066,1
+race,Caucasian,0.42698019801980197,1
+sex,male,0.5557985098801426,1
+sex,female,0.608974358974359,1
+race,African-American,0.6125634517766497,2
+race,Hispanic,0.18,2
+race,Other,0.5681818181818181,2
+race,Caucasian,0.3660968660968661,2
+sex,male,0.5740079365079365,2
+sex,female,0.5833333333333334,2
