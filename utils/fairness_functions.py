@@ -1,7 +1,5 @@
 import pandas as pd 
-import numpy as np 
-from sklearn.metrics import confusion_matrix
-
+from sklearn.metrics import confusion_matrix, roc_auc_score
 from utils.load_settings import load_settings
 
 settings = load_settings()
@@ -29,11 +27,11 @@ def compute_confusion_matrix_stats(df, preds, labels, protected_variables):
             labels = df["label_value"][df[var]==value]
             tn, fp, fn, tp = confusion_matrix(labels, predictions, labels=[0,1]).ravel()
             # predictive parity
-            ppv = tp / (tp + fp)
+            ppv = tp / (tp + fp) if (tp+fp) != 0 else 0
             # false positive error rate balance
-            fpr = fp / (fp + tn)
+            fpr = fp / (fp + tn) if (fp+tn) !=0 else 0
             # false negative error rate balance
-            fnr = fn / (fn + tp)
+            fnr = fn / (fn + tp) if (fn+tp) != 0 else 0
             # equalized odds
             
             # conditional use accuracy equality
@@ -42,13 +40,18 @@ def compute_confusion_matrix_stats(df, preds, labels, protected_variables):
             acc = (tp + tn)/ (tp + tn + fp + fn)
             
             # treatment equality
-            ratio = fn / fp
+            ratio = fn / fp if fp is not 0 else 0
+            
+            # positive predictive value
+            npv = tn / (tn + fn) if (tn+fn) is not 0 else 0
+            # negative predictive value
             
 
             rows.append({
                 "Attribute": var,
                 "Attribute Value": value,
                 "PPV": ppv,
+                "NPV": npv,
                 "FPR": fpr,
                 "FNR": fnr,
                 "Accuracy": acc,
@@ -74,14 +77,14 @@ def compute_calibration_fairness(df, probs, labels, protected_variables):
     rows = []
     for var in protected_variables:
         for value in df[var].unique():
-            for window in [(0, 0.1), (0.1, 0.2), (0.2, 0.3), (0.3, 0.4), (0.4, 0.5), (0.5, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1)]:
+            for window in [(0, 0.1), (0.1, 0.2), (0.2, 0.3), 
+                           (0.3, 0.4), (0.4, 0.5), (0.5, 0.6), 
+                           (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1)]:
                 lo = window[0]
                 hi = window[1]
-                # get the individuals who have a predicted prob in the window (which we call their score)
                 predictions = df["score"][(df[var]==value) & (df["score"] >= lo) & (df["score"] < hi)]
                 labels = df["label_value"][(df[var]==value) & (df["score"] >= lo) & (df["score"] < hi)]
                 
-                # compute P(Y = 1 | Score = score, Protected_var = protected_var)
                 prob = labels.sum() / len(labels)     
 
                 rows.append({
@@ -93,6 +96,166 @@ def compute_calibration_fairness(df, probs, labels, protected_variables):
                     "Individuals Evaluated On": len(labels)        
                 })
     return pd.DataFrame(rows)
+
+
+
+def conditional_balance_positive_negative(df, probs, labels):
+    df.loc[:, "score"] = probs
+    df.loc[:, "label_value"] = labels
+    df['entity_id'] = df['person_id'].map(str) + " " + df["screening_date"].map(str)
+    df = df[["entity_id", 
+             "sex", 
+             "race", 
+             "score",
+             "p_charges",
+             "age_at_current_charge",
+             "label_value"]]
+    # decode numeric encodings for cat var
+    for decoder_name, decoder_dict in decoders.items():
+        df = df.replace({decoder_name: decoder_dict})    
+        
+    rows = []
+    for race in df["race"].unique():
+        for age in df["age_at_current_charge"][df["race"]==race].unique():
+            for label in df["label_value"][(df["race"]==race) & (df["age_at_current_charge"]==age)].unique():
+                for priors in [0, 1, 2, 3, 4]:
+                    if priors != 4:
+                        scores = df["score"][(df["race"]==race) & (df["age_at_current_charge"]==age) & (df["label_value"]==label) & (df["p_charges"]==priors)]
+                        if len(scores):
+                            expectation = scores.sum() / len(scores)
+                            rows.append({
+                                #"Race": race,
+                                "Attribute": "race",
+                                "Attribute Value": race,
+                                "Age": age,
+                                "Prior": priors, 
+                                "Label": label,
+                                "Expected Score": expectation
+                            })
+                    else:
+                        scores = df["score"][(df["race"]==race) & (df["age_at_current_charge"]==age) & (df["label_value"]==label) & (df["p_charges"]>=priors)]
+                        if len(scores):
+                            expectation = scores.sum() / len(scores)
+                            rows.append({
+                                #"Race": race,
+                                "Attribute": "race",
+                                "Attribute Value": race,
+                                "Age": age,
+                                "Prior": priors, 
+                                "Label": label,
+                                "Expected Score": expectation
+                            })
+
+    for sex in df["sex"].unique():
+        for age in df["age_at_current_charge"][df["sex"]==sex].unique():
+            for label in df["label_value"][(df["sex"]==sex) & (df["age_at_current_charge"]==age)].unique():
+                for priors in [0, 1, 2, 3, 4]:
+                    if priors != 4:
+                        scores = df["score"][(df["sex"]==sex) & (df["age_at_current_charge"]==age) & (df["label_value"]==label) & (df["p_charges"]==priors)]
+                        if len(scores):
+                            expectation = scores.sum() / len(scores)
+                            rows.append({
+                                "Attribute": "sex",
+                                "Attribute Value": sex,
+                                "Age": age,
+                                "Prior": priors, 
+                                "Label": label,
+                                "Expected Score": expectation
+                            })
+                    else:
+                        scores = df["score"][(df["sex"]==sex) & (df["age_at_current_charge"]==age) & (df["label_value"]==label) & (df["p_charges"]>=priors)]
+                        if len(scores):
+                            expectation = scores.sum() / len(scores)
+                            rows.append({
+                                "Attribute": "sex",
+                                "Attribute Value": sex,
+                                "Age": age,
+                                "Prior": priors, 
+                                "Label": label,
+                                "Expected Score": expectation
+                            })
+    return pd.DataFrame(rows)
+
+
+
+def fairness_in_auc(df, probs, labels):
+    df.loc[:, "score"] = probs
+    df.loc[:, "label_value"] = labels
+    df['entity_id'] = df['person_id'].map(str) + " " + df["screening_date"].map(str)
+    df = df[["entity_id", 
+             "sex", 
+             "race", 
+             "score",
+             "p_charges",
+             "age_at_current_charge",
+             "label_value"]]
+    # decode numeric encodings for cat var
+    for decoder_name, decoder_dict in decoders.items():
+        df = df.replace({decoder_name: decoder_dict})    
+        
+    rows = []
+    
+    for race in df["race"].unique():
+        probs = df["score"][df["race"]==race]
+        labels = df["label_value"][df["race"]==race]
+        auc = roc_auc_score(labels, probs)
+        rows.append({
+            "Attribute": "race",
+            "Attribute Value": race,
+            "AUC": auc
+        })
+        
+    for sex in df["sex"].unique():
+        probs = df["score"][df["sex"]==sex]
+        labels = df["label_value"][df["sex"]==sex]
+        auc = roc_auc_score(labels, probs)
+        rows.append({
+            "Attribute": "sex",
+            "Attribute Value": sex,
+            "AUC": auc
+        })
+
+    return pd.DataFrame(rows)
+
+
+
+
+def balance_positive_negative(df, probs, labels):
+    df.loc[:, "score"] = probs
+    df.loc[:, "label_value"] = labels
+    df['entity_id'] = df['person_id'].map(str) + " " + df["screening_date"].map(str)
+    df = df[["entity_id", 
+             "sex", 
+             "race", 
+             "score",
+             "p_charges",
+             "age_at_current_charge",
+             "label_value"]]
+    # decode numeric encodings for cat var
+    for decoder_name, decoder_dict in decoders.items():
+        df = df.replace({decoder_name: decoder_dict})    
+        
+    rows = []
+    for race in df["race"].unique():
+        for outcome in df["label_value"][df["race"]==race].unique():
+            scores = df["score"][(df["race"]==race)&(df["label_value"]==outcome)]
+            rows.append({
+                "Attribute": "race",
+                "Attribute Value": race,              
+                "Label": outcome,
+                "Expected Score": scores.mean()
+            })
+    for sex in df["sex"].unique():
+        for outcome in df["label_value"][df["sex"]==sex].unique():
+            scores = df["score"][(df["sex"]==sex)&(df["label_value"]==outcome)]
+            rows.append({
+                "Attribute": "sex",
+                "Attribute Value": sex,              
+                "Label": outcome,
+                "Expected Score": scores.mean()
+            })
+    return pd.DataFrame(rows)
+
 
 
 def compute_calibration_discrete_score(long_df:pd.DataFrame, 
@@ -127,6 +290,7 @@ def compute_calibration_discrete_score(long_df:pd.DataFrame,
     calib_grps["P(Y = 1 | Score = score, Attr = attr)"] =  calib_grps['n_inds_recid'] / calib_grps['total_inds']
     
     return calib, calib_grps
+
 
 
 def parse_calibration_matrix(calibration_matrix: pd.DataFrame, 

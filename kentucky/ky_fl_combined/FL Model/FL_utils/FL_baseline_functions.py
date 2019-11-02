@@ -22,13 +22,12 @@ def XGB(KY_x, KY_y, FL_x, FL_y, learning_rate, depth, estimators, gamma, child_w
               "min_child_weight": child_weight, 
               "subsample": subsample}
     
-    ### nested cross validation
+    ### cross validation
     clf = GridSearchCV(estimator=xgboost, 
                        param_grid=c_grid, 
                        scoring='roc_auc',
                        cv=cross_validation,
                        return_train_score=True).fit(FL_x,FL_y)
-    
     train_score = clf.cv_results_['mean_train_score']
     test_score = clf.cv_results_['mean_test_score']
     
@@ -36,7 +35,6 @@ def XGB(KY_x, KY_y, FL_x, FL_y, learning_rate, depth, estimators, gamma, child_w
     best_auc = clf.best_score_
     best_param = clf.best_params_
     auc_diff = train_score[np.where(test_score == clf.best_score_)[0][0]] - clf.best_score_
-    
     xgboost = clf.fit(FL_x, FL_y)
     KY_score = roc_auc_score(KY_y, xgboost.predict_proba(KY_x)[:,1])
     
@@ -48,7 +46,7 @@ def XGB(KY_x, KY_y, FL_x, FL_y, learning_rate, depth, estimators, gamma, child_w
 
 
 ### Random Forest
-def RF(KY_x, KY_y, FL_x, FL_y, depth, estimators,impurity,seed):
+def RF(KY_x, KY_y, FL_x, FL_y, depth, estimators,impurity, seed):
 
     ### model & parameters
     rf = RandomForestClassifier(bootstrap=True, random_state=seed)
@@ -70,7 +68,6 @@ def RF(KY_x, KY_y, FL_x, FL_y, depth, estimators,impurity,seed):
     best_auc = clf.best_score_
     best_param = clf.best_params_
     auc_diff = train_score[np.where(test_score == clf.best_score_)[0][0]] - clf.best_score_
-    
     rf = clf.fit(FL_x, FL_y)
     KY_score = roc_auc_score(KY_y, rf.predict_proba(KY_x)[:,1])
     return {'best_auc':best_auc, 

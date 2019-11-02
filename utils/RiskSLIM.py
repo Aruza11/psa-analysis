@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from utils.fairness_functions import compute_confusion_matrix_stats, compute_calibration_fairness
+from utils.fairness_functions import compute_confusion_matrix_stats, compute_calibration_fairness, conditional_balance_positive_negative, \
+                                     fairness_in_auc, balance_positive_negative
 from sklearn.model_selection import KFold
 from sklearn.metrics import roc_auc_score
 from sklearn.utils import shuffle
@@ -15,7 +16,7 @@ from riskslim.lattice_cpa import setup_lattice_cpa, finish_lattice_cpa
 
 
 
-def risk_slim(data, max_coefficient, max_L0_value, c0_value, max_runtime = 120, w_pos = 1, max_offset=50):
+def risk_slim(data, max_coefficient, max_L0_value, c0_value, max_offset, max_runtime = 120, w_pos = 1):
     
     """
     @parameters:
@@ -31,7 +32,7 @@ def risk_slim(data, max_coefficient, max_L0_value, c0_value, max_runtime = 120, 
     """
     
     # create coefficient set and set the value of the offset parameter
-    coef_set = CoefficientSet(variable_names = data['variable_names'], lb = 0, ub = max_coefficient, sign = 0)
+    coef_set = CoefficientSet(variable_names = data['variable_names'], lb = -max_coefficient, ub = max_coefficient, sign = 0)
     conservative_offset = get_conservative_offset(data, coef_set, max_L0_value)
     max_offset = min(max_offset, conservative_offset)
     coef_set['(Intercept)'].ub = max_offset
@@ -133,6 +134,230 @@ def riskslim_accuracy(X, Y, feature_name, model_info, threshold=0.5):
     return pred
 
 
+def risk_nested_cv(X, 
+                   Y,
+                   indicator,
+                   y_label, 
+                   max_coef,
+                   max_coef_number,
+                   max_runtime,
+                   max_offset,
+                   c,
+                   seed):
+
+    ## set up data
+    #Y = Y.reshape(-1,1)
+    sample_weights = np.repeat(1, len(Y))
+
+    ## set up cross validation
+    outer_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
+    inner_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
+    train_auc = []
+    validation_auc = []
+    test_auc = []
+    holdout_with_attrs_test = []
+    holdout_probability = []
+    holdout_prediction = []
+    holdout_y = []
+    
+    confusion_matrix_rets = []
+    calibrations = []
+    race_auc = []
+    condition_pn = []
+    no_condition_pn = []
+    
+    i = 0
+    for outer_train, outer_test in outer_cv.split(X, Y):
+        
+        outer_train_x, outer_train_y = X.iloc[outer_train], Y[outer_train]
+        outer_test_x, outer_test_y = X.iloc[outer_test], Y[outer_test]
+        outer_train_sample_weight, outer_test_sample_weight = sample_weights[outer_train], sample_weights[outer_test]
+        
+        ## holdout test
+        holdout_with_attrs = outer_test_x.copy().drop(['(Intercept)'], axis=1)
+        holdout_with_attrs = holdout_with_attrs.rename(columns = {'sex1': 'sex'})
+        
+        ## remove unused feature in modeling
+        if indicator == 1:
+            outer_train_x = outer_train_x.drop(['person_id', 'screening_date', 'race', 'age_at_current_charge', 'p_charges'], axis=1)
+            outer_test_x = outer_test_x.drop(['person_id', 'screening_date', 'race', 'age_at_current_charge', 'p_charges'], axis=1)
+        else:
+            outer_train_x = outer_train_x.drop(['person_id', 'screening_date', 'race','sex1','age_at_current_charge', 'p_charges'], axis=1)
+            outer_test_x = outer_test_x.drop(['person_id', 'screening_date', 'race', 'sex1', 'age_at_current_charge', 'p_charges'], axis=1)
+            
+        cols = outer_train_x.columns.tolist()
+        
+        
+        ## inner cross validation
+        for inner_train, validation in inner_cv.split(outer_train_x, outer_train_y):
+            
+            ## subset train data & store test data
+            inner_train_x, inner_train_y = outer_train_x.iloc[inner_train].values, outer_train_y[inner_train]
+            validation_x, validation_y = outer_train_x.iloc[validation].values, outer_train_y[validation]
+            inner_train_sample_weight = outer_train_sample_weight[inner_train]
+            validation_sample_weight = outer_train_sample_weight[validation]
+            #inner_train_x = inner_train_x.values
+            inner_train_y = inner_train_y.reshape(-1,1)
+       
+            ## create new data dictionary
+            new_train_data = {
+                'X': inner_train_x,
+                'Y': inner_train_y,
+                'variable_names': cols,
+                'outcome_name': y_label,
+                'sample_weights': inner_train_sample_weight
+            }
+                
+            ## fit the model
+            model_info, mip_info, lcpa_info = risk_slim(new_train_data, 
+                                                        max_coefficient=max_coef, 
+                                                        max_L0_value=max_coef_number, 
+                                                        c0_value=c, 
+                                                        max_runtime=max_runtime, 
+                                                        max_offset = max_offset)
+            
+            ## check validation auc
+            validation_x = validation_x[:,1:] ## remove the first column, which is "intercept"
+            validation_y[validation_y == -1] = 0 ## change -1 to 0
+            #validation_prob = riskslim_prediction(validation_x, np.array(cols), model_info).reshape(-1,1)
+            validation_prob = riskslim_prediction(validation_x, np.array(cols), model_info)
+            validation_auc.append(roc_auc_score(validation_y, validation_prob))
+        
+        ## outer loop
+        outer_train_x = outer_train_x.values
+        outer_test_x = outer_test_x.values
+        outer_train_y = outer_train_y.reshape(-1,1)
+        new_train_data = {
+            'X': outer_train_x,
+            'Y': outer_train_y,
+            'variable_names': cols,
+            'outcome_name': y_label,
+            'sample_weights': outer_train_sample_weight
+        }
+                
+        ## fit the model
+        model_info, mip_info, lcpa_info = risk_slim(new_train_data, 
+                                                    max_coefficient=max_coef, 
+                                                    max_L0_value=max_coef_number, 
+                                                    c0_value=c, 
+                                                    max_runtime=max_runtime, 
+                                                    max_offset = max_offset)
+        print_model(model_info['solution'], new_train_data)  
+        
+        ## change data format
+        outer_train_x, outer_test_x = outer_train_x[:,1:], outer_test_x[:,1:] ## remove the first column, which is "intercept"
+        outer_train_y[outer_train_y == -1] = 0 ## change -1 to 0
+        outer_test_y[outer_test_y == -1] = 0 ## change -1 to 0
+        
+        ## probability & accuracy
+        outer_train_prob = riskslim_prediction(outer_train_x, np.array(cols), model_info).reshape(-1,1)
+        outer_test_prob = riskslim_prediction(outer_test_x, np.array(cols), model_info)
+        outer_test_pred = (outer_test_prob > 0.5)
+        
+        ########################
+        ## AUC
+        train_auc.append(roc_auc_score(outer_train_y, outer_train_prob))
+        test_auc.append(roc_auc_score(outer_test_y, outer_test_prob))        
+        
+        ########################
+        ## confusion matrix
+        confusion_matrix_fairness = compute_confusion_matrix_stats(df=holdout_with_attrs,
+                                                                   preds= outer_test_pred,
+                                                                   labels= outer_test_y, 
+                                                                   protected_variables=["sex", "race"])
+        cf_final = confusion_matrix_fairness.assign(fold_num = [i]*confusion_matrix_fairness['Attribute'].count())
+        confusion_matrix_rets.append(cf_final)
+        
+        ########################
+        ## calibration matrix
+        calibration = compute_calibration_fairness(df=holdout_with_attrs, 
+                                                   probs=outer_test_prob, 
+                                                   labels=outer_test_y, 
+                                                   protected_variables=["sex", "race"])
+        calibration_final = calibration.assign(fold_num = [i]*calibration['Attribute'].count())
+        calibrations.append(calibration_final)
+        
+        ########################
+        ## race auc
+        try:
+            race_auc_matrix = fairness_in_auc(df = holdout_with_attrs,
+                                              probs = outer_test_prob, 
+                                              labels = outer_test_y)
+            race_auc_matrix_final = race_auc_matrix.assign(fold_num = [i]*race_auc_matrix['Attribute'].count())
+            race_auc.append(race_auc_matrix_final)
+        except:
+            pass
+        
+        ########################
+        ## ebm_pn
+        no_condition_pn_matrix = balance_positive_negative(df = holdout_with_attrs,
+                                                                 probs = outer_test_prob, 
+                                                                  labels = outer_test_y)
+        no_condition_pn_matrix_final = no_condition_pn_matrix.assign(fold_num = [i]*no_condition_pn_matrix['Attribute'].count())
+        no_condition_pn.append(no_condition_pn_matrix_final)
+        
+        ########################
+        ## ebm_condition_pn
+        condition_pn_matrix = conditional_balance_positive_negative(df = holdout_with_attrs,
+                                                                             probs = outer_test_prob, 
+                                                                             labels = outer_test_y)
+        condition_pn_matrix_final = condition_pn_matrix.assign(fold_num = [i]*condition_pn_matrix['Attribute'].count())
+        condition_pn.append(condition_pn_matrix_final)   
+        
+        ########################
+        ## store results
+        holdout_with_attrs_test.append(holdout_with_attrs)
+        holdout_probability.append(outer_test_prob)
+        holdout_prediction.append(outer_test_pred)
+        holdout_y.append(outer_test_y)
+        
+        i += 1
+        
+    ## confusion matrix
+    confusion_df = pd.concat(confusion_matrix_rets, ignore_index=True)
+    confusion_df.sort_values(["Attribute", "Attribute Value"], inplace=True)
+    confusion_df = confusion_df.reset_index(drop=True)
+    
+    ## calibration matrix
+    calibration_df = pd.concat(calibrations, ignore_index=True)
+    calibration_df.sort_values(["Attribute", "Lower Limit Score", "Upper Limit Score"], inplace=True)
+    calibration_df = calibration_df.reset_index(drop=True)
+    
+    ## race_auc
+    race_auc_df = []
+    try:
+        race_auc_df = pd.concat(race_auc, ignore_index=True)
+        race_auc_df.sort_values(["fold_num", "Attribute"], inplace=True)
+        race_auc_df = race_auc_df.reset_index(drop=True)
+    except:
+        pass
+    
+    ## no_condition_pn
+    no_condition_pn_df = pd.concat(no_condition_pn, ignore_index=True)
+    no_condition_pn_df.sort_values(["fold_num", "Attribute"], inplace=True)
+    no_condition_pn_df = no_condition_pn_df.reset_index(drop=True)
+    
+    ## condition_pn
+    condition_pn_df = pd.concat(condition_pn, ignore_index=True)
+    condition_pn_df.sort_values(["fold_num", "Attribute"], inplace=True)
+    condition_pn_df = condition_pn_df.reset_index(drop=True)
+    
+    return {'train_auc': train_auc,
+            'validation_auc': validation_auc,
+            'test_auc': test_auc, 
+            'holdout_with_attrs_test': holdout_with_attrs_test,
+            'holdout_proba': holdout_probability,
+            'holdout_pred': holdout_prediction,
+            'holdout_y': holdout_y,
+            'confusion_matrix_stats': confusion_df, 
+            'calibration_stats': calibration_df,             
+            'race_auc': race_auc_df, 
+            'condition_pn': condition_pn_df, 
+            'no_condition_pn': no_condition_pn_df}
+
+
+
+
 
 def risk_cv(X, 
             Y,
@@ -141,6 +366,7 @@ def risk_cv(X,
             max_coef,
             max_coef_number,
             max_runtime,
+            max_offset,
             c,
             seed):
 
@@ -169,15 +395,15 @@ def risk_cv(X,
         
         ## holdout test with "race" for fairness
         holdout_with_attrs = test_x.copy().drop(['(Intercept)'], axis=1)
-        holdout_with_attrs = holdout_with_attrs.rename(columns = {'sex>=1': 'sex'})
+        holdout_with_attrs = holdout_with_attrs.rename(columns = {'sex1': 'sex'})
         
         ## remove unused feature in modeling
         if indicator == 1:
-            train_x = train_x.drop(['person_id', 'screening_date', 'race'], axis=1)
-            test_x = test_x.drop(['person_id', 'screening_date', 'race'], axis=1).values
+            train_x = train_x.drop(['person_id', 'screening_date', 'race', 'age_at_current_charge', 'p_charges'], axis=1)
+            test_x = test_x.drop(['person_id', 'screening_date', 'race', 'age_at_current_charge', 'p_charges'], axis=1).values
         else:
-            train_x = train_x.drop(['person_id', 'screening_date', 'race', 'sex>=1'], axis=1)
-            test_x = test_x.drop(['person_id', 'screening_date', 'race', 'sex>=1'], axis=1).values
+            train_x = train_x.drop(['person_id', 'screening_date', 'race','sex1','age_at_current_charge', 'p_charges'], axis=1)
+            test_x = test_x.drop(['person_id', 'screening_date', 'race', 'sex1', 'age_at_current_charge', 'p_charges'], axis=1).values
 
         cols = train_x.columns.tolist()
         train_x = train_x.values
@@ -195,6 +421,7 @@ def risk_cv(X,
         model_info, mip_info, lcpa_info = risk_slim(new_train_data, 
                                                     max_coefficient=max_coef, 
                                                     max_L0_value=max_coef_number, 
+                                                    max_offset=max_offset,
                                                     c0_value=c, 
                                                     max_runtime=max_runtime)
         print_model(model_info['solution'], new_train_data)
@@ -251,4 +478,4 @@ def risk_cv(X,
             'confusion_matrix_stats': df, 
             'calibration_stats': calibration_df}
 
-    
+  

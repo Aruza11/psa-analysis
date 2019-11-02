@@ -29,7 +29,6 @@ def EBM(KY_x, KY_y, FL_x, FL_y, learning_rate, depth, estimators, holdout_split,
     best_auc = clf.best_score_
     best_param = clf.best_params_
     auc_diff = train_score[np.where(test_score == clf.best_score_)[0][0]] - clf.best_score_
-    
     gam = clf.fit(FL_x, FL_y)
     KY_score = roc_auc_score(KY_y, gam.predict_proba(KY_x)[:,1])
     

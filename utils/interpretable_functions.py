@@ -1,7 +1,6 @@
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import roc_auc_score
-from utils.fairness_functions import compute_fairness
 from utils.model_selection import nested_cross_validate
 from interpret.glassbox import ExplainableBoostingClassifier
 
