@@ -702,9 +702,9 @@ create_features = function(data){
                   one_year = max(one_year),       ## within six month/one year/three years/five
                   three_year = max(three_year),   ## years, the indicator variable is one.
                   five_year = max(five_year),
-                  fta_risk_score_raw = mean(fta_risk_score_raw),
-                  nca_risk_score_raw = mean(nca_risk_score_raw),
-                  pvf_risk_score_raw = mean(pvf_risk_score_raw)) %>% 
+                  aronld_fta_raw = mean(fta_risk_score_raw),
+                  aronld_nca_raw = mean(nca_risk_score_raw),
+                  aronld_nvca_raw = mean(pvf_risk_score_raw)) %>% 
 ## second layer group: for criminal history information, since they are based on SeqCaseID level.
         group_by(PersonID, screening_date, SeqCaseID, Gender, Race) %>% 
         summarise(p_arrest = length(CaseID),
@@ -756,9 +756,9 @@ create_features = function(data){
                   one_year = max(one_year),
                   three_year = max(three_year),
                   five_year = max(five_year),
-                  fta_risk_score_raw = max(fta_risk_score_raw),
-                  nca_risk_score_raw = max(nca_risk_score_raw),
-                  pvf_risk_score_raw = max(pvf_risk_score_raw)) %>% 
+                  aronld_fta_raw = max(aronld_fta_raw),
+                  aronld_nca_raw = max(aronld_nca_raw),
+                  aronld_nvca_raw = max(aronld_nvca_raw)) %>% 
 ## third layer: individual level; sum up all the SeqCaseID information related to one person.
         group_by(PersonID, Gender, Race, screening_date) %>%   
         summarise(age_at_current_charge = max(age_at_current_charge),
@@ -803,9 +803,9 @@ create_features = function(data){
                   one_year = max(one_year),
                   three_year = max(three_year),
                   five_year = max(five_year),
-                  fta_risk_score_raw = max(fta_risk_score_raw),
-                  nca_risk_score_raw = max(nca_risk_score_raw),
-                  pvf_risk_score_raw = max(pvf_risk_score_raw))
+                  aronld_fta_raw = max(aronld_fta_raw),
+                  aronld_nca_raw = max(aronld_nca_raw),
+                  aronld_nvca_raw = max(aronld_nvca_raw))
     return(features)
 }
 ```
