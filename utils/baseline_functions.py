@@ -4,7 +4,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
-from utils.fairness_functions import compute_fairness
 from utils.model_selection import nested_cross_validate
 
 
