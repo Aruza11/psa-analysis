@@ -23,13 +23,13 @@ compute_features = function(person_id,screening_date,first_offense_date,current_
   out$p_misdem_count_person  = ifelse(is.null(charge), 0, sum(charge$is_misdem, na.rm = TRUE))
   
   # Number of violent charges
-  out$p_charge_violent  = ifelse(is.null(charge), 0, sum(charge$is_violent, na.rm = TRUE))
+  out$p_violence  = ifelse(is.null(charge), 0, sum(charge$is_violent, na.rm = TRUE))
   
   #p_current_age: Age at screening date
-  out$p_current_age = floor(as.numeric(as.period(interval(people$dob,screening_date)), "years"))
+  out$age_at_current_charge = floor(as.numeric(as.period(interval(people$dob,screening_date)), "years"))
   
   #p_age_first_offense: Age at first offense 
-  out$p_age_first_offense = floor(as.numeric(as.period(interval(people$dob,first_offense_date)), "years"))
+  out$age_at_first_charge = floor(as.numeric(as.period(interval(people$dob,first_offense_date)), "years"))
   
   ### History of Violence
   
@@ -38,25 +38,25 @@ compute_features = function(person_id,screening_date,first_offense_date,current_
   out$p_juv_fel_count = ifelse(is.null(charge), 0, sum(charge$is_felony & charge$is_juv,na.rm=TRUE))
   
   #p_felprop_violarrest
-  out$p_felprop_violarrest = ifelse(is.null(charge), 0,sum(charge$is_felprop_violarrest, na.rm = TRUE))
+  out$p_felprop_viol = ifelse(is.null(charge), 0,sum(charge$is_felprop_violarrest, na.rm = TRUE))
   
   #p_murder_arrest
-  out$p_murder_arrest = ifelse(is.null(charge), 0, sum(charge$is_murder, na.rm = TRUE))
+  out$p_murder = ifelse(is.null(charge), 0, sum(charge$is_murder, na.rm = TRUE))
   
   #p_felassault_arrest
-  out$p_felassault_arrest = ifelse(is.null(charge), 0, sum(charge$is_felassault_arrest, na.rm = TRUE))
+  out$p_felassault = ifelse(is.null(charge), 0, sum(charge$is_felassault_arrest, na.rm = TRUE))
   
   #p_misdemassault_arrest
-  out$p_misdemassault_arrest = ifelse(is.null(charge), 0, sum(charge$is_misdemassault_arrest, na.rm = TRUE))
+  out$p_misdeassault = ifelse(is.null(charge), 0, sum(charge$is_misdemassault_arrest, na.rm = TRUE))
   
   #p_famviol_arrest
-  out$p_famviol_arrest = ifelse(is.null(charge), 0, sum(charge$is_family_violence, na.rm = TRUE))
+  out$p_famviol = ifelse(is.null(charge), 0, sum(charge$is_family_violence, na.rm = TRUE))
   
   #p_sex_arrest
-  out$p_sex_arrest = ifelse(is.null(charge), 0, sum(charge$is_sex_offense, na.rm = TRUE))
+  out$p_sex_offense = ifelse(is.null(charge), 0, sum(charge$is_sex_offense, na.rm = TRUE))
   
   #p_weapons_arrest
-  out$p_weapons_arrest =  ifelse(is.null(charge), 0, sum(charge$is_weapons, na.rm = TRUE))
+  out$p_weapon =  ifelse(is.null(charge), 0, sum(charge$is_weapons, na.rm = TRUE))
   
   ### History of Non-Compliance
   
@@ -78,7 +78,7 @@ compute_features = function(person_id,screening_date,first_offense_date,current_
   ### Criminal Involvement
   
   # Number of charges / arrests
-  out$p_charge = ifelse(is.null(charge), 0, nrow(charge))
+  out$p_charges = ifelse(is.null(charge), 0, nrow(charge))
   out$p_arrest = ifelse(is.null(arrest), 0, nrow(arrest))
   
   # Number of times sentenced to jail/prison 30 days or more
