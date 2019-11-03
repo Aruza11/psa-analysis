@@ -16,66 +16,90 @@ library(tidyverse)
 library(data.table)
 ```
 
-### Data path
-```{r}
-data_path = "~/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY data/"
-```
-
-
-
 
 ### Load PRIM data
 
+**Specify Path Before Proceeding**
+
+
 ```{r}
 ## defendants
-Defendants = as.data.frame(fread(paste0(data_path,'01_KY_Recidivism_Defendants.txt'), 
-                                 header = T)) %>% select(PersonID, Gender)
-## interviews
-Interviews = as.data.frame(fread(paste0(data_path,'02_KY_Recidivism_Interviews.txt'))) %>% 
-    rename(PersonID = PersonId, InterviewID = InterviewId, Interview_Date_Created = DateCreated)
+Defendants = as.data.frame(
+  fread(paste0(data_path,'01_KY_Recidivism_Defendants.txt'), header = T)
+  ) %>% 
+  select(PersonID, Gender)
 
-## cases
-PRIM_cases = as.data.frame(fread(paste0(data_path,'04_KY_Recidivism_PRIM_Cases.txt'))) %>%
-    rename(SeqCaseID = SeqCaseId, 
-           Case_Date_Booked = date_booked, 
-           Age_at_Case_Booked = Age_at_Booking) %>%
-    filter(County != "WHITLEY")
+## PRIM interviews
+Interviews = as.data.frame(
+  fread(paste0(data_path,'02_KY_Recidivism_Interviews.txt'))
+  ) %>% 
+  rename(PersonID = PersonId, 
+         InterviewID = InterviewId, 
+         Interview_Date_Created = DateCreated)
+
+## PRIM cases
+PRIM_cases = as.data.frame(
+  fread(paste0(data_path,'04_KY_Recidivism_PRIM_Cases.txt'))
+  ) %>%
+  rename(SeqCaseID = SeqCaseId, 
+         Case_Date_Booked = date_booked, 
+         Age_at_Case_Booked = Age_at_Booking) %>%
+  filter(County != "WHITLEY")
 
 
-## charges
-PRIM_charges = as.data.frame(fread(paste0(data_path,'07_KY_Recidivism_PRIM_Charges.txt'))) %>%
-    rename(InterviewID = interviewID, PersonID = PersonId, CaseID = CaseId, 
-           Charge_DispositionDate = DispositionDate) %>% 
-    filter(County != "WHITLEY")
+## PRIM charges
+PRIM_charges = as.data.frame(
+  fread(paste0(data_path,'07_KY_Recidivism_PRIM_Charges.txt'))
+  ) %>%
+  rename(InterviewID = interviewID, 
+         PersonID = PersonId, 
+         CaseID = CaseId, 
+         Charge_DispositionDate = DispositionDate) %>% 
+  filter(County != "WHITLEY")
 
 
-## bonds
-Bonds = as.data.frame(fread(paste0(data_path,'09_KY_Recidivism_Bonds.txt'))) %>% 
-    rename(InterviewID = interviewID, PersonID = PersonId, CaseID = CaseId)%>% 
-    filter(County != "WHITLEY")
+## PRIM bonds
+Bonds = as.data.frame(
+  fread(paste0(data_path,'09_KY_Recidivism_Bonds.txt'))
+  ) %>% 
+  rename(InterviewID = interviewID, 
+         PersonID = PersonId, 
+         CaseID = CaseId)%>% 
+  filter(County != "WHITLEY")
 
-## events
-Events = as.data.frame(fread(paste0(data_path,'10_KY_Recidivism_Events.txt'))) %>% 
-    rename(InterviewID = InterviewId,PersonID = PersonId, CaseID = Caseid,SeqCaseID = SeqCaseid) %>% 
-    filter(EventCounty != "WHITLEY")
+## PRIM events
+Events = as.data.frame(
+  fread(paste0(data_path,'10_KY_Recidivism_Events.txt'))
+  ) %>% 
+  rename(InterviewID = InterviewId,
+         PersonID = PersonId, 
+         CaseID = Caseid,
+         SeqCaseID = SeqCaseid) %>% 
+  filter(EventCounty != "WHITLEY")
 
-## fta
-FTA = as.data.frame(fread(paste0(data_path,'11_KY_Recidivism_FTA.txt'))) %>% 
-    rename(InterviewID = InterviewId, PersonID = PersonId, CaseID = Caseid, SeqCaseID = SeqCaseid)
+## PRIM fta
+FTA = as.data.frame(
+  fread(paste0(data_path,'11_KY_Recidivism_FTA.txt'))
+  ) %>% 
+  rename(InterviewID = InterviewId, 
+         PersonID = PersonId, 
+         CaseID = Caseid, 
+         SeqCaseID = SeqCaseid)
 
 ## supervision
-Supervision = as.data.frame(fread(paste0(data_path,'12_KY_Recidivism_Supervision.txt'))) %>% 
-  rename(InterviewID = InterviewId, PersonID = PersonId, CaseID = Caseid)
+Supervision = as.data.frame(
+  fread(paste0(data_path,'12_KY_Recidivism_Supervision.txt'))
+  ) %>% 
+  rename(InterviewID = InterviewId, 
+         PersonID = PersonId, 
+         CaseID = Caseid)
 ```
 
 
 
 
 
-### EDA
-##### 1. Defendants ################################################################################
-
-The original data contains PersonID, Gender, Race, and Ethnicity. We only need PersonID and Gender.
+### 1. Defendants 
 
 ```{r}
 colnames(Defendants)
@@ -97,7 +121,7 @@ Eahc row has an unique PersonID, representing a unique defendant.
 
 
 
-##### 2. Interview ################################################################################
+## 2. Interview 
 
 ```{r}
 colnames(Interviews)
@@ -105,14 +129,13 @@ colnames(Interviews)
 
 ```{r}
 Interviews = Interviews %>% 
-    select(-HoldingCountyCode, -County, -RiskLevel, -RiskScore, -HasHolder, -PostedPrior) 
-    
+    select(-c(HoldingCountyCode, 
+              County, 
+              RiskLevel, 
+              RiskScore, 
+              HasHolder, 
+              PostedPrior))
 ```
-
-__NOTE__:
-
-Remove some variables to reduce dimension before joining tables.
-
 
 ```{r}
 summary(Interviews)
@@ -138,12 +161,11 @@ Interviews[Interviews$PersonID == "28566", ]
 
 
 
-##### 3. Cases ################################################################################
+## 3. Cases 
 
 ```{r}
 colnames(PRIM_cases)
 ```
-
 
 ```{r}
 summary(PRIM_cases)
@@ -158,19 +180,18 @@ sum(PRIM_cases$Age_at_Case_Booked >= 80)
 
 __NOTE__:
 1. There are 3 NA's on InterviewID, CaseID, Age_at_Case_Booked. Same three. Error.
-2. Max age_at_case_booked: 237. And there are 6369 people with age at case booked > 80. Error?
-
-
-
+2. Max age_at_case_booked: 237. And there are 6369 people with age at case booked > 80. Typos.
 
 ```{r}
 PRIM_cases = PRIM_cases %>% 
-    select(-CountyCode, -AlternativeReleaseType, AlternativeReleaseDate, -Mcr, -McrDate) %>% 
+    select(-c(CountyCode, 
+              AlternativeReleaseType, 
+              AlternativeReleaseDate, 
+              Mcr, 
+              McrDate)) %>% 
     filter(!is.na(InterviewID))
 ```
 
-__NOTE__:
-Remove some unwanted features to reduce dimension.
 
 ```{r}
 length(unique(PRIM_cases$CaseID)) == nrow(PRIM_cases)
@@ -180,7 +201,8 @@ length(unique(PRIM_cases$SeqCaseID)) == nrow(PRIM_cases)
 __NOTE__:
 Each row is an unique case with CaseID. But SeqCaseID has some repeated appearance. It indicates that each SeqCaseID could relate to several CaseID's.
 
-
+## sanity check
+## same person, same interview
 ```{r}
 PRIM_cases %>% group_by(PersonID, InterviewID) %>% summarise(count = n()) %>% arrange(desc(count))
 ```
@@ -189,10 +211,12 @@ PRIM_cases %>% group_by(PersonID, InterviewID) %>% summarise(count = n()) %>% ar
 PRIM_cases[PRIM_cases$PersonID == "110149" & PRIM_cases$InterviewID == "686821", ]
 ```
 
+## same person, same interview, same case
 ```{r}
 PRIM_cases %>% group_by(PersonID, InterviewID, CaseID) %>% summarise(count = n()) %>% arrange(desc(count))
 ```
 
+## same person, same interview, same seqcase
 ```{r}
 PRIM_cases %>% group_by(PersonID, InterviewID, SeqCaseID) %>% summarise(count = n()) %>% arrange(desc(count))
 ```
@@ -201,12 +225,13 @@ PRIM_cases %>% group_by(PersonID, InterviewID, SeqCaseID) %>% summarise(count = 
 PRIM_cases[PRIM_cases$PersonID == "409241" & PRIM_cases$InterviewID == "1375331" & PRIM_cases$SeqCaseID == "1719208", ]
 ```
 
+## same person, same seqcase
 ```{r}
 PRIM_cases %>% group_by(PersonID, SeqCaseId) %>% summarise(count = n()) %>% arrange(desc(count))
 ```
 
 ```{r}
-e = PRIM_cases[PRIM_cases$PersonID == "152948" & PRIM_cases$SeqCaseId == "913837", ]
+PRIM_cases[PRIM_cases$PersonID == "152948" & PRIM_cases$SeqCaseId == "913837", ]
 ```
 
 
@@ -219,7 +244,7 @@ __Insights__:
 
 
 
-##### 4. Charges ################################################################################
+## 4. Charges
 
 ```{r}
 colnames(PRIM_charges)
@@ -232,12 +257,7 @@ summary(PRIM_charges)
 
 
 
-
-
-
-
-
-##### 5.Bonds ################################################################################
+## 5.Bonds
 ```{r}
 colnames(Bonds)
 ```
@@ -252,9 +272,9 @@ summary(Bonds)
 
 
 
-###### Combine files ########################################################################
+### Combine Data Sets
 
-### 1. defendants + interviews
+## 1. defendants + interviews
 ```{r}
 comb1 = merge(x=Defendants, y=Interviews, by="PersonID")
 nrow(comb1) == nrow(Interviews)
@@ -272,9 +292,7 @@ colnames(comb1)
 
 
 
-
-
-### 2. comb1 + PRIM_cases
+## 2. comb1 + PRIM_cases
 ```{r}
 ## inner join
 comb2 = merge(x=comb1, y=PRIM_cases, by=c("PersonID", "InterviewID"))
@@ -289,16 +307,11 @@ No information added or lost.
 colnames(comb2)
 ```
 
-__Summary__:
-
-1. "comb2" contains all the interview and case information in PRIM, that could be related to the CourtNet cases.
-
-2. 5000+ records have age over 90+. Prob typo.
-
-"comb2" with be continuously merged with other files including "Bonds", "Events", "FTA" etc, then merged with the CNet files, which already contains charges information from CNet. "PRIM_unique_charge" will also be merged with the rest files and then row-binded to the file generated above.
 
 
-### comb2 + PRIM_charges
+
+
+## comb2 + PRIM_charges
 ```{r}
 comb3 = merge(x=comb2, 
               y=PRIM_charges,
@@ -334,11 +347,7 @@ comb3 = comb3 %>%
 
 ```{r}
 PRIM_cases = comb2
-PRIM_charges = comb3
-PRIM_bond = Bonds
 save(PRIM_cases, file = "PRIM_Cases.RData")
-save(PRIM_charges, file = "PRIM_Charges.RData")
-save(PRIM_bond, file = "PRIM_Bonds.RData")
 ```
 
 
