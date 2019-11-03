@@ -18,37 +18,45 @@ library(data.table)
 
 __Introduction__:
 
-This file combines all the data from CourtNet System and identify potential features.
+This file explores CourtNet system data set and combines all the data from CourtNet System and identify potential features.
 
-```{r}
-data_path = "~/Duke/Cynthia Research/KY-analysis-mytrials/KY Recidivism/KY Data/"
-```
 
-### KY1 -- defendants
+## load CourtNet data sets
+
+**Specify the data path before using**
+
 ```{r, message=FALSE, warning=FALSE}
-Defendants = as.data.frame(fread(paste0(data_path,'01_KY_Recidivism_Defendants.txt'), 
-                                 header = T)) %>% select(PersonID, Gender, Race)
+## defendant data
+Defendants = as.data.frame(
+  fread(paste0(data_path,'01_KY_Recidivism_Defendants.txt'), header = T)
+  ) %>% 
+  select(PersonID, Gender, Race)
 
-CNet_cases = as.data.frame(fread(paste0(data_path,'03_KY_Recidivism_CNet_Cases.txt'), 
-                                 header = T)) %>% filter(County != "WHITLEY")
+## CourtNet cases
+CNet_cases = as.data.frame(
+  fread(paste0(data_path,'03_KY_Recidivism_CNet_Cases.txt'), header = T)
+  ) %>% 
+  filter(County != "WHITLEY")
 
-CNet_charges = as.data.frame(fread(paste0(data_path,'06_KY_Recidivism_CNet_Charges.txt'),
-                                   header = T)) %>% 
-    rename(PersonID = PersonId) %>% 
-    filter(County != "WHITLEY")
+## CourtNet charges
+CNet_charges = as.data.frame(
+  fread(paste0(data_path,'06_KY_Recidivism_CNet_Charges.txt'),header = T)
+  ) %>% 
+  rename(PersonID = PersonId) %>% 
+  filter(County != "WHITLEY")
 
-Sentences = as.data.frame(fread(paste0(data_path,'08_KY_Recidivism_Sentences.txt'), 
-                                header = T)) %>% 
-    rename(PersonID = PersonId) %>% 
-    filter(County != "WHITLEY")
+## CourtNet sentences
+Sentences = as.data.frame(
+  fread(paste0(data_path,'08_KY_Recidivism_Sentences.txt'), header = T)
+  ) %>% 
+  rename(PersonID = PersonId) %>% 
+  filter(County != "WHITLEY")
 
 ```
 
  
-##### EDA ########################################################################################
-
-##### 1. Defendants ##############################################################################
-The original data contains variables including PersonID, Gender, Race, Ethnicity, ID Source. Only kept PersonID and Gender. Other features will not be used in prediction.
+## 1. Defendants 
+The original data contains variables including PersonID, Gender, Race, Ethnicity, ID Source. Only kept PersonID, Gender and Race. Other features will not be used in prediction.
 
 ```{r}
 colnames(Defendants)
@@ -65,7 +73,10 @@ length(unique(Defendants$PersonID)) == nrow(Defendants)
 __NOTE__:
 Each row has an unique PersonID.
 
-###### 2. CNet_Cases ###############################################################################
+
+
+
+## 2. CNet_Cases
 
 ```{r}
 colnames(CNet_cases)
@@ -83,7 +94,7 @@ sum(CNet_cases$PRIM)
 ```
 
 __NOTE__:
-Not all the cases are in the PRIM system. We might want to only work on cases that appear in the PRIM, which helps reduce the data size.
+Not all the cases are in the PRIM system. We will only work on cases that appear in the PRIM so that the corresponding PRIM system information could be matched.
 
 ```{r}
 length(unique(CNet_cases$PersonID)) == nrow(CNet_cases)
@@ -105,7 +116,12 @@ CNet_cases[CNet_cases$PersonID == "19143", ]
 ```
 
 
-###### 3. CNet_charges ###############################################################################
+
+
+
+
+
+## 3. CNet_charges 
 
 ```{r}
 colnames(CNet_charges)
@@ -130,7 +146,7 @@ __NOTE__:
 It is expected that the PersonID is not equal to the number of rows of CNet_charges. Each unique case in the CourtNet system could relate to multiple charges.
 
 __Sanity Check__:
-It is confirmed that one case could correspond to several charges. There are people who had over thousands of charges under one case....
+It is confirmed that one case could correspond to several charges. 
 
 ```{r}
 CNet_charges %>% group_by(PersonID, SeqCaseID) %>% summarize(count = n()) %>% arrange(desc(count))
@@ -143,7 +159,7 @@ CNet_charges[CNet_charges$PersonID == "299055" & CNet_charges$SeqCaseID == "1131
 ```
 
 
-###### 4. Sentences ################################################################################
+## 4. Sentences 
 ```{r}
 colnames(Sentences)
 ```
@@ -160,18 +176,15 @@ summary(Sentences)
 
 
 
-##### Combine Tables ###############################################################################
-
-During the whole combination process, we will keep as many features as possible, which aims to keep as much information as possible, through renaming features and conducting sanity checking, which also ensures the correctness of combination.
+## Combine Data Sets 
 
 
-## 1. Combine cases with defendants #######
+## 1. Combine cases with defendants
 ```{r, message=FALSE}
 memory.limit(size=56000)
 comb1 = merge(x=Defendants,
               y=CNet_cases,
               by = "PersonID")
-
 nrow(comb1) == nrow(CNet_cases)
 ```
 
@@ -192,7 +205,7 @@ comb1 = comb1 %>%
 
 
 
-## 2. Combine with charges ########
+## 2. Combine with charges
 ```{r}
 comb2 = merge(x = comb1, 
               y=CNet_charges,
@@ -241,7 +254,7 @@ comb2 = comb2 %>%
 
 
 
-## 3. Combine with sentences ########
+## 3. Combine with sentences
 
 ```{r, warning=FALSE, message=FALSE}
 memory.limit(size=56000)
@@ -254,6 +267,7 @@ nrow(comb3) == nrow(comb2)
 ```
 
 __NOTE__: extra rows added to comb3
+
 
 ## check SentenceEntityNumber != ChargeEntityNumber
 ```{r}
@@ -293,8 +307,6 @@ comb3 = comb3 %>%
          -ChargeDate.y,
          -CaseNumberType,
          -type,
-         -"UOR Code",
-         -"UOR Description",
          -UorClass,
          -UorLevel) %>% 
   rename(County = County.x,
@@ -305,10 +317,7 @@ comb3 = comb3 %>%
 ```
 
 
-### work with final data
-### Subset useful features
-
-Based on what we need, we can subset any features we want.
+### save final data
 
 ```{r}
 CNet_data = comb3
