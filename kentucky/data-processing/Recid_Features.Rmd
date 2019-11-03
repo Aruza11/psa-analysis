@@ -900,40 +900,4 @@ write.csv(test, file = "C:/Users/binha/Documents/Duke/Cynthia Research/KY-analys
 
 
 
-```{r}
-test_index = 1:nrow(recid_labels)
-test_index = ifelse(test_index %in% test_sample, 1, 0)
-
-## 5-CV index
-flds <- createFolds(train$recid_two_year, 
-                    k = 5, 
-                    list = TRUE, 
-                    returnTrain = FALSE)
-fold = 1:nrow(recid_labels)
-fold[fold %in% flds$Fold1] = "a"
-fold[fold %in% flds$Fold2] = "b"
-fold[fold %in% flds$Fold3] = "c"
-fold[fold %in% flds$Fold4] = "d"
-fold[fold %in% flds$Fold5] = "e"
-
-fold[fold == "a"] = 1
-fold[fold == "b"] = 2
-fold[fold == "c"] = 3
-fold[fold == "d"] = 4
-fold[fold == "e"] = 5
-fold=as.numeric(fold)
-
-#train = sample_frac(df,.8)
-#test = anti_join(df, train, by = 'person_id')
-```
-
-
-
-
-
-
-
-
-
-
 
