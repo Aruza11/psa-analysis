@@ -1,8 +1,10 @@
-from sklearn.model_selection import KFold, GridSearchCV
 import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
-from utils.fairness_functions import compute_confusion_matrix_stats, compute_calibration_fairness, conditional_balance_positive_negative, \
+from sklearn.model_selection import KFold, GridSearchCV
+from utils.fairness_functions import compute_confusion_matrix_stats, \
+                                     compute_calibration_fairness, \
+                                     conditional_balance_positive_negative, \
                                      fairness_in_auc, balance_positive_negative
 from sklearn.calibration import CalibratedClassifierCV
 
@@ -53,8 +55,11 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
         test_x = test_x.drop(['person_id', 'screening_date', 'race'], axis=1).values
         
         ## GridSearch: inner CV
-        clf = GridSearchCV(estimator=estimator, param_grid=c_grid, scoring='roc_auc',
-                           cv=inner_cv, return_train_score=True).fit(train_x, train_y)
+        clf = GridSearchCV(estimator=estimator, 
+                           param_grid=c_grid, 
+                           scoring='roc_auc',
+                           cv=inner_cv, 
+                           return_train_score=True).fit(train_x, train_y)
 
         ## best parameter & scores
         mean_train_score = clf.cv_results_['mean_train_score']
@@ -76,8 +81,9 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
         ########################
         ## confusion matrix stats
         confusion_matrix_fairness = compute_confusion_matrix_stats(df=holdout_with_attrs,
-                                                     preds=holdout_pred,
-                                                     labels=test_y, protected_variables=["sex", "race"])
+                                                                   preds=holdout_pred,
+                                                                   labels=test_y, 
+                                                                   protected_variables=["sex", "race"])
         cf_final = confusion_matrix_fairness.assign(fold_num = [i]*confusion_matrix_fairness['Attribute'].count())
         confusion_matrix_rets.append(cf_final)
         
