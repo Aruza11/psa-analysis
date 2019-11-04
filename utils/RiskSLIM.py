@@ -1,8 +1,11 @@
 import numpy as np
 import pandas as pd
 
-from utils.fairness_functions import compute_confusion_matrix_stats, compute_calibration_fairness, conditional_balance_positive_negative, \
-                                     fairness_in_auc, balance_positive_negative
+from utils.fairness_functions import compute_confusion_matrix_stats, \
+                                     compute_calibration_fairness, \
+                                     conditional_balance_positive_negative, \
+                                     fairness_in_auc, \
+                                     balance_positive_negative
 from sklearn.model_selection import KFold
 from sklearn.metrics import roc_auc_score
 from sklearn.utils import shuffle
@@ -16,7 +19,13 @@ from riskslim.lattice_cpa import setup_lattice_cpa, finish_lattice_cpa
 
 
 
-def risk_slim(data, max_coefficient, max_L0_value, c0_value, max_offset, max_runtime = 120, w_pos = 1):
+def risk_slim(data, 
+              max_coefficient, 
+              max_L0_value, 
+              c0_value, 
+              max_offset, 
+              max_runtime = 120, 
+              w_pos = 1):
     
     """
     @parameters:
@@ -32,7 +41,10 @@ def risk_slim(data, max_coefficient, max_L0_value, c0_value, max_offset, max_run
     """
     
     # create coefficient set and set the value of the offset parameter
-    coef_set = CoefficientSet(variable_names = data['variable_names'], lb = -max_coefficient, ub = max_coefficient, sign = 0)
+    coef_set = CoefficientSet(variable_names = data['variable_names'], 
+                              lb = -max_coefficient, 
+                              ub = max_coefficient, 
+                              sign = 0)
     conservative_offset = get_conservative_offset(data, coef_set, max_L0_value)
     max_offset = min(max_offset, conservative_offset)
     coef_set['(Intercept)'].ub = max_offset
@@ -146,12 +158,13 @@ def risk_nested_cv(X,
                    seed):
 
     ## set up data
-    #Y = Y.reshape(-1,1)
     sample_weights = np.repeat(1, len(Y))
 
     ## set up cross validation
     outer_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
     inner_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
+    
+    ## intialize result lists
     train_auc = []
     validation_auc = []
     test_auc = []
@@ -196,7 +209,6 @@ def risk_nested_cv(X,
             validation_x, validation_y = outer_train_x.iloc[validation].values, outer_train_y[validation]
             inner_train_sample_weight = outer_train_sample_weight[inner_train]
             validation_sample_weight = outer_train_sample_weight[validation]
-            #inner_train_x = inner_train_x.values
             inner_train_y = inner_train_y.reshape(-1,1)
        
             ## create new data dictionary
@@ -219,7 +231,6 @@ def risk_nested_cv(X,
             ## check validation auc
             validation_x = validation_x[:,1:] ## remove the first column, which is "intercept"
             validation_y[validation_y == -1] = 0 ## change -1 to 0
-            #validation_prob = riskslim_prediction(validation_x, np.array(cols), model_info).reshape(-1,1)
             validation_prob = riskslim_prediction(validation_x, np.array(cols), model_info)
             validation_auc.append(roc_auc_score(validation_y, validation_prob))
         
