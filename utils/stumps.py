@@ -3,14 +3,23 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold, GridSearchCV
 from sklearn.metrics import roc_auc_score
-from utils.fairness_functions import compute_confusion_matrix_stats, compute_calibration_fairness, conditional_balance_positive_negative, \
+from utils.fairness_functions import compute_confusion_matrix_stats, \
+                                     compute_calibration_fairness, \
+                                     conditional_balance_positive_negative, \
                                      fairness_in_auc, balance_positive_negative
 
 
-def stump_cv(X, Y, columns, c_grid, seed):
+def stump_cv(X, 
+             Y, 
+             columns, 
+             c_grid, 
+             seed):
     
     ## estimator
-    lasso = LogisticRegression(class_weight = 'balanced', solver='liblinear', random_state=seed, penalty='l1')
+    lasso = LogisticRegression(class_weight = 'balanced', 
+                               solver='liblinear', 
+                               random_state=seed, 
+                               penalty='l1')
     
     ## outer cv
     train_outer = []
@@ -55,8 +64,11 @@ def stump_cv(X, Y, columns, c_grid, seed):
         test_x = test_x.drop(['person_id', 'screening_date', 'race', 'age_at_current_charge', 'p_charges'], axis=1)
         
         ## GridSearch: inner CV
-        clf = GridSearchCV(estimator=lasso, param_grid=c_grid, scoring='roc_auc',
-                           cv=inner_cv, return_train_score=True).fit(train_x, train_y)
+        clf = GridSearchCV(estimator=lasso, 
+                           param_grid=c_grid, 
+                           scoring='roc_auc',
+                           cv=inner_cv, 
+                           return_train_score=True).fit(train_x, train_y)
     
         ## best parameter & scores
         mean_train_score = clf.cv_results_['mean_train_score']
@@ -65,8 +77,11 @@ def stump_cv(X, Y, columns, c_grid, seed):
         auc_diffs.append(mean_train_score[np.where(mean_test_score == clf.best_score_)[0][0]] - clf.best_score_)
         
         ## run model with best parameter
-        best_model = LogisticRegression(class_weight = 'balanced', solver='liblinear', 
-                                        random_state=seed, penalty='l1', C=best_param['C']).fit(train_x, train_y)
+        best_model = LogisticRegression(class_weight = 'balanced', 
+                                        solver='liblinear', 
+                                        random_state=seed, 
+                                        penalty='l1', 
+                                        C=best_param['C']).fit(train_x, train_y)
         coefs = best_model.coef_[best_model.coef_ != 0]
         features = columns[best_model.coef_[0] != 0].tolist()
         intercept = best_model.intercept_[0]

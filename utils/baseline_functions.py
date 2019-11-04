@@ -6,7 +6,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from utils.model_selection import nested_cross_validate
 
-#### XGBoost ####
+##################################################
+##                   XGBoost                    ##
+##################################################
 def XGB(X,
         Y,
         learning_rate=None, 
@@ -37,8 +39,9 @@ def XGB(X,
     return summary
 
 
-
-#### Random Forest ####
+##################################################
+##                Random Forest                 ##
+##################################################
 def RF(X,
        Y,
        depth=None, 
@@ -63,34 +66,9 @@ def RF(X,
     return summary
 
 
-
-#### CART ####
-def CART(X,
-         Y,
-         depth=None, 
-         split=None, 
-         impurity=None,
-         seed=None):
-
-    ### model
-    cart = DecisionTreeClassifier(random_state=seed)
-    
-    ### parameters
-    c_grid = {"max_depth": depth,
-              "min_samples_split": split,
-              "min_impurity_decrease": impurity}
-    c_grid = {k: v for k, v in c_grid.items() if v is not None}
-
-    summary = nested_cross_validate(X=X,
-                                    Y=Y,
-                                    estimator=cart,
-                                    c_grid=c_grid,
-                                    seed=seed)
-    return summary
-
-
-#### Linear SVM ###
-
+##################################################
+##                Linear SVM                    ##
+##################################################
 def LinearSVM(X, 
               Y,
               C, 
@@ -112,7 +90,11 @@ def LinearSVM(X,
                                     index = index)
     return summary
 
-#### L1 Logistic Regression -- Abbreviated as Lasso ####
+
+##################################################
+##        L1 Logistic Regression (Lasso)        ##
+##################################################
+
 def Lasso(X, 
           Y,
           C,
@@ -134,7 +116,12 @@ def Lasso(X,
                                     seed=seed)
     return summary
 
-#### L2 Logistic Regression ####
+
+
+##################################################
+##          L2 Logistic Regression              ##
+##################################################
+
 def Logistic(X, 
              Y,
              C,
