@@ -145,6 +145,16 @@ __NOTE__:
 CNet_features = CNet %>% 
     mutate(
         is_violence = ifelse(str_detect(UOR_Description, "VIOLENCE") | 
+                             str_detect(UOR_Description, "BATTERY") |
+                             str_detect(UOR_Description, "ASSAULT") |
+                             str_detect(UOR_Description, "MANSLAUGHTER") |
+                             str_detect(UOR_Description, "MURDER") |
+                             str_detect(UOR_Description, "WEAPON") |
+                             str_detect(UOR_Description, "FIREARM") |
+                             str_detect(UOR_Description, "SEX") |
+                             str_detect(UOR_Description, "RAPE") |
+                             str_detect(UOR_Description, "ARSON") |
+                             str_detect(UOR_Description, "TERRORISTIC") |
                              UOR_Code %in% seq(130130, 130325), 1, 0),
         
         is_felony = ifelse(UOR_Level == "FELONY", 1, 0),
