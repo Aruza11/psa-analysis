@@ -296,9 +296,7 @@ def compute_calibration_discrete_score(long_df:pd.DataFrame,
 def parse_calibration_matrix(calibration_matrix: pd.DataFrame, 
                              problem_name:str, 
                              score_name:str):
-    """Parses calibration results for SCORE THAT ARE PROBABILITIES 
-    (i.e. our interpretable models)
-    """
+    
     calibration_matrix[score_name] = (calibration_matrix["Lower Limit Score"].astype(str) + "-" 
                                      + calibration_matrix["Upper Limit Score"].astype(str))
     calibration_matrix.drop(columns = ['Lower Limit Score', 'Upper Limit Score'], inplace=True)

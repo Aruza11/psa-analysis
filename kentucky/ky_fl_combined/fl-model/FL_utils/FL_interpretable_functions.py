@@ -5,16 +5,8 @@ from interpret.glassbox import ExplainableBoostingClassifier
 from sklearn.metrics import roc_auc_score
 
 
-## EBM
-def EBM(KY_x, 
-        KY_y, 
-        FL_x, 
-        FL_y, 
-        learning_rate, 
-        depth, 
-        estimators, 
-        holdout_split, 
-        seed):
+## GAM -- generalized additive model
+def EBM(KY_x, KY_y, FL_x, FL_y, learning_rate, depth, estimators, holdout_split, seed):
     
     ### model & parameters
     gam = ExplainableBoostingClassifier(random_state=seed)
@@ -48,20 +40,12 @@ def EBM(KY_x,
 
 
 ### CART
-def CART(KY_x, 
-         KY_y, 
-         FL_x, 
-         FL_y, 
-         depth, 
-         split, 
-         impurity, 
-         seed):
+def CART(KY_x, KY_y, FL_x, FL_y, depth, impurity, seed):
     
     ### model & parameters
     cart = DecisionTreeClassifier(random_state=seed)
     cross_validation = KFold(n_splits=5,shuffle=True, random_state=seed)
     c_grid = {"max_depth": depth, 
-              "min_samples_split": split, 
               "min_impurity_decrease": impurity}
     
     ### nested cross validation

@@ -52,4 +52,37 @@ def stump_cv(KY_x, KY_y,FL_x, FL_y, columns, c_grid, seed):
             'number of coefs': length,
             'dictionary': lasso_dict_rounding,
             'auc_diffs': auc_diff,
-            'FL_score': FL_score}
+            'KY_score': KY_score}
+
+
+def stump_model(X_train, Y_train, X_test, Y_test, c, columns, seed):
+        
+    ## estimator
+    lasso = LogisticRegression(class_weight = 'balanced', 
+                               solver='liblinear', 
+                               random_state=seed, 
+                               penalty='l1', 
+                               C = c).fit(X_train, Y_train)
+    coefs = lasso.coef_[lasso.coef_ != 0]
+    features = columns[lasso.coef_[0] != 0].tolist()
+    intercept = lasso.intercept_[0]
+     
+    ## dictionary
+    lasso_dict_rounding = {}
+    for i in range(len(features)):
+        lasso_dict_rounding.update({features[i]: coefs[i]})
+    
+    ## prediction on test set
+    prob = 0
+    for k in features:
+        test_values = X_test[k]*(lasso_dict_rounding[k])
+        prob += test_values
+    
+    holdout_prob = np.exp(prob)/(1+np.exp(prob))
+    test_auc = roc_auc_score(Y_test, holdout_prob)
+    
+    return {'coefs': coefs, 
+            'features': features, 
+            'intercept': intercept, 
+            'dictionary': lasso_dict_rounding, 
+            'test_auc': test_auc}

@@ -5,15 +5,8 @@ from interpret.glassbox import ExplainableBoostingClassifier
 from sklearn.metrics import roc_auc_score
 
 
-## EBM
-def EBM(KY_x, 
-        KY_y, 
-        FL_x, 
-        FL_y, 
-        learning_rate, 
-        depth, 
-        estimators, 
-        seed):
+## GAM -- generalized additive model
+def EBM(KY_x, KY_y, FL_x, FL_y, learning_rate, depth, estimators, seed):
     
     ### model & parameters
     gam = ExplainableBoostingClassifier(random_state=seed)
@@ -47,12 +40,7 @@ def EBM(KY_x,
 
 
 ### CART
-def CART(KY_x, 
-         KY_y, 
-         FL_x, 
-         FL_y, 
-         depth, 
-         seed):
+def CART(KY_x, KY_y, FL_x, FL_y, depth, seed):
     
     ### model & parameters
     cart = DecisionTreeClassifier(random_state=seed)

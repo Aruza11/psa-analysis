@@ -150,12 +150,12 @@ def risk_cv(KY_x, KY_y, FL_x, FL_y,
     
     ## set up cross validation
     cv = KFold(n_splits=5, random_state=seed, shuffle=True)
-    test_auc = []
+    validation_auc = []
     
-    for train, test in cv.split(KY_x, KY_y):
+    for train, validation in cv.split(KY_x, KY_y):
         
         train_x, train_y = KY_x.iloc[train], KY_y[train]
-        test_x, test_y = KY_x.iloc[test], KY_y[test]
+        validation_x, validation_y = KY_x.iloc[validation], KY_y[validation]
         sample_weights_train = sample_weights[train]
         
         ## set up data
@@ -181,14 +181,14 @@ def risk_cv(KY_x, KY_y, FL_x, FL_y,
         print_model(model_info['solution'], new_train_data)
         
         ## change data format
-        test_x = test_x.values
-        test_y = test_y.reshape(-1,1)
-        test_x = test_x[:,1:]## remove the first column, which is "intercept"
-        test_y[test_y == -1] = 0 ## change -1 to 0
+        validation_x = validation_x.values
+        validation_y = validation_y.reshape(-1,1)
+        validation_x = validation_x[:,1:]## remove the first column, which is "intercept"
+        validation_y[validation_y == -1] = 0 ## change -1 to 0
     
         ## probability & accuracy
-        test_prob = riskslim_prediction(test_x, np.array(cols), model_info).reshape(-1,1)
-        test_auc.append(roc_auc_score(test_y, test_prob))
+        validation_prob = riskslim_prediction(validation_x, np.array(cols), model_info).reshape(-1,1)
+        validation_auc.append(roc_auc_score(validation_y, validation_prob))
         
     ### build model on the whole FL data
     KY_x = KY_x.values
@@ -213,6 +213,6 @@ def risk_cv(KY_x, KY_y, FL_x, FL_y,
     FL_score = roc_auc_score(FL_y, FL_prob)
         
     return {'FL_score': FL_score,
-            'KY_train_score': test_auc}
+            'KY_validation_score': validation_auc}
 
     
