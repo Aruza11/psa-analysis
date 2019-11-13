@@ -1,11 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from utils.fairness_functions import compute_confusion_matrix_stats, \
-                                     compute_calibration_fairness, \
-                                     conditional_balance_positive_negative, \
-                                     fairness_in_auc, \
-                                     balance_positive_negative
+from utils.fairness_functions import compute_confusion_matrix_stats, compute_calibration_fairness, conditional_balance_positive_negative, \
+                                     fairness_in_auc, balance_positive_negative
 from sklearn.model_selection import KFold
 from sklearn.metrics import roc_auc_score
 from sklearn.utils import shuffle
@@ -19,13 +16,7 @@ from riskslim.lattice_cpa import setup_lattice_cpa, finish_lattice_cpa
 
 
 
-def risk_slim(data, 
-              max_coefficient, 
-              max_L0_value, 
-              c0_value, 
-              max_offset, 
-              max_runtime = 120, 
-              w_pos = 1):
+def risk_slim(data, max_coefficient, max_L0_value, c0_value, max_offset, max_runtime = 120, w_pos = 1):
     
     """
     @parameters:
@@ -41,10 +32,7 @@ def risk_slim(data,
     """
     
     # create coefficient set and set the value of the offset parameter
-    coef_set = CoefficientSet(variable_names = data['variable_names'], 
-                              lb = -max_coefficient, 
-                              ub = max_coefficient, 
-                              sign = 0)
+    coef_set = CoefficientSet(variable_names = data['variable_names'], lb = -max_coefficient, ub = max_coefficient, sign = 0)
     conservative_offset = get_conservative_offset(data, coef_set, max_L0_value)
     max_offset = min(max_offset, conservative_offset)
     coef_set['(Intercept)'].ub = max_offset
@@ -158,13 +146,12 @@ def risk_nested_cv(X,
                    seed):
 
     ## set up data
+    #Y = Y.reshape(-1,1)
     sample_weights = np.repeat(1, len(Y))
 
     ## set up cross validation
     outer_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
     inner_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
-    
-    ## intialize result lists
     train_auc = []
     validation_auc = []
     test_auc = []
@@ -209,6 +196,7 @@ def risk_nested_cv(X,
             validation_x, validation_y = outer_train_x.iloc[validation].values, outer_train_y[validation]
             inner_train_sample_weight = outer_train_sample_weight[inner_train]
             validation_sample_weight = outer_train_sample_weight[validation]
+            #inner_train_x = inner_train_x.values
             inner_train_y = inner_train_y.reshape(-1,1)
        
             ## create new data dictionary
@@ -388,33 +376,28 @@ def risk_cv(X,
     ## set up cross validation
     cv = KFold(n_splits=5, random_state=seed, shuffle=True)
     train_auc = []
-    test_auc = []
-    holdout_with_attrs_test = []
-    holdout_probability = []
-    holdout_prediction = []
-    holdout_y = []
-    confusion_matrix_rets = []
-    calibrations = []
+    validation_auc = []
     
     i = 0
-    for train, test in cv.split(X, Y):
+    for train, validation in cv.split(X, Y):
     
         ## subset train data & store test data
         train_x, train_y = X.iloc[train], Y[train]
-        test_x, test_y = X.iloc[test], Y[test]
-        sample_weights_train, sample_weights_test = sample_weights[train], sample_weights[test]
+        validation_x, validation_y = X.iloc[validation], Y[validation]
+        sample_weights_train, sample_weights_validation = sample_weights[train], sample_weights[validation]
         
         ## holdout test with "race" for fairness
-        holdout_with_attrs = test_x.copy().drop(['(Intercept)'], axis=1)
+        holdout_with_attrs = validation_x.copy().drop(['(Intercept)'], axis=1)
         holdout_with_attrs = holdout_with_attrs.rename(columns = {'sex1': 'sex'})
         
         ## remove unused feature in modeling
         if indicator == 1:
             train_x = train_x.drop(['person_id', 'screening_date', 'race', 'age_at_current_charge', 'p_charges'], axis=1)
-            test_x = test_x.drop(['person_id', 'screening_date', 'race', 'age_at_current_charge', 'p_charges'], axis=1).values
+            validation_x = validation_x.drop(['person_id', 'screening_date', 'race', 'age_at_current_charge', 'p_charges'], axis=1).values
         else:
             train_x = train_x.drop(['person_id', 'screening_date', 'race','sex1','age_at_current_charge', 'p_charges'], axis=1)
-            test_x = test_x.drop(['person_id', 'screening_date', 'race', 'sex1', 'age_at_current_charge', 'p_charges'], axis=1).values
+            validation_x = validation_x.drop(['person_id', 'screening_date', 'race', 'sex1', 
+                                              'age_at_current_charge', 'p_charges'], axis=1).values
 
         cols = train_x.columns.tolist()
         train_x = train_x.values
@@ -438,55 +421,21 @@ def risk_cv(X,
         print_model(model_info['solution'], new_train_data)
         
         ## change data format
-        train_x, test_x = train_x[:,1:], test_x[:,1:] ## remove the first column, which is "intercept"
+        train_x, validation_x = train_x[:,1:], validation_x[:,1:] ## remove the first column, which is "intercept"
         train_y[train_y == -1] = 0 ## change -1 to 0
-        test_y[test_y == -1] = 0 ## change -1 to 0
+        validation_y[validation_y == -1] = 0 ## change -1 to 0
         
         ## probability & accuracy
         train_prob = riskslim_prediction(train_x, np.array(cols), model_info).reshape(-1,1)
-        test_prob = riskslim_prediction(test_x, np.array(cols), model_info).reshape(-1,1)
-        test_pred = (test_prob > 0.5)
+        validation_prob = riskslim_prediction(validation_x, np.array(cols), model_info).reshape(-1,1)
+        validation_pred = (validation_prob > 0.5)
         
         ## AUC
         train_auc.append(roc_auc_score(train_y, train_prob))
-        test_auc.append(roc_auc_score(test_y, test_prob))
-        
-        ## confusion matrix stats
-        confusion_matrix_fairness = compute_confusion_matrix_stats(df=holdout_with_attrs,
-                                                                   preds=test_pred,
-                                                                   labels=test_y, 
-                                                                   protected_variables=["sex", "race"])
-        cf_final = confusion_matrix_fairness.assign(fold_num = [i]*confusion_matrix_fairness['Attribute'].count())
-        confusion_matrix_rets.append(cf_final)
-        
-        ## calibration
-        calibration = compute_calibration_fairness(df=holdout_with_attrs, 
-                                                   probs=test_prob, labels=test_y, protected_variables=["sex", "race"])
-        calibration_final = calibration.assign(fold_num = [i]*calibration['Attribute'].count())
-        calibrations.append(calibration_final)
-        
-        ## store results
-        holdout_with_attrs_test.append(holdout_with_attrs_test)
-        holdout_probability.append(test_prob)
-        holdout_prediction.append(test_pred)
-        holdout_y.append(test_y)
+        validation_auc.append(roc_auc_score(validation_y, validation_prob))
         i += 1
-        
-    df = pd.concat(confusion_matrix_rets, ignore_index=True)
-    df.sort_values(["Attribute", "Attribute Value"], inplace=True)    
-    df = df.reset_index(drop=True)
-         
-    calibration_df = pd.concat(calibrations, ignore_index=True)
-    calibration_df.sort_values(["Attribute", "Lower Limit Score", "Upper Limit Score"], inplace=True)
-    calibration_df = calibration_df.reset_index(drop=True)
     
     return {'train_auc': train_auc, 
-            'test_auc': test_auc, 
-            'holdout_with_attrs_test': holdout_with_attrs_test,
-            'holdout_probability': holdout_probability,
-            'holdout_prediction': holdout_prediction,
-            'holdout_y': holdout_y,
-            'confusion_matrix_stats': df, 
-            'calibration_stats': calibration_df}
+            'validation_auc': validation_auc}
 
   

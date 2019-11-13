@@ -10,14 +10,7 @@ from sklearn.calibration import CalibratedClassifierCV
 
 
 ### XGBoost
-def XGB(KY_x, 
-        KY_y, 
-        FL_x, 
-        FL_y, 
-        learning_rate, 
-        depth, 
-        estimators, 
-        seed):
+def XGB(KY_x, KY_y, FL_x, FL_y, learning_rate, depth, estimators, seed):
     
     ### model & parameters
     xgboost = xgb.XGBClassifier(random_state=seed)
@@ -52,13 +45,7 @@ def XGB(KY_x,
 
 
 ### Random Forest
-def RF(KY_x, 
-       KY_y, 
-       FL_x, 
-       FL_y, 
-       depth, 
-       estimators, 
-       seed):
+def RF(KY_x, KY_y, FL_x, FL_y, depth, estimators, seed):
 
     ### model & parameters
     rf = RandomForestClassifier(bootstrap=True, random_state=seed)
@@ -89,12 +76,7 @@ def RF(KY_x,
 
 
 ### Linear SVM
-def LinearSVM(KY_x, 
-              KY_y, 
-              FL_x, 
-              FL_y, 
-              C, 
-              seed):
+def LinearSVM(KY_x, KY_y, FL_x, FL_y, C, seed):
 
     ### model & parameters
     svm = LinearSVC(dual=False, max_iter=2e6, random_state=seed)
@@ -124,12 +106,7 @@ def LinearSVM(KY_x,
 
 
 ### Lasso
-def Lasso(KY_x, 
-          KY_y, 
-          FL_x, 
-          FL_y, 
-          C, 
-          seed):
+def Lasso(KY_x, KY_y, FL_x, FL_y, C, seed):
     
     ### model & parameters
     lasso = LogisticRegression(class_weight = 'balanced', solver='liblinear', random_state=seed, penalty='l1')
@@ -160,12 +137,7 @@ def Lasso(KY_x,
 
 
 ### Logistic
-def Logistic(KY_x,
-             KY_y, 
-             FL_x, 
-             FL_y, 
-             C, 
-             seed):
+def Logistic(KY_x, KY_y, FL_x, FL_y, C, seed):
     
     ### model & parameters
     lr = LogisticRegression(class_weight = 'balanced', solver='liblinear', random_state=seed)
