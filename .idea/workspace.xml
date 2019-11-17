@@ -1,7 +1,1059 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="cdce966c-6b75-4c8f-8966-bc3ab3be2bb8" name="Default Changelist" comment="" />
+    <list default="true" id="cdce966c-6b75-4c8f-8966-bc3ab3be2bb8" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/.ipynb_checkpoints/General-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/Drug.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/Felony.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/General.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/Misdemeanor.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/Property.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/Violent.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/six-month/Write Table.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/.ipynb_checkpoints/General-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/Drug.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/Felony.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/General.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/Misdemeanor.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/Property.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/Violent.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/baselines/two-year/Write Table.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/drug/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/drug/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/drug/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/drug/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/felony/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/felony/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/felony/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/felony/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/general/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/general/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/general/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/general/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/misdemeanor/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/misdemeanor/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/misdemeanor/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/misdemeanor/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/property/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/property/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/property/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/property/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/violent/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/violent/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/violent/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/six-month/violent/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/drug/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/drug/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/drug/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/drug/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/felony/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/felony/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/felony/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/felony/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/general/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/general/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/general/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/general/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/misdemeanor/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/misdemeanor/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/misdemeanor/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/misdemeanor/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/property/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/property/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/property/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/property/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/violent/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/violent/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/violent/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/calibration/two-year/violent/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/drug/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/drug/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/drug/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/drug/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/felony/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/felony/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/felony/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/felony/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/general/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/general/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/general/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/general/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/misdemeanor/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/misdemeanor/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/misdemeanor/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/misdemeanor/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/property/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/property/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/property/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/property/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/violent/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/violent/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/violent/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/six-month/violent/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/drug/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/drug/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/drug/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/drug/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/felony/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/felony/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/felony/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/felony/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/general/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/general/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/general/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/general/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/misdemeanor/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/misdemeanor/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/misdemeanor/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/misdemeanor/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/property/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/property/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/property/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/property/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/violent/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/violent/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/violent/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/confusion/two-year/violent/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/General-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/broward/interpretable/two_year/General.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/drug/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/drug/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/drug/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/drug/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/felony/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/felony/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/felony/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/felony/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/general/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/general/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/general/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/general/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/misdemeanor/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/misdemeanor/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/misdemeanor/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/misdemeanor/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/property/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/property/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/property/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/property/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/violent/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/violent/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/violent/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/six-month/violent/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/drug/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/drug/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/drug/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/drug/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/felony/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/felony/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/felony/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/felony/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/general/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/general/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/general/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/general/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/misdemeanor/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/misdemeanor/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/misdemeanor/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/misdemeanor/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/property/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/property/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/property/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/property/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/violent/cart_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/violent/ebm_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/violent/riskslim_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/calibration/two-year/violent/stumps_calibration.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/drug/arnold_conditon_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/drug/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/drug/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/felony/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/felony/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/general/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/general/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/misdemeanor/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/misdemeanor/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/property/arnold_conditon_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/property/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/property/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/violent/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/violent/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/drug/arnold_conditon_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/drug/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/drug/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/felony/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/felony/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/general/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/general/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/misdemeanor/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/misdemeanor/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/property/arnold_conditon_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/property/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/property/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/violent/cart_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/violent/stumps_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/drug/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/drug/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/drug/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/drug/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/felony/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/felony/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/felony/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/felony/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/general/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/general/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/general/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/general/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/misdemeanor/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/misdemeanor/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/misdemeanor/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/misdemeanor/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/property/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/property/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/property/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/property/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/violent/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/violent/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/violent/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/six-month/violent/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/drug/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/drug/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/drug/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/drug/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/felony/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/felony/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/felony/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/felony/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/general/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/general/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/general/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/general/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/misdemeanor/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/misdemeanor/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/misdemeanor/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/misdemeanor/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/property/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/property/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/property/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/property/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/violent/cart_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/violent/ebm_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/violent/riskslim_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/confusion/two-year/violent/stumps_confusion.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/data-processing/.ipynb_checkpoints/create-stumps-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/data preparation/.ipynb_checkpoints/data_preparetion_fl_ky-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/Drug.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/Felony.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/Misdemeanor.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/Property.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/Six Month Recidivism.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/Violent.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Six Month/Write Table.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/Drug.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/Felony.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/Misdemeanor.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/Property.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/Two Year Recidivism.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/Violent.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Baseline Models/Two Year/Write Table.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/FL_utils/.ipynb_checkpoints/FL_RiskSLIM-checkpoint.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/FL_utils/.ipynb_checkpoints/FL_stumps-checkpoint.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/FL_utils/FL_RiskSLIM.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/FL_utils/FL_baseline_functions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/FL_utils/FL_interpretable_functions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/FL_utils/FL_stumps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/Drug.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/Felony.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/Misdemeanor.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/Property.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/Six Month Recidivism.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/Violent.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Six Month/Write Table.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/Drug.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/Felony.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/Misdemeanor.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/Property.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/Two Year Recidivism.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/Violent.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/Interpretable Models/Two Year/Write Table.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/Drug.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/Felony.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/Misdemeanor.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/Property.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/Six Month Recidivism.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/Violent.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Six Month/Write Table.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/Drug.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/Felony.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/Misdemeanor.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/Property.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/Two Year Recidivism.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/Violent.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Baseline Models/Two Year/Write Table.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/Drug.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/Felony.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/Misdemeanor.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/Property.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/Six Month Recidivism.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/Violent.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Six Month/Write Table.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/Drug.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/Felony.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/Misdemeanor.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/Property.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/Two Year Recidivism.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/Violent.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/Interpretable Models/Two Year/Write Table.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/KY_utils/.ipynb_checkpoints/KY_RiskSLIM-checkpoint.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/KY_utils/.ipynb_checkpoints/KY_baseline_functions-checkpoint.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/KY_utils/.ipynb_checkpoints/KY_stumps-checkpoint.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/KY_utils/KY_RiskSLIM.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/KY_utils/KY_baseline_functions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/KY_utils/KY_interpretable_functions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/KY_utils/KY_stumps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/drug/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/drug/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/drug/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/drug/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/felony/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/felony/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/felony/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/general/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/general/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/general/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/misdemeanor/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/misdemeanor/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/misdemeanor/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/property/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/property/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/property/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/property/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/violent/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/violent/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/violent/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/drug/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/drug/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/drug/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/felony/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/felony/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/general/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/general/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/misdemeanor/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/misdemeanor/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/property/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/property/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/property/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/violent/cart_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/violent/stumps_no_condition_pn.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/drug/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/drug/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/drug/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/felony/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/felony/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/felony/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/general/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/general/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/general/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/misdemeanor/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/misdemeanor/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/misdemeanor/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/property/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/property/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/property/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/violent/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/violent/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/violent/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/drug/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/drug/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/drug/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/felony/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/felony/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/felony/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/general/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/general/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/general/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/misdemeanor/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/misdemeanor/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/misdemeanor/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/property/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/property/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/property/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/violent/cart_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/violent/ebm_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/violent/stumps_race_auc.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/plot_calibration.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/.ipynb_checkpoints/age_distribution-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/age_distributions/.ipynb_checkpoints/age_distribution-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/age_distributions/age_distribution.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/age_distributions/drug.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/age_distributions/felony.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/age_distributions/general.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/age_distributions/misdemeanor.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/age_distributions/property.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/age_distributions/violent.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/baseline_tables/.ipynb_checkpoints/table-visualization-checkpoint.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/baseline_tables/FL Baseline Summary.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/baseline_tables/FL Interpretable Summary.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/baseline_tables/FL baseline.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/baseline_tables/FL interpretable.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/baseline_tables/KY Baseline Summary.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/baseline_tables/KY Interpretable Summary.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/baseline_tables/KY baseline.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/baseline_tables/KY interpretable.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/baseline_tables/table-visualization.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/L1 Logistic Stumps/ADE.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/L1 Logistic Stumps/age.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/L1 Logistic Stumps/arrest.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/L1 Logistic Stumps/drug.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/L1 Logistic Stumps/felony.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/L1 Logistic Stumps/misdemenaor.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/L1 Logistic Stumps/pending_charge.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/L1 Logistic Stumps/probation.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/L1 Logistic Stumps/six_month.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/L1 Logistic Stumps/stealing.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/L1 Logistic Stumps/violent.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/.ipynb_checkpoints/Arnold PSA-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/broward/baselines/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/.ipynb_checkpoints/Arnold PSA-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/Six Month Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/Violent.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/six-month/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/broward/baselines/six-month/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/.ipynb_checkpoints/__init__-checkpoint.py" beforeDir="false" afterPath="$PROJECT_DIR$/broward/baselines/two-year/.ipynb_checkpoints/__init__-checkpoint.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/Two Year Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/Violent.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/python/two-year/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/broward/baselines/two-year/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/r/.Rhistory" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/r/Recidivism_Baseline.Rmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/r/baseline_util.R" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/baselines/r/baselines_recid_broward.Rmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/drug/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/drug/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/drug/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/drug/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/felony/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/felony/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/felony/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/felony/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/general/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/general/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/general/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/general/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/misdemeanor/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/misdemeanor/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/misdemeanor/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/misdemeanor/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/property/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/property/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/property/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/property/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/violent/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/violent/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/violent/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/six_month/violent/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/drug/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/drug/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/drug/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/drug/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/felony/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/felony/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/felony/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/felony/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/general/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/general/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/general/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/general/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/misdemeanor/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/misdemeanor/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/misdemeanor/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/misdemeanor/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/property/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/property/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/property/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/property/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/violent/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/violent/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/violent/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/calibration_matrix/two_year/violent/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/six-month/drug/stumps_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/six-month/drug/stumps_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/six-month/felony/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/six-month/felony/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/six-month/felony/stumps_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/six-month/felony/stumps_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/six-month/general/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/six-month/general/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/six-month/misdemeanor/stumps_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/six-month/misdemeanor/stumps_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/six-month/violent/ebm_pn.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/six-month/violent/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/six-month/violent/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/six-month/violent/stumps_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/six-month/violent/stumps_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/two-year/drug/stumps_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/two-year/drug/stumps_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/two-year/felony/stumps_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/two-year/felony/stumps_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/two-year/general/stumps_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/two-year/general/stumps_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/two-year/misdemeanor/cart_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/two-year/misdemeanor/cart_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/two-year/misdemeanor/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/two-year/misdemeanor/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/two-year/misdemeanor/stumps_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/two-year/misdemeanor/stumps_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/two-year/property/stumps_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/two-year/property/stumps_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/condition-pn/two-year/violent/stumps_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/condition-pn/two-year/violent/stumps_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/data-processing/data_util.R" beforeDir="false" afterPath="$PROJECT_DIR$/broward/data-processing/data_util.R" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/Drug.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/Drug.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/Felony.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/Felony.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/Misdemeanor.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/Misdemeanor.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/Property.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/Property.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/Six Month Recidivism.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/Six Month Recidivism.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/Violent.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/Violent.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/Write Table.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/six_month/Write Table.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/drug_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/felony_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/general_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/misdemeanor_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/property_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/six_month/violent_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Drug-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Felony-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Property-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Violent-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/Drug.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/Drug.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/Felony.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/Felony.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/Misdemeanor.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/Misdemeanor.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/Property.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/Property.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/Two Year Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/Violent.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/Violent.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/Write Table.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/broward/interpretable/two_year/Write Table.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/drug_two_year.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/felony_two_year.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/general_two_year.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/misdemeanor_two_year.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/property_two_year.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/interpretable/two_year/violent_two_year.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/logs/baselines/FL-six-month-baseline-summary.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/logs/baselines/FL-six-month-baseline-summary.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/logs/baselines/FL-two-year-baseline-summary.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/logs/baselines/FL-two-year-baseline-summary.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/logs/models/FL-six-month-interpretable-summary.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/logs/models/FL-six-month-interpretable-summary.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/logs/models/FL-two-year-interpretable-summary.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/logs/models/FL-two-year-interpretable-summary.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/models/advanced_models/six_month/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/six-month/drug/stumps_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/six-month/drug/stumps_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/six-month/felony/riskslim_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/six-month/felony/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/six-month/felony/stumps_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/six-month/felony/stumps_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/six-month/general/riskslim_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/six-month/general/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/six-month/misdemeanor/stumps_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/six-month/misdemeanor/stumps_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/six-month/violent/ebm_condition_pn.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/six-month/violent/riskslim_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/six-month/violent/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/six-month/violent/stumps_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/six-month/violent/stumps_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/two-year/drug/stumps_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/two-year/drug/stumps_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/two-year/felony/stumps_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/two-year/felony/stumps_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/two-year/general/stumps_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/two-year/general/stumps_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/two-year/misdemeanor/cart_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/two-year/misdemeanor/cart_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/two-year/misdemeanor/riskslim_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/two-year/misdemeanor/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/two-year/misdemeanor/stumps_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/two-year/misdemeanor/stumps_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/two-year/property/stumps_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/two-year/property/stumps_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/no-condition-pn/two-year/violent/stumps_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/no-condition-pn/two-year/violent/stumps_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/six-month/felony/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/six-month/felony/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/six-month/general/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/six-month/general/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/six-month/misdemeanor/stumps_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/six-month/misdemeanor/stumps_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/six-month/violent/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/six-month/violent/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/six-month/violent/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/six-month/violent/stumps_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/six-month/violent/stumps_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/two-year/drug/stumps_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/two-year/drug/stumps_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/two-year/felony/stumps_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/two-year/felony/stumps_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/two-year/general/stumps_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/two-year/general/stumps_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/two-year/misdemeanor/cart_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/two-year/misdemeanor/cart_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/two-year/misdemeanor/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/two-year/misdemeanor/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/two-year/misdemeanor/stumps_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/two-year/misdemeanor/stumps_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/two-year/property/stumps_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/two-year/property/stumps_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/broward/race-auc/two-year/violent/stumps_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/broward/race-auc/two-year/violent/stumps_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/six-month/Drug.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/six-month/Drug.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/six-month/Felony.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/six-month/Felony.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/six-month/Misdemeanor.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/six-month/Misdemeanor.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/six-month/Property.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/six-month/Property.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/six-month/Six Month Recidivism.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/six-month/Six Month Recidivism.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/six-month/Violent.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/six-month/Violent.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/six-month/Write Table.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/six-month/Write Table.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/two-year/Drug.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/two-year/Drug.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/two-year/Felony.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/two-year/Felony.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/two-year/Misdemeanor.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/two-year/Misdemeanor.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/two-year/Property.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/two-year/Property.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/two-year/Two Year Recidivism.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/two-year/Two Year Recidivism.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/two-year/Violent.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/two-year/Violent.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/baselines/two-year/Write Table.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/baselines/two-year/Write Table.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/drug/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/drug/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/drug/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/drug/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/felony/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/felony/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/felony/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/felony/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/general/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/general/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/general/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/general/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/misdemeanor/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/misdemeanor/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/misdemeanor/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/misdemeanor/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/property/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/property/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/property/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/property/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/violent/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/violent/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/violent/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/six_month/violent/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/drug/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/drug/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/drug/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/drug/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/felony/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/felony/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/felony/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/felony/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/general/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/general/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/general/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/general/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/misdemeanor/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/misdemeanor/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/misdemeanor/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/misdemeanor/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/property/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/property/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/property/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/property/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/violent/cart_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/violent/ebm_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/violent/riskslim_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/calibration_matrix/two_year/violent/stumps_calibration.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/drug/arnold_condition_pn.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/drug/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/drug/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/drug/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/drug/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/felony/arnold_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/felony/arnold_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/felony/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/felony/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/felony/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/felony/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/general/arnold_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/general/arnold_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/general/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/general/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/general/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/general/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/misdemeanor/arnold_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/misdemeanor/arnold_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/misdemeanor/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/misdemeanor/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/misdemeanor/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/misdemeanor/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/property/arnold_condition_pn.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/property/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/property/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/property/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/property/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/violent/arnold_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/violent/arnold_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/violent/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/violent/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/six-month/violent/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/six-month/violent/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/drug/arnold_condition_pn.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/drug/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/drug/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/drug/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/drug/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/felony/arnold_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/felony/arnold_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/felony/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/felony/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/felony/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/felony/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/general/arnold_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/general/arnold_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/general/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/general/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/general/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/general/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/misdemeanor/arnold_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/misdemeanor/arnold_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/misdemeanor/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/misdemeanor/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/misdemeanor/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/misdemeanor/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/property/arnold_condition_pn.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/property/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/property/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/property/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/property/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/violent/arnold_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/violent/arnold_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/violent/ebm_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/violent/ebm_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/condition-pn/two-year/violent/riskslim_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/condition-pn/two-year/violent/riskslim_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/data-processing/CourtNet.Rmd" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/data-processing/CourtNet.Rmd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/data-processing/GA2M for stumps.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/data-processing/Labels Summary.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/data-processing/PRIM.Rmd" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/data-processing/PRIM.Rmd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/data-processing/Recid_Features.Rmd" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/data-processing/Recid_Features.Rmd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/data-processing/create-stumps.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/data-processing/create-stumps.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/Drug.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/six_month/Drug.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/Felony.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/six_month/Felony.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/Misdemeanor.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/six_month/Misdemeanor.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/Property.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/six_month/Property.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/Six Month Recidivism.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/six_month/Six Month Recidivism.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/Violent.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/six_month/Violent.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/Write Table.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/six_month/Write Table.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/drug_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/felony_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/general_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/misdemeanor_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/property_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/six_month/violent_six_month.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/Drug.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/two year/Drug.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/Felony.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/two year/Felony.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/Misdemeanor.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/two year/Misdemeanor.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/Property.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/two year/Property.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/Two Year Recidivism.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/two year/Two Year Recidivism.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/Violent.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/two year/Violent.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/Write Table.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/interpretable/two year/Write Table.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/drug.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/felony.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/general.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/misdemeanor.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/property.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/interpretable/two year/violent.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/Six Month Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/Violent.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Six Month/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/Two Year Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/Violent.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/Baseline Models/Two Year/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/together_utils/.ipynb_checkpoints/baseline_functions-checkpoint.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/together_utils/.ipynb_checkpoints/fairness_functions-checkpoint.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/together_utils/.ipynb_checkpoints/model_selection-checkpoint.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/together_utils/baseline_functions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/together_utils/fairness_functions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/together_utils/interpretable_functions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/All Together/together_utils/model_selection.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/Six Month Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/Violence.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/Violent.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/six-month/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/.ipynb_checkpoints/Violence-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/Two Year Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/Violence.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Baseline Models/two-year/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/FL_utils/.ipynb_checkpoints/FL_Corel-checkpoint.py" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/FL_utils/.ipynb_checkpoints/FL_Corel-checkpoint.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/FL_utils/.ipynb_checkpoints/FL_interpretable_functions-checkpoint.py" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/FL_utils/.ipynb_checkpoints/FL_interpretable_functions-checkpoint.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/FL_utils/FL_Corel.py" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/fl-model/FL_utils/FL_Corel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/FL_utils/FL_RiskSLIM.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/FL_utils/FL_baseline_functions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/FL_utils/FL_interpretable_functions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/FL_utils/FL_stumps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/Six Month Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/Violent.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/six-month/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/Two Year Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/Violent.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/FL Model/Interpretable Models/two-year/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/Six Month Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/Violence.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/Violent.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/six-month/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/Two Year Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/Violent.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Baseline Models/two-year/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/.ipynb_checkpoints/Six Month Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/Six Month Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/Violent.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/six-month/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/.ipynb_checkpoints/Drug-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/.ipynb_checkpoints/Felony-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/.ipynb_checkpoints/Misdemeanor-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/.ipynb_checkpoints/Property-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/.ipynb_checkpoints/Two Year Recidivism-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/.ipynb_checkpoints/Violent-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/.ipynb_checkpoints/Write Table-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/Drug.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/Felony.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/Misdemeanor.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/Property.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/Two Year Recidivism.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/Violent.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/Interpretable Models/two-year/Write Table.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/KY_utils/.ipynb_checkpoints/KY_Corel-checkpoint.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/KY_utils/KY_Corel.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/KY_utils/KY_RiskSLIM.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/KY_utils/KY_baseline_functions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/KY_utils/KY_interpretable_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/ky-model/KY_utils/.ipynb_checkpoints/KY_interpretable_functions-checkpoint.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/KY Model/KY_utils/KY_stumps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/data preparation/.ipynb_checkpoints/Create Stumps-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/data preparation/.ipynb_checkpoints/Create Stumps-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/data preparation/Create Stumps.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/data preparation/Create Stumps.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/data preparation/data_preparation_all_together.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/ky_fl_combined/data preparation/data_preparetion_fl_ky.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/ky_fl_combined/data preparation/data_preparetion_fl_ky.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/logs/base_rate/KY-base-rate.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/logs/base_rate/KY-base-rate.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/logs/baselines/KY-six-month-baseline-summary.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/logs/baselines/KY-six-month-baseline-summary.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/logs/baselines/KY-two-year-baseline-summary.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/logs/baselines/KY-two-year-baseline-summary.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/logs/models/KY-six-month-interpretable-summary.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/logs/models/KY-six-month-interpretable-summary.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/logs/models/KY-two-year-interpretable-summary.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/logs/models/KY-two-year-interpretable-summary.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/drug/arnold_no_condition_pn.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/drug/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/drug/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/felony/arnold_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/felony/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/felony/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/felony/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/general/arnold_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/general/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/general/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/general/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/misdemeanor/arnold_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/misdemeanor/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/misdemeanor/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/misdemeanor/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/property/arnold_no_condition_pn.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/property/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/property/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/violent/arnold_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/violent/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/violent/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/six-month/violent/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/drug/arnold_no_condition_pn.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/drug/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/drug/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/drug/riskslim_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/drug/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/felony/arnold_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/felony/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/felony/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/felony/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/felony/riskslim_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/felony/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/general/arnold_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/general/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/general/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/general/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/general/riskslim_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/general/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/misdemeanor/arnold_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/misdemeanor/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/misdemeanor/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/misdemeanor/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/misdemeanor/riskslim_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/misdemeanor/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/property/arnold_no_condition_pn.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/property/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/property/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/property/riskslim_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/property/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/violent/arnold_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/violent/arnold_no_conditon_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/violent/ebm_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/violent/ebm_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/violent/riskslim_no_condition_pn.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/no-condition-pn/two-year/violent/riskslim_no_condition_pn.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/drug/arnold_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/drug/arnold_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/drug/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/drug/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/drug/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/felony/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/felony/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/felony/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/general/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/general/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/general/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/misdemeanor/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/misdemeanor/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/misdemeanor/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/property/arnold_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/property/arnold_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/property/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/property/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/property/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/violent/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/six-month/violent/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/six-month/violent/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/drug/arnold_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/drug/arnold_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/drug/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/drug/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/felony/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/felony/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/felony/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/general/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/general/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/general/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/misdemeanor/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/misdemeanor/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/misdemeanor/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/property/arnold_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/property/arnold_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/property/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/property/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/property/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/violent/ebm_auc.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/race-auc/two-year/violent/riskslim_race_auc.csv" beforeDir="false" afterPath="$PROJECT_DIR$/kentucky/race-auc/two-year/violent/riskslim_race_auc.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/baseline_tables/.ipynb_checkpoints/table-visualization-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/baseline_tables/FL Baseline Summary.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/baseline_tables/FL Interpretable Summary.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/baseline_tables/FL baseline.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/baseline_tables/FL interpretable.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/baseline_tables/KY Baseline Summary.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/baseline_tables/KY Interpretable Summary.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/baseline_tables/KY baseline.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/baseline_tables/KY interpretable.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/baseline_tables/table-visualization.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/.ipynb_checkpoints/visualizations-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/.ipynb_checkpoints/visualizations-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/EBM/p_arrest.png" beforeDir="false" afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/EBM/p_arrest.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/EBM/p_pending_charges.png" beforeDir="false" afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/EBM/p_pending_charges.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/EBM/p_probation.png" beforeDir="false" afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/EBM/p_probation.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/EBM/summary.png" beforeDir="false" afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/EBM/summary.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/ADE.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/age.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/arrest.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/charges.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/felony.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/jail.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/one-year.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/penidng-charge.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/probation.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/sex.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/stealing.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/L1 Logistic Stumps/violent.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kentucky/visualizations/ky-general2-demonstration/visualizations.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/visualizations/ky-general2-demonstration/visualizations.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/.ipynb_checkpoints/fairness_functions-checkpoint.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/RiskSLIM.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/RiskSLIM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/baseline_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/baseline_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/fairness_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/fairness_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/interpretable_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/interpretable_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/model_selection.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/model_selection.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/stumps.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/stumps.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,5 +1121,37 @@
       <window_info anchor="right" id="R Graphics" order="3" />
       <window_info anchor="right" id="R Packages" order="4" />
     </layout>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list />
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
