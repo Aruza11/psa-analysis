@@ -3,10 +3,8 @@ import pandas as pd
 
 
 def df_to_latex(df: pd.DataFrame):
-	values = df.values.tolist()
-
 	writer = pytablewriter.LatexTableWriter()
-	writer.value_matrix = values
+	writer.from_dataframe(df)
 	writer.write_table()
 
 	return
