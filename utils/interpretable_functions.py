@@ -14,13 +14,7 @@ def EBM(X,Y, learning_rate=None, depth=None,estimators=None, holdout_split=None,
               "holdout_split": holdout_split}
     
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
-    
-    #holdout_auc, best_param, auc_diffs, fairness_overview, confusion_matrix_rets = nested_cross_validate(X=X,
-    #                                                                                                     Y=Y,
-    #                                                                                                     estimator=ebm,
-    #                                                                                                     c_grid=c_grid,
-    #                                                                                                     seed=seed)
-    
+        
     summary = nested_cross_validate(X=X, Y=Y, estimator=ebm, c_grid=c_grid, seed=seed)
     return summary
 
@@ -34,12 +28,6 @@ def CART(X, Y,
               "min_samples_split": split,
               "min_impurity_decrease": impurity}
     c_grid = {k: v for k, v in c_grid.items() if v is not None}
-
-    #holdout_auc, best_param, auc_diffs, fairness_overview, confusion_matrix_rets = nested_cross_validate(X=X,
-    #                                                                                                     Y=Y,
-    #                                                                                                     estimator=cart,
-    #                                                                                                     c_grid=c_grid,
-    #                                                                                                     seed=seed)
     
     summary = nested_cross_validate(X=X, Y=Y, estimator=cart, c_grid=c_grid, seed=seed)   
     return summary
