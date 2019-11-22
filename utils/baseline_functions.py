@@ -26,7 +26,9 @@ def XGB(X,Y,
 
 
 def RF(X, Y,
-       depth=None, estimators=None, impurity=None,
+       depth=None, 
+       estimators=None, 
+       impurity=None,
        seed=None):
 
     ### model & parameters

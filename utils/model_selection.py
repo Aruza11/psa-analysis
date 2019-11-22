@@ -22,6 +22,8 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
         
     ## storing lists
     best_params = []
+    train_auc = []
+    validation_auc = []
     auc_diffs = []
     
     holdout_with_attr_test = []
@@ -38,7 +40,7 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
     
     ## inner cv
     inner_cv = KFold(n_splits=5, shuffle=True, random_state=seed)
-
+    
     for i in range(len(train_outer)):
         
         ## subset train & test sets in inner loop
@@ -60,6 +62,8 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
         mean_train_score = clf.cv_results_['mean_train_score']
         mean_test_score = clf.cv_results_['mean_test_score']        
         best_param = clf.best_params_
+        train_auc.append(mean_train_score[np.where(mean_test_score == clf.best_score_)[0][0]])
+        validation_auc.append(clf.best_score_)
         auc_diffs.append(mean_train_score[np.where(mean_test_score == clf.best_score_)[0][0]] - clf.best_score_)
 
         ## train model on best param
@@ -156,6 +160,8 @@ def nested_cross_validate(X, Y, estimator, c_grid, seed, index = None):
     condition_pn_df = condition_pn_df.reset_index(drop=True)
     
     return {'best_param': best_params,
+            'train_auc': train_auc,
+            'validation_auc': validation_auc,
             'auc_diffs': auc_diffs,
             'holdout_test_auc': holdout_auc,
             'holdout_with_attrs_test': holdout_with_attr_test,

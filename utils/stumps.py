@@ -24,6 +24,8 @@ def stump_cv(X, Y, columns, c_grid, seed):
     
     ## storing lists
     holdout_auc = []
+    train_auc = []
+    validation_auc = []
     best_params = []
     auc_diffs = []
     holdout_with_attrs_test = []
@@ -58,11 +60,14 @@ def stump_cv(X, Y, columns, c_grid, seed):
         clf = GridSearchCV(estimator=lasso, param_grid=c_grid, scoring='roc_auc',
                            cv=inner_cv, return_train_score=True).fit(train_x, train_y)
     
-        ## best parameter & scores
+        ## best parameter & scores        
         mean_train_score = clf.cv_results_['mean_train_score']
         mean_test_score = clf.cv_results_['mean_test_score']        
         best_param = clf.best_params_
+        train_auc.append(mean_train_score[np.where(mean_test_score == clf.best_score_)[0][0]])
+        validation_auc.append(clf.best_score_)
         auc_diffs.append(mean_train_score[np.where(mean_test_score == clf.best_score_)[0][0]] - clf.best_score_)
+        
         
         ## run model with best parameter
         best_model = LogisticRegression(class_weight = 'balanced', solver='liblinear', 
@@ -72,14 +77,14 @@ def stump_cv(X, Y, columns, c_grid, seed):
         intercept = best_model.intercept_[0]
         
         ## dictionary
-        lasso_dict_rounding = {}
+        lasso_dict = {}
         for j in range(len(features)):
-            lasso_dict_rounding.update({features[j]: coefs[j]})
+            lasso_dict.update({features[j]: coefs[j]})
         
         ## prediction on test set
         prob = 0
         for k in features:
-            test_values = test_x[k]*(lasso_dict_rounding[k])
+            test_values = test_x[k]*(lasso_dict[k])
             prob += test_values
         test_prob = np.exp(prob)/(1+np.exp(prob))
         test_pred = (test_prob > 0.5)
@@ -200,14 +205,14 @@ def stump_model(X_train, Y_train, X_test, Y_test, c, columns, seed):
     intercept = lasso.intercept_[0]
      
     ## dictionary
-    lasso_dict_rounding = {}
+    lasso_dict = {}
     for i in range(len(features)):
-        lasso_dict_rounding.update({features[i]: coefs[i]})
+        lasso_dict.update({features[i]: coefs[i]})
     
     ## prediction on test set
     prob = 0
     for k in features:
-        test_values = X_test[k]*(lasso_dict_rounding[k])
+        test_values = X_test[k]*(lasso_dict[k])
         prob += test_values
     
     holdout_prob = np.exp(prob)/(1+np.exp(prob))
@@ -216,7 +221,7 @@ def stump_model(X_train, Y_train, X_test, Y_test, c, columns, seed):
     return {'coefs': coefs, 
             'features': features, 
             'intercept': intercept, 
-            'dictionary': lasso_dict_rounding, 
+            'dictionary': lasso_dict, 
             'test_auc': test_auc}
 
 
@@ -331,17 +336,19 @@ def stump_plots(features, coefs, indicator):
                 plt.show()  
                 
     if indicator == 'FL':
-        labels = ['sex', 'p_current_age', 'p_arrest', 'charges', 'violence', 'felony', 'misdemeanor', 'property', 'murder', 
-                  'assault', 'sex_offense', 'weapon', 'felprop_viol', 'felassault', 'misdeassult', 'traffic', 'drug', 'dui', 
-                  'stalking', 'voyeurism', 'fraud', 'stealing', 'trespass', 'ADE', 'Treatment', 'prison', 'jail', 'fta_two_year', 
-                  'fta_two_year_plus', 'pending_charge', 'probation', 'SentMonths', 'six_month', 'one_year', 'three_year', 
-                  'five_year', 'current_violence']
+        labels = ['sex', 'age_at_current_charge', 'p_arrest', 'p_charges', 'p_violence', 'p_felony', 'p_incarceration',
+                  'p_misdemeanor', 'p_property','p_murder', 'p_assault', 'p_sex_offense', 'p_weapon', 'p_felprop_viol', 
+                  'p_felassault', 'p_misdeassult', 'p_traffic', 'p_drug', 'p_dui', 'p_stalking', 'p_voyeurism', 'p_fraud', 
+                  'p_stealing', 'p_trespass', 'ADE', 'Treatment', 'p_incarceration' 'p_fta_two_year', 'fta_two_year_plus', 
+                  'p_pending_charge', 'p_probation', 'six_month', 'one_year', 'three_year', 'five_year', 'current_violence', 
+                  'current_pending_charge', 'current_violence20', 'age_at_first_charge']
     else: 
-        labels = ['sex', 'age_at_current_charge', 'p_arrest', 'p_charges', 'p_violence', 'p_felony', 'p_misdemeanor', 'p_property',
-                  'p_murder', 'p_assault', 'p_sex_offense', 'p_weapon', 'p_felprop_viol', 'p_felassault', 'p_misdeassult', 'p_traffic',
-                  'p_drug', 'p_dui', 'p_stalking', 'p_voyeurism', 'p_fraud', 'p_stealing', 'p_trespass', 'ADE', 'Treatment', 
-                  'p_incarceration' 'p_fta_two_year', 'fta_two_year_plus', 'p_pending_charge', 'p_probation', 'six_month', 'one_year', 
-                  'three_year', 'five_year', 'current_violence', 'current_pending_charge', 'current_violence20']
+        labels = ['sex', 'age_at_current_charge', 'p_arrest', 'p_charges', 'p_violence', 'p_felony', 'p_incarceration',
+                  'p_misdemeanor', 'p_property','p_murder', 'p_assault', 'p_sex_offense', 'p_weapon', 'p_felprop_viol', 
+                  'p_felassault', 'p_misdeassult', 'p_traffic', 'p_drug', 'p_dui', 'p_stalking', 'p_voyeurism', 'p_fraud', 
+                  'p_stealing', 'p_trespass', 'ADE', 'Treatment', 'p_incarceration' 'p_fta_two_year', 'fta_two_year_plus', 
+                  'p_pending_charge', 'p_probation', 'six_month', 'one_year', 'three_year', 'five_year', 'current_violence', 
+                  'current_pending_charge', 'current_violence20']
     
     for i in labels:
         sub_features = np.array(np.array(features)[[i in k for k in features]])
