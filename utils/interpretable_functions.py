@@ -5,7 +5,13 @@ from utils.model_selection import nested_cross_validate
 from interpret.glassbox import ExplainableBoostingClassifier
 
 
-def EBM(X,Y, learning_rate=None, depth=None,estimators=None, holdout_split=None, seed=None):
+def EBM(X,Y, 
+        learning_rate=None, 
+        depth=None,
+        estimators=None, 
+        holdout_split=None, 
+        seed=None):
+    
     ### model & parameters
     ebm = ExplainableBoostingClassifier(random_state=seed)
     c_grid = {"n_estimators": estimators, 
