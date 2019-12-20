@@ -3,7 +3,7 @@ import pandas as pd
 
 from utils.fairness_functions import compute_confusion_matrix_stats, compute_calibration_fairness, conditional_balance_positive_negative, \
                                      fairness_in_auc, balance_positive_negative
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.metrics import roc_auc_score
 from sklearn.utils import shuffle
 
@@ -152,8 +152,11 @@ def risk_nested_cv(X,
     sample_weights = np.repeat(1, len(Y))
 
     ## set up cross validation
-    outer_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
-    inner_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
+    #outer_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
+    #inner_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
+    
+    outer_cv = StratifiedKFold(n_splits=5, random_state=seed, shuffle=True)
+    inner_cv = StratifiedKFold(n_splits=5, random_state=seed, shuffle=True)
     
     train_auc = []
     validation_auc = []
@@ -443,6 +446,7 @@ def risk_nested_cv_constrain(X,
     ## set up cross validation
     outer_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
     inner_cv = KFold(n_splits=5, random_state=seed, shuffle=True)
+    
     train_auc = []
     validation_auc = []
     test_auc = []
